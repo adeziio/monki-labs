@@ -1,0 +1,66 @@
+{
+    "characters": {
+        "max": {
+            "series": "max_the_monkey",
+            "name": "Max",
+            "role": "Main Character",
+            "species": "Monkey",
+            "importance": "Main",
+            "appearance": {
+                "body": {
+                    "size": "Small",
+                    "shape": "Round and cute",
+                    "fur": "Soft brown fluffy fur"
+                },
+                "face": {
+                    "eyes": "Large expressive eyes",
+                    "expression": "Highly emotional cartoon expressions"
+                },
+                "clothing": [
+                    {
+                        "item": "hoodie",
+                        "color": "Blue"
+                    },
+                    {
+                        "item": "baseball cap",
+                        "color": "Red"
+                    }
+                ]
+            },
+            "personality": {
+                "positive_traits": [
+                    "Curious",
+                    "Playful",
+                    "Optimistic",
+                    "Adventurous"
+                ],
+                "flaws": [
+                    "Mischievous",
+                    "Overconfident",
+                    "Accidentally causes chaos"
+                ]
+            },
+            "behavior_rules": [
+                "Never speaks",
+                "Never uses dialogue",
+                "Communicates through movement",
+                "Uses facial expressions",
+                "Uses physical comedy"
+            ],
+            "story_rules": [
+                "Must appear in every episode",
+                "Must drive the story",
+                "Must create or solve the main problem"
+            ],
+            "visual_consistency": {
+                "locked_features": [
+                    "Brown fur",
+                    "Blue hoodie",
+                    "Red baseball cap",
+                    "Large eyes"
+                ],
+                "reference_folder": "characters/references/max_the_monkey"
+            }
+        }
+    }
+}

@@ -1,0 +1,91 @@
+{
+    "active_series": "max_the_monkey",
+    "series": {
+        "max_the_monkey": {
+            "name": "Max the Monkey Adventures",
+            "playlist_name": "Max the Monkey Adventures",
+            "genre": [
+                "Comedy",
+                "Adventure"
+            ],
+            "target_audience": {
+                "age_group": "Family",
+                "content_rating": "Everyone"
+            },
+            "format": {
+                "platform": "YouTube Shorts",
+                "duration_seconds": {
+                    "minimum": 30,
+                    "maximum": 60
+                },
+                "aspect_ratio": "9:16"
+            },
+            "animation_style": {
+                "style": "3D animated cartoon",
+                "visual_reference": [
+                    "classic cartoon comedy",
+                    "physical comedy",
+                    "expressive animation"
+                ],
+                "rules": [
+                    "bright colors",
+                    "large facial expressions",
+                    "cartoon physics",
+                    "family friendly"
+                ]
+            },
+            "tone": {
+                "primary": [
+                    "funny",
+                    "playful",
+                    "chaotic"
+                ],
+                "avoid": [
+                    "dark themes",
+                    "violence",
+                    "scary content"
+                ]
+            },
+            "world": {
+                "name": "Max Jungle World",
+                "description": "A colorful cartoon jungle filled with playful adventures.",
+                "locations": [
+                    "jungle",
+                    "treehouse",
+                    "river",
+                    "caves",
+                    "hidden areas"
+                ],
+                "world_rules": [
+                    "Cartoon logic applies",
+                    "Characters never speak",
+                    "Problems are solved through creativity"
+                ]
+            },
+            "episode_structure": {
+                "hook": {
+                    "duration_seconds": "0-5",
+                    "goal": "Immediately capture attention"
+                },
+                "setup": {
+                    "duration_seconds": "5-20",
+                    "goal": "Introduce Max's goal"
+                },
+                "escalation": {
+                    "duration_seconds": "20-45",
+                    "goal": "Increase comedy and chaos"
+                },
+                "ending": {
+                    "duration_seconds": "45-60",
+                    "goal": "Funny twist ending"
+                }
+            },
+            "publishing": {
+                "schedule": [
+                    "Monday 18:00",
+                    "Friday 18:00"
+                ]
+            }
+        }
+    }
+}

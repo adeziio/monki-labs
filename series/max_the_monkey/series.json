@@ -1,0 +1,11 @@
+{
+    "series_id": "max_the_monkey",
+    "display_name": "Max the Monkey Adventures",
+    "primary_character": "max",
+    "character_list": [
+        "max"
+    ],
+    "reference_files": {
+        "characters": "config/characters.json"
+    }
+}

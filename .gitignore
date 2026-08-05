@@ -1,0 +1,142 @@
+# ==================================
+# Python
+# ==================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.so
+
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+
+*.egg-info/
+.installed.cfg
+*.egg
+
+
+# ==================================
+# Virtual Environments
+# ==================================
+
+venv/
+env/
+ENV/
+.venv/
+
+
+# ==================================
+# Environment Variables / Secrets
+# ==================================
+
+.env
+.env.*
+!.env.example
+
+
+# ==================================
+# VS Code
+# ==================================
+
+.vscode/
+
+# ==================================
+# Operating System
+# ==================================
+
+.DS_Store
+Thumbs.db
+
+
+# ==================================
+# Logs
+# ==================================
+
+*.log
+logs/
+
+
+# ==================================
+# AI Models
+# ==================================
+
+# Local LLM models
+models/
+
+# Stable Diffusion models
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+*.bin
+
+# HuggingFace cache
+.cache/
+huggingface/
+
+
+# ==================================
+# Generated Media
+# ==================================
+
+media/scenes/*
+media/audio/*
+media/thumbnails/*
+media/output/*
+
+!media/scenes/.gitkeep
+!media/audio/.gitkeep
+!media/thumbnails/.gitkeep
+!media/output/.gitkeep
+
+
+# ==================================
+# Character Generated Assets
+# ==================================
+
+characters/references/*
+
+!characters/references/max_the_monkey/.gitkeep
+
+
+# ==================================
+# Temporary Files
+# ==================================
+
+tmp/
+temp/
+
+*.tmp
+*.bak
+
+
+# ==================================
+# Jupyter
+# ==================================
+
+.ipynb_checkpoints/
+
+
+# ==================================
+# Testing
+# ==================================
+
+.pytest_cache/
+
+.coverage
+htmlcov/
+
+
+# ==================================
+# Local AI Tools
+# ==================================
+
+ComfyUI/
+stable-diffusion-webui/
+ollama/

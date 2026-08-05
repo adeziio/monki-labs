@@ -1,0 +1,15 @@
+{
+    "environment": "local",
+    "free_only": true,
+    "require_paid_api": false,
+    "ai_execution": "local",
+    "default_language": "none",
+    "output": {
+        "format": "mp4",
+        "resolution": {
+            "width": 1080,
+            "height": 1920
+        },
+        "fps": 30
+    }
+}

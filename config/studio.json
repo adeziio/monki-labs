@@ -1,0 +1,19 @@
+{
+    "studio_name": "Monki Labs",
+    "channel_name": "Monki Labs",
+    "description": "AI powered animation studio creating family friendly animated series.",
+    "brand_rules": {
+        "family_friendly": true,
+        "no_dialogue": true,
+        "universal_language": true,
+        "visual_storytelling_only": true
+    },
+    "content_formats": [
+        "youtube_shorts"
+    ],
+    "future_support": [
+        "multiple_series",
+        "multiple_characters",
+        "multiple_animation_styles"
+    ]
+}

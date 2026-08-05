@@ -1,0 +1,27 @@
+{
+    "audio_rules": {
+        "dialogue": {
+            "enabled": false
+        },
+        "voice": {
+            "enabled": false
+        },
+        "music": {
+            "enabled": true,
+            "styles": [
+                "cartoon comedy",
+                "adventure",
+                "suspense"
+            ]
+        },
+        "sound_effects": {
+            "enabled": true,
+            "categories": [
+                "footsteps",
+                "impacts",
+                "cartoon_effects",
+                "environment"
+            ]
+        }
+    }
+}

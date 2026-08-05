@@ -1,0 +1,40 @@
+{
+    "models": {
+        "language_model": {
+            "enabled": true,
+            "provider": "ollama",
+            "model": "llama3",
+            "url": "http://localhost:11434",
+            "purpose": [
+                "story_generation",
+                "storyboard_generation",
+                "metadata_generation"
+            ]
+        },
+        "image_model": {
+            "enabled": true,
+            "provider": "stable_diffusion",
+            "url": "http://127.0.0.1:7860",
+            "purpose": [
+                "character_images",
+                "scene_images",
+                "thumbnail"
+            ]
+        },
+        "animation_model": {
+            "enabled": true,
+            "provider": "animatediff",
+            "purpose": [
+                "scene_animation"
+            ]
+        },
+        "audio_model": {
+            "enabled": true,
+            "provider": "local_audio",
+            "purpose": [
+                "music",
+                "sound_effects"
+            ]
+        }
+    }
+}
