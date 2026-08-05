@@ -1,3 +1,5 @@
+import json
+
 from ai.base_ai_service import BaseAIService
 from ai.providers.ollama_provider import OllamaProvider
 
@@ -19,28 +21,37 @@ class StoryGenerator(BaseAIService):
     def generate(self):
 
 
+        self.log(
+            "Generating episode idea"
+        )
+
+
         prompt = """
 
-Create a silent animated cartoon episode.
+            Create a silent animated cartoon episode.
 
-Rules:
+            Rules:
 
-- No dialogue
-- No narration
-- Main character communicates through actions
-- Family friendly
-- Physical comedy
+            - No dialogue
+            - No narration
+            - Family friendly
+            - Physical comedy only
+            - Main character communicates through actions
+            - Inspired by classic cartoon timing
 
-Create:
+            Return ONLY valid JSON.
 
-1. Hook
-2. Setup
-3. Escalation
-4. Twist ending
+            Format:
 
-Return JSON.
+            {
+                "concept": "",
+                "hook": "",
+                "setup": "",
+                "escalation": "",
+                "ending": ""
+            }
 
-"""
+        """
 
 
         response = self.llm.generate(
@@ -48,4 +59,50 @@ Return JSON.
         )
 
 
-        return response
+        return self.parse_response(
+            response
+        )
+
+
+
+    def parse_response(self, response):
+
+
+        try:
+
+            return json.loads(
+                response
+            )
+
+
+        except json.JSONDecodeError:
+
+
+            self.log(
+                "AI returned invalid JSON. Using fallback."
+            )
+
+
+            return {
+
+
+                "concept":
+                "Max discovers something strange",
+
+
+                "hook":
+                "Max finds a mysterious object",
+
+
+                "setup":
+                "Max tries to understand it",
+
+
+                "escalation":
+                "The situation becomes chaotic",
+
+
+                "ending":
+                "Max discovers a funny surprise"
+
+            }

@@ -2,8 +2,11 @@
     "environment": "local",
     "free_only": true,
     "require_paid_api": false,
-    "ai_execution": "local",
-    "default_language": "none",
+    "execution": {
+        "mode": "hybrid",
+        "preferred_device": "auto",
+        "allow_cpu_fallback": true
+    },
     "output": {
         "format": "mp4",
         "resolution": {

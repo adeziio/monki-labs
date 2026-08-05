@@ -43,7 +43,9 @@ class OllamaProvider:
 
                 "prompt": prompt,
 
-                "stream": False
+                "stream": False,
+
+                "format": "json"
 
             }
 

@@ -1,5 +1,6 @@
 from core.config_loader import ConfigLoader
 from core.logger import Logger
+from core.hardware_detector import HardwareDetector
 
 from characters.character_manager import CharacterManager
 
@@ -18,22 +19,32 @@ class MonkiPipeline:
 
     def __init__(self):
 
-
         self.logger = Logger()
 
 
-        loader = ConfigLoader()
+        # Detect hardware first
+        self.hardware = HardwareDetector().detect()
 
+
+        print(
+            f"Running on device: {self.hardware['device']}"
+        )
+
+
+        # Load configuration
+        loader = ConfigLoader()
 
         self.config = loader.load_all()
 
 
 
+        # Character system
         self.characters = CharacterManager(
             self.config["characters"]
         )
 
 
+        # AI Services
         self.story = StoryGenerator(
             self.config
         )
@@ -71,7 +82,6 @@ class MonkiPipeline:
 
 
     def create_episode(self):
-
 
         self.logger.info(
             "Creating new episode"

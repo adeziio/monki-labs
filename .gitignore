@@ -140,3 +140,21 @@ htmlcov/
 ComfyUI/
 stable-diffusion-webui/
 ollama/
+
+
+# AI Runtime Files
+
+models/*
+!models/.gitkeep
+
+
+# CUDA cache
+
+*.triton
+*.cuda
+
+
+# Generated checkpoints
+
+checkpoints/
+weights/
