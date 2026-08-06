@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 
 echo ==========================================
@@ -47,6 +47,12 @@ echo Upgrading pip...
 
 python -m pip install --upgrade pip
 
+if %errorlevel% neq 0 (
+    echo Failed upgrading pip.
+    pause
+    exit /b 1
+)
+
 
 echo.
 echo Checking NVIDIA GPU...
@@ -61,7 +67,7 @@ if %errorlevel% equ 0 (
 
     echo Installing CUDA PyTorch...
 
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+    pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 
 ) else (
@@ -70,15 +76,29 @@ if %errorlevel% equ 0 (
 
     echo Installing CPU PyTorch...
 
-    pip install torch torchvision torchaudio
+    pip install --upgrade torch torchvision torchaudio
 
+)
+
+
+if %errorlevel% neq 0 (
+    echo Failed installing PyTorch.
+    pause
+    exit /b 1
 )
 
 
 echo.
 echo Installing Monki Labs dependencies...
 
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
+
+
+if %errorlevel% neq 0 (
+    echo Failed installing dependencies.
+    pause
+    exit /b 1
+)
 
 
 echo.
@@ -115,6 +135,7 @@ echo.
 echo ==========================================
 echo       Monki Labs Installation Complete
 echo ==========================================
+
 
 echo.
 echo Run:
