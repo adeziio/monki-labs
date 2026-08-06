@@ -1,42 +1,16 @@
 {
-    "concept": "A clumsy but lovable raccoon named Rocky tries to steal food from a campsite, but his antics cause chaos and hilarity.",
-    "hook": "Rocky's eyes light up at the sight of a picnic basket",
+    "concept": "A clumsy but lovable rabbit tries to help his best friend, a clever cat, get out of trouble with a series of misadventures.",
+    "hook": "The episode opens with the rabbit and cat hanging out in their backyard, enjoying the sunshine and each other's company. But when they stumble upon a lost treasure map, things start to go awry.",
     "setup": {
-        "shot1": {
-            "type": "long shot",
-            "description": "Rocky sniffs around the campsite, finding nothing but trash"
-        },
-        "shot2": {
-            "type": "medium shot",
-            "description": "Rocky spots the picnic basket and his eyes widen with excitement"
-        },
-        "shot3": {
-            "type": "close-up",
-            "description": "Rocky's paws grasp for the basket"
-        }
+        "Scene 1:": "The rabbit and cat find the treasure map buried in the garden. The rabbit gets excited and starts digging to find the treasure, while the cat tries to calm him down.",
+        "Scene 2:": "As they search for the treasure, they accidentally dig up a neighbor's prized rose bush, causing chaos and confusion."
     },
     "escalation": {
-        "shot4": {
-            "type": "quick cuts",
-            "description": "Rocky tries to open the basket, but it's too tightly sealed"
-        },
-        "shot5": {
-            "type": "slow motion",
-            "description": "Rocky uses his paws to try and pry the lid open, with comical results"
-        },
-        "shot6": {
-            "type": "action shot",
-            "description": "Rocky grabs a nearby stick and starts poking at the basket, causing it to roll away"
-        }
+        "Scene 3:": "The rabbit gets stuck in a tree while trying to retrieve a falling leaf. The cat tries to help him down, but ends up getting tangled in the branches as well.",
+        "Scene 4:": "The neighbors, upset by the destruction of their rose bush, start chasing the rabbit and cat around the backyard, leading to a series of physical comedy mishaps."
     },
     "ending": {
-        "shot7": {
-            "type": "reaction shot",
-            "description": "Rocky's face falls as he realizes his plans have backfired"
-        },
-        "shot8": {
-            "type": "comedy payoff",
-            "description": "The campers return, laughing at the chaos Rocky has caused"
-        }
+        "Scene 5:": "In the chaos, the treasure map gets blown away, leaving the rabbit and cat to realize they were just searching for trouble. They apologize to their neighbors and work together to fix the rose bush, earning their forgiveness.",
+        "Scene 6:": "The episode ends with the rabbit and cat laughing and playing in the backyard, wiser but still getting into mischief."
     }
 }

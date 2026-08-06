@@ -12,16 +12,18 @@
                 "cartoon comedy",
                 "adventure",
                 "suspense"
-            ]
+            ],
+            "directory": "assets/audio/music"
         },
         "sound_effects": {
-            "enabled": true,
+            "enabled": false,
             "categories": [
                 "footsteps",
                 "impacts",
                 "cartoon_effects",
                 "environment"
-            ]
+            ],
+            "directory": "assets/audio/effects"
         }
     }
 }
