@@ -32,7 +32,28 @@
                     "large facial expressions",
                     "cartoon physics",
                     "family friendly"
-                ]
+                ],
+                "image_generation": {
+                    "style_prompt": [
+                        "3D animated cartoon",
+                        "high quality animation frame",
+                        "cinematic lighting",
+                        "expressive pose",
+                        "vibrant colors",
+                        "Pixar-inspired quality",
+                        "family friendly"
+                    ],
+                    "negative_prompt": [
+                        "realistic",
+                        "photograph",
+                        "low quality",
+                        "blurry",
+                        "deformed",
+                        "extra limbs",
+                        "text",
+                        "watermark"
+                    ]
+                }
             },
             "tone": {
                 "primary": [

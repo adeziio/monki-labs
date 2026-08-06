@@ -65,6 +65,7 @@ class StableDiffusionProvider:
     def generate(
         self,
         prompt,
+        negative_prompt,
         filename,
         output_directory
     ):
@@ -72,7 +73,8 @@ class StableDiffusionProvider:
 
         image = (
             self.pipeline(
-                prompt
+                prompt=prompt,
+                negative_prompt=negative_prompt
             )
             .images[0]
         )

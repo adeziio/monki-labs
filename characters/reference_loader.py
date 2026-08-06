@@ -87,43 +87,12 @@ class CharacterReferenceLoader:
 
 
         return f"""
-
-            Character Identity:
-
-            Name:
-            {character['name']}
-
-
-            Species:
-            {character['identity']['species']}
-
-
-            Appearance:
-
-            {visual['body']['fur']}
-
-            {visual['body']['shape']}
-
-
-            Face:
-
-            {visual['face']['eyes']}
-
-
-            Clothing:
-
-            {clothing_text}
-
-
-            Personality:
-
-            {", ".join(character['animation_rules']['personality'])}
-
-
-            Style:
-
-            3D animated cartoon.
-            Family friendly.
-            Expressive comedy character.
-
+            {character['name']} the {character['identity']['species']},
+            cute small cartoon character,
+            {visual['body']['fur']},
+            {visual['body']['shape']},
+            {visual['face']['eyes']},
+            wearing {clothing_text},
+            3D animated cartoon style,
+            family friendly.
         """

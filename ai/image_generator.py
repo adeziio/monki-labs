@@ -4,7 +4,6 @@ from ai.providers.stable_diffusion_provider import StableDiffusionProvider
 from characters.reference_loader import CharacterReferenceLoader
 
 
-
 class ImageGenerator(BaseAIService):
 
 
@@ -25,6 +24,44 @@ class ImageGenerator(BaseAIService):
                 config
             )
         )
+
+
+        active_series = (
+            config["series"]["active_series"]
+        )
+
+
+        series_config = (
+            config["series"]["series"][active_series]
+        )
+
+
+        image_generation_config = (
+            series_config["animation_style"]["image_generation"]
+        )
+
+
+        self.style_prompt = ", ".join(
+            image_generation_config["style_prompt"]
+        )
+
+
+        self.negative_prompt = ", ".join(
+            image_generation_config["negative_prompt"]
+        )
+
+
+    def shorten_prompt(self, prompt, max_words=45):
+
+        words = prompt.split()
+
+        if len(words) > max_words:
+
+            return " ".join(
+                words[:max_words]
+            )
+
+        return prompt
 
 
 
@@ -63,7 +100,7 @@ class ImageGenerator(BaseAIService):
 
                 +
 
-                "\nScene:\n"
+                " Scene: "
 
                 +
 
@@ -71,6 +108,19 @@ class ImageGenerator(BaseAIService):
                     scene["description"]
                 )
 
+                +
+
+                ". "
+
+                +
+
+                self.style_prompt
+
+            )
+
+
+            prompt = self.shorten_prompt(
+                prompt
             )
 
 
@@ -82,6 +132,7 @@ class ImageGenerator(BaseAIService):
             image_path = (
                 self.image_provider.generate(
                     prompt,
+                    self.negative_prompt,
                     filename,
                     episode.get_path() / "scenes"
                 )
