@@ -6,6 +6,7 @@ class HardwareDetector:
 
     def detect(self):
 
+
         hardware = {
 
             "os":
@@ -14,7 +15,19 @@ class HardwareDetector:
             "device":
             "cpu",
 
+            "accelerator":
+            "cpu",
+
             "gpu_available":
+            False,
+
+            "gpu_name":
+            None,
+
+            "torch_dtype":
+            "float32",
+
+            "supports_bfloat16":
             False
 
         }
@@ -27,20 +40,76 @@ class HardwareDetector:
 
             if torch.cuda.is_available():
 
-                hardware["device"] = "cuda"
+                index = (
+                    torch.cuda.current_device()
+                )
 
-                hardware["gpu_available"] = True
+
+                hardware.update(
+
+                    {
+
+                        "device":
+                        "cuda",
+
+                        "accelerator":
+                        "nvidia",
+
+                        "gpu_available":
+                        True,
+
+                        "gpu_name":
+                        torch.cuda.get_device_name(
+                            index
+                        ),
+
+                        "torch_dtype":
+                        "float16",
+
+                        "supports_bfloat16":
+                        torch.cuda.is_bf16_supported()
+
+                    }
+
+                )
 
 
             elif (
-                hasattr(torch.backends, "mps")
+
+                hasattr(
+                    torch.backends,
+                    "mps"
+                )
+
                 and
+
                 torch.backends.mps.is_available()
+
             ):
 
-                hardware["device"] = "mps"
 
-                hardware["gpu_available"] = True
+                hardware.update(
+
+                    {
+
+                        "device":
+                        "mps",
+
+                        "accelerator":
+                        "apple",
+
+                        "gpu_available":
+                        True,
+
+                        "gpu_name":
+                        "Apple Silicon GPU",
+
+                        "torch_dtype":
+                        "float16"
+
+                    }
+
+                )
 
 
         except Exception:

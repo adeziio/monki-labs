@@ -9,10 +9,33 @@ from diffusers import StableDiffusionPipeline
 class StableDiffusionProvider:
 
 
-    def __init__(self, config, device="cpu"):
+    def __init__(self, config):
 
 
-        self.device = device
+        hardware = (
+            config["hardware"]
+        )
+
+
+        self.device = (
+            hardware["device"]
+        )
+
+
+        torch_dtype = (
+
+            torch.float16
+
+            if
+
+            hardware["torch_dtype"]
+            == "float16"
+
+            else
+
+            torch.float32
+
+        )
 
 
         image_config = (
@@ -48,16 +71,13 @@ class StableDiffusionProvider:
             StableDiffusionPipeline
             .from_pretrained(
                 model_name,
-                torch_dtype=
-                torch.float16
-                if device == "cuda"
-                else torch.float32
+                torch_dtype=torch_dtype
             )
         )
 
 
         self.pipeline.to(
-            device
+            self.device
         )
 
 

@@ -3,22 +3,22 @@
         {
             "scene": 1,
             "purpose": "Hook",
-            "description": "The episode opens with the rabbit and cat hanging out in their backyard, enjoying the sunshine and each other's company. But when they stumble upon a lost treasure map, things start to go awry."
+            "description": "The episode opens with Benny waking up late and rushing around his messy burrow to get dressed"
         },
         {
             "scene": 2,
             "purpose": "Setup",
-            "description": "{'Scene 1:': 'The rabbit and cat find the treasure map buried in the garden. The rabbit gets excited and starts digging to find the treasure, while the cat tries to calm him down.', 'Scene 2:': \"As they search for the treasure, they accidentally dig up a neighbor's prized rose bush, causing chaos and confusion.\"}"
+            "description": "Benny tries to put on his favorite bow tie, but it keeps slipping off. He attempts to grab some breakfast, but spills eggs all over the place. As he's trying to clean up the mess, he knocks over a lamp, causing a chain reaction of events that lead to chaos."
         },
         {
             "scene": 3,
             "purpose": "Escalation",
-            "description": "{'Scene 3:': 'The rabbit gets stuck in a tree while trying to retrieve a falling leaf. The cat tries to help him down, but ends up getting tangled in the branches as well.', 'Scene 4:': 'The neighbors, upset by the destruction of their rose bush, start chasing the rabbit and cat around the backyard, leading to a series of physical comedy mishaps.'}"
+            "description": "Benny becomes more and more flustered as things continue to go awry. He tries to fix his hair, but ends up with a ridiculous hairstyle. He attempts to get dressed in his suit, but it gets caught on the door handle and he has to wrestle free. As he's leaving for the party, he trips on his own feet and face-plants into a nearby trash can."
         },
         {
             "scene": 4,
             "purpose": "Ending",
-            "description": "{'Scene 5:': 'In the chaos, the treasure map gets blown away, leaving the rabbit and cat to realize they were just searching for trouble. They apologize to their neighbors and work together to fix the rose bush, earning their forgiveness.', 'Scene 6:': 'The episode ends with the rabbit and cat laughing and playing in the backyard, wiser but still getting into mischief.'}"
+            "description": "Just as Benny is about to give up, he looks in the mirror and sees himself covered in egg yolk and lamp cord. He bursts out laughing at the absurdity of it all and decides to just show up to the party looking like that. The other partygoers are initially taken aback, but soon everyone is laughing along with Benny's infectious joy."
         }
     ]
 }

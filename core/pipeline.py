@@ -37,6 +37,7 @@ class MonkiPipeline:
 
         self.config = loader.load_all()
 
+        self.config["hardware"] = self.hardware
 
 
         # Character system
