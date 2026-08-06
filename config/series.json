@@ -101,6 +101,27 @@
                     "goal": "Funny twist ending"
                 }
             },
+            "audio": {
+                "music": {
+                    "allowed_tracks": [
+                        "adventure.mp3",
+                        "comedy.mp3",
+                        "suspense.mp3"
+                    ],
+                    "default_track": "adventure.mp3",
+                    "mood_mapping": {
+                        "funny": [
+                            "comedy.mp3"
+                        ],
+                        "adventure": [
+                            "adventure.mp3"
+                        ],
+                        "chaotic": [
+                            "suspense.mp3"
+                        ]
+                    }
+                }
+            },
             "publishing": {
                 "schedule": [
                     "Monday 18:00",

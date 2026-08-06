@@ -19,6 +19,16 @@ class AudioGenerator(BaseAIService):
         )
 
 
+        self.series = (
+            config["series"]
+            ["series"]
+            [
+                config["series"]
+                ["active_series"]
+            ]
+        )
+
+
         self.music_directory = Path(
             self.audio_rules["music"]["directory"]
         )
@@ -39,20 +49,75 @@ class AudioGenerator(BaseAIService):
         if self.audio_rules["music"]["enabled"]:
 
 
-            music_files = list(
-                self.music_directory.glob(
-                    "*.mp3"
-                )
+            music_config = (
+                self.series
+                .get("audio", {})
+                .get("music", {})
             )
 
 
-            if music_files:
+            allowed_tracks = (
+                music_config
+                .get("allowed_tracks", [])
+            )
+
+
+            available_tracks = []
+
+
+            for track in allowed_tracks:
+
+
+                track_path = (
+                    self.music_directory
+                    /
+                    track
+                )
+
+
+                if track_path.exists():
+
+                    available_tracks.append(
+                        track_path
+                    )
+
+
+            if available_tracks:
+
 
                 music_file = str(
                     random.choice(
-                        music_files
+                        available_tracks
                     )
                 )
+
+
+            else:
+
+
+                default_track = (
+                    music_config
+                    .get("default_track")
+                )
+
+
+                if default_track:
+
+
+                    default_path = (
+                        self.music_directory
+                        /
+                        default_track
+                    )
+
+
+                    if default_path.exists():
+
+                        music_file = str(
+                            default_path
+                        )
+
+
 
             print(
                 f"Selected music: {music_file}"
@@ -62,24 +127,19 @@ class AudioGenerator(BaseAIService):
 
         return {
 
-
             "music":
-
             music_file,
 
 
             "sound_effects":
-
             [],
 
 
             "dialogue":
-
             False,
 
 
             "voice":
-
             False
 
         }
