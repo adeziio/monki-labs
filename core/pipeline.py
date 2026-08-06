@@ -130,7 +130,8 @@ class MonkiPipeline:
 
 
         animations = self.animation.generate(
-            scenes
+            scenes,
+            episode
         )
 
 

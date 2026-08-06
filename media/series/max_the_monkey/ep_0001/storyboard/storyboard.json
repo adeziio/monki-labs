@@ -3,22 +3,22 @@
         {
             "scene": 1,
             "purpose": "Hook",
-            "description": "The episode opens with our hero, a lovable but hapless rabbit named Benny, standing in front of a messy kitchen."
+            "description": "Rocky's eyes light up at the sight of a picnic basket"
         },
         {
             "scene": 2,
             "purpose": "Setup",
-            "description": "Benny starts by trying to crack an egg into a bowl, but it slips from his grasp and splatters all over the counter. He then tries to make toast, but ends up setting off the toaster's alarm instead."
+            "description": "{'shot1': {'type': 'long shot', 'description': 'Rocky sniffs around the campsite, finding nothing but trash'}, 'shot2': {'type': 'medium shot', 'description': 'Rocky spots the picnic basket and his eyes widen with excitement'}, 'shot3': {'type': 'close-up', 'description': \"Rocky's paws grasp for the basket\"}}"
         },
         {
             "scene": 3,
             "purpose": "Escalation",
-            "description": "As Benny continues to try and cook, things get progressively more out of control. He knocks over a jar of flour, covers himself in a mess of sticky honey, and even gets his head stuck in a cheese grater."
+            "description": "{'shot4': {'type': 'quick cuts', 'description': \"Rocky tries to open the basket, but it's too tightly sealed\"}, 'shot5': {'type': 'slow motion', 'description': 'Rocky uses his paws to try and pry the lid open, with comical results'}, 'shot6': {'type': 'action shot', 'description': 'Rocky grabs a nearby stick and starts poking at the basket, causing it to roll away'}}"
         },
         {
             "scene": 4,
             "purpose": "Ending",
-            "description": "In the end, Benny's kitchen is a disaster zone, but he's still determined to make breakfast. He takes one last stab at it, resulting in a giant mess that involves everything from eggs to pancakes to bacon. The episode ends with Benny standing amidst the chaos, looking sheepish and adorable"
+            "description": "{'shot7': {'type': 'reaction shot', 'description': \"Rocky's face falls as he realizes his plans have backfired\"}, 'shot8': {'type': 'comedy payoff', 'description': 'The campers return, laughing at the chaos Rocky has caused'}}"
         }
     ]
 }
