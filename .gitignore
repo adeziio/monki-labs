@@ -97,12 +97,25 @@ media/output/*
 
 
 # ==================================
-# Character Generated Assets
+# Character Assets
 # ==================================
 
-characters/references/*
+# Ignore generated character assets
 
-!characters/references/max_the_monkey/.gitkeep
+characters/references/*/expressions/*
+characters/references/*/poses/*
+
+
+# Keep character definition files
+
+!characters/references/**/character.json
+
+
+# Keep official reference images
+
+!characters/references/**/*.png
+!characters/references/**/*.jpg
+!characters/references/**/*.jpeg
 
 
 # ==================================

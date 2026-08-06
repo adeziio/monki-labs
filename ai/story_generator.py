@@ -67,12 +67,40 @@ class StoryGenerator(BaseAIService):
 
     def parse_response(self, response):
 
+        required_fields = {
+
+            "concept":
+            "Max discovers something strange",
+
+            "hook":
+            "Max finds something unexpected",
+
+            "setup":
+            "Max investigates the situation",
+
+            "escalation":
+            "The situation becomes chaotic",
+
+            "ending":
+            "A funny surprise happens"
+
+        }
+
 
         try:
 
-            return json.loads(
-                response
-            )
+            data = json.loads(response)
+
+
+            for key, fallback in required_fields.items():
+
+                if key not in data or not data[key]:
+
+                    data[key] = fallback
+
+
+            return data
+
 
 
         except json.JSONDecodeError:
@@ -83,26 +111,4 @@ class StoryGenerator(BaseAIService):
             )
 
 
-            return {
-
-
-                "concept":
-                "Max discovers something strange",
-
-
-                "hook":
-                "Max finds a mysterious object",
-
-
-                "setup":
-                "Max tries to understand it",
-
-
-                "escalation":
-                "The situation becomes chaotic",
-
-
-                "ending":
-                "Max discovers a funny surprise"
-
-            }
+            return required_fields
