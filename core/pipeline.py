@@ -11,6 +11,7 @@ from ai.animation_generator import AnimationGenerator
 from ai.audio_generator import AudioGenerator
 from ai.thumbnail_generator import ThumbnailGenerator
 from ai.video_builder import VideoBuilder
+from core.episode_manager import EpisodeManager
 
 
 
@@ -87,8 +88,27 @@ class MonkiPipeline:
             "Creating new episode"
         )
 
+        episode = EpisodeManager(
+            "max_the_monkey"
+        )
+
+
+        episode_path = episode.get_path()
+
+
+        print(
+            f"Episode workspace: {episode_path}"
+        )
+
 
         story = self.story.generate()
+
+
+        episode.save_json(
+            "story",
+            "story.json",
+            story
+        )
 
 
         storyboard = self.storyboard.generate(
@@ -96,8 +116,16 @@ class MonkiPipeline:
         )
 
 
-        scenes = self.images.generate(
+        episode.save_json(
+            "storyboard",
+            "storyboard.json",
             storyboard
+        )
+
+
+        scenes = self.images.generate(
+            storyboard,
+            episode
         )
 
 

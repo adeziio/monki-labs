@@ -12,13 +12,9 @@
         },
         "image_model": {
             "enabled": true,
-            "provider": "stable_diffusion",
-            "device": "auto",
-            "optimization": [
-                "cuda",
-                "mps",
-                "cpu"
-            ]
+            "provider": "diffusers",
+            "model": "runwayml/stable-diffusion-v1-5",
+            "output_directory": "media/scenes"
         },
         "animation_model": {
             "enabled": true,

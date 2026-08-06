@@ -171,3 +171,15 @@ models/*
 
 checkpoints/
 weights/
+
+
+# ==================================
+# AI Models
+# ==================================
+
+models/
+
+*.ckpt
+*.safetensors
+*.pth
+*.pt

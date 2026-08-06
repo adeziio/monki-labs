@@ -1,4 +1,6 @@
 from ai.base_ai_service import BaseAIService
+from ai.providers.stable_diffusion_provider import StableDiffusionProvider
+
 from characters.reference_loader import CharacterReferenceLoader
 
 
@@ -18,12 +20,19 @@ class ImageGenerator(BaseAIService):
         )
 
 
+        self.image_provider = (
+            StableDiffusionProvider(
+                config
+            )
+        )
 
-    def generate(self, storyboard):
+
+
+    def generate(self, storyboard, episode):
 
 
         self.log(
-            "Generating scene prompts"
+            "Generating scene images"
         )
 
 
@@ -38,50 +47,63 @@ class ImageGenerator(BaseAIService):
             .get_reference_images()
         )
 
-        print(
-            "Character references:",
-            reference_images
-        )
+
+        generated_scenes = []
 
 
-        scenes = []
+        for index, scene in enumerate(
+            storyboard["scenes"],
+            start=1
+        ):
 
 
-        for scene in storyboard["scenes"]:
+            prompt = (
+
+                character_prompt
+
+                +
+
+                "\nScene:\n"
+
+                +
+
+                str(
+                    scene["description"]
+                )
+
+            )
 
 
-            scenes.append(
+            filename = (
+                f"scene_{index:03}.png"
+            )
+
+
+            image_path = (
+                self.image_provider.generate(
+                    prompt,
+                    filename,
+                    episode.get_path() / "scenes"
+                )
+            )
+
+
+            generated_scenes.append(
 
                 {
 
-
                     "scene":
+                    index,
 
-                    scene["scene"],
-
-
-                    "prompt":
-
-                    character_prompt
-                    +
-                    "\nScene:\n"
-                    +
-                    str(scene["description"]),
-
+                    "image":
+                    image_path,
 
                     "reference_images":
-
-                    reference_images,
-
-
-                    "reference_required":
-
-                    True
-
+                    reference_images
 
                 }
 
             )
 
 
-        return scenes
+        return generated_scenes

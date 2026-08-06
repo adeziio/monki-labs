@@ -40,25 +40,32 @@ pydub
 
 
 # ==================================
-# AI / ML Utilities
+# Local AI - LLM
 # ==================================
 
-torch
-torchvision
-torchaudio
+# Ollama communication
+requests
 
 
 # ==================================
-# HuggingFace Local Models
+# Local AI - Image Generation
 # ==================================
 
+diffusers
 transformers
 accelerate
 safetensors
 
 
 # ==================================
-# Development
+# Machine Learning Runtime
+# ==================================
+
+torch
+
+
+# ==================================
+# Development Tools
 # ==================================
 
 pytest
