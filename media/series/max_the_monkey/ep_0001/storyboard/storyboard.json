@@ -1,0 +1,24 @@
+{
+    "scenes": [
+        {
+            "scene": 1,
+            "purpose": "Hook",
+            "description": "Max's banana craving is suddenly interrupted by an empty fruit bowl, sparking his quest for more."
+        },
+        {
+            "scene": 2,
+            "purpose": "Setup",
+            "description": "Max explores the jungle, trying different fruits but finding they're not as tasty as bananas."
+        },
+        {
+            "scene": 3,
+            "purpose": "Escalation",
+            "description": "His search becomes a chaotic scavenger hunt, with Max getting tangled in vines and knocking over trees."
+        },
+        {
+            "scene": 4,
+            "purpose": "Ending",
+            "description": "A funny surprise happens."
+        }
+    ]
+}

@@ -77,18 +77,37 @@ class ImageGenerator(BaseAIService):
 
             scene_prompt = (
 
-                f"maxmonkey, "
+                "maxmonkey, "
+
+                "Max the monkey character, "
+
+                "cute cartoon monkey, "
+
+                "blue hoodie, "
+
+                "red baseball cap, "
+
+                "consistent character design, "
+
+                "same face, "
+
+                "same fur pattern, "
+
+                "same clothing, "
+
+                "full body character, "
 
                 f"{scene['description']}. "
 
                 f"{self.style_prompt}. "
 
-                "full body character, "
-                "animated movie frame, "
-                "consistent character design, "
-                "cute cartoon monkey, "
-                "blue hoodie, "
-                "red baseball cap"
+                "3D animated movie frame, "
+
+                "cinematic lighting, "
+
+                "expressive pose, "
+
+                "family friendly."
 
             )
 
