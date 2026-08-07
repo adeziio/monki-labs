@@ -38,15 +38,18 @@ imageio-ffmpeg
 
 pydub
 
-
 # ==================================
-# Local AI - Image Generation
+# Local AI - Image and Video Generation
 # ==================================
 
 diffusers
 transformers
 accelerate
 safetensors
+sentencepiece
+protobuf
+einops
+ftfy
 
 
 # ==================================

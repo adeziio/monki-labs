@@ -1,7 +1,70 @@
 {
-    "concept": "A clumsy but lovable inventor tries to create the perfect sandwich",
-    "hook": "The main character, a bespectacled man with a wild hairdo, bursts into his kitchen wearing a mismatched apron and holding a plethora of ingredients",
-    "setup": "He begins by attempting to butter a slice of bread, but ends up covering himself in butter instead. He then tries to assemble the sandwich, but keeps dropping ingredients or getting them stuck together",
-    "escalation": "As he becomes more frustrated, the kitchen becomes increasingly chaotic: utensils fly out of drawers, pots and pans clatter to the floor, and the main character's hair gets tangled in the toaster cord",
-    "ending": "Just as all hope seems lost, the main character stumbles upon the perfect sandwich \u2013 a beautiful, perfectly constructed monstrosity made from a dozen different ingredients. He proudly holds it up, only to have it slip out of his hands and disintegrate on the floor"
+    "concept": "Max's Lost Treasure",
+    "hook": "Max discovers a treasure map in his backyard, leading him on a wild adventure to find the treasure before his rival, Mr. Squirrel.",
+    "setup": {
+        "scene1": [
+            {
+                "frame": 0,
+                "image": "Max finding the treasure map"
+            },
+            {
+                "frame": 5,
+                "action": "Max excitedly holds up the map and looks around"
+            }
+        ],
+        "scene2": [
+            {
+                "frame": 10,
+                "image": "Max putting on his red baseball cap and blue hoodie"
+            },
+            {
+                "frame": 15,
+                "action": "Max looking at the map with a determined expression"
+            }
+        ]
+    },
+    "escalation": {
+        "scene1": [
+            {
+                "frame": 20,
+                "image": "Max climbing up a tree"
+            },
+            {
+                "frame": 25,
+                "action": "Max slipping and falling into a bush"
+            }
+        ],
+        "scene2": [
+            {
+                "frame": 30,
+                "image": "Max crawling through a tunnel made of branches"
+            },
+            {
+                "frame": 35,
+                "action": "Max getting stuck in the tunnel and struggling to get out"
+            }
+        ]
+    },
+    "ending": {
+        "scene1": [
+            {
+                "frame": 40,
+                "image": "Max finally finding the treasure chest"
+            },
+            {
+                "frame": 45,
+                "action": "Max excitedly opening the chest and revealing a pile of acorns"
+            }
+        ],
+        "scene2": [
+            {
+                "frame": 50,
+                "image": "Mr. Squirrel appearing with a disappointed expression"
+            },
+            {
+                "frame": 55,
+                "action": "Max triumphantly holding up the treasure, and Mr. Squirrel walking away dejectedly"
+            }
+        ]
+    }
 }

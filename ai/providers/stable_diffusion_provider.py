@@ -5,11 +5,13 @@ import torch
 from diffusers import StableDiffusionPipeline
 
 
-
 class StableDiffusionProvider:
 
 
-    def __init__(self, config):
+    def __init__(
+        self,
+        config
+    ):
 
 
         hardware = (
@@ -81,6 +83,51 @@ class StableDiffusionProvider:
         )
 
 
+    def trim_prompt(
+        self,
+        prompt,
+        max_tokens=70
+    ):
+
+        tokenizer = (
+            self.pipeline.tokenizer
+        )
+
+
+        encoded = tokenizer(
+            prompt,
+            truncation=True,
+            max_length=max_tokens,
+            return_tensors="pt"
+        )
+
+
+        trimmed_prompt = (
+            tokenizer.decode(
+                encoded.input_ids[0],
+                skip_special_tokens=True
+            )
+        )
+
+
+        if trimmed_prompt != prompt:
+
+            print(
+                "[Stable Diffusion] Prompt trimmed"
+            )
+
+            print(
+                f"Original length: {len(prompt)} characters"
+            )
+
+            print(
+                f"Final length: {len(trimmed_prompt)} characters"
+            )
+
+
+        return trimmed_prompt
+
+
 
     def generate(
         self,
@@ -89,6 +136,16 @@ class StableDiffusionProvider:
         filename,
         output_directory
     ):
+
+
+        prompt = self.trim_prompt(
+            prompt
+        )
+
+
+        negative_prompt = self.trim_prompt(
+            negative_prompt
+        )
 
 
         image = (

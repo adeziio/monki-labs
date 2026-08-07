@@ -18,8 +18,11 @@
         },
         "animation_model": {
             "enabled": true,
-            "provider": "animatediff",
-            "device": "auto"
+            "provider": "wan_video",
+            "model": "Wan-AI/Wan2.1-I2V-14B-720P-Diffusers",
+            "device": "auto",
+            "frames": 17,
+            "fps": 8
         },
         "audio_model": {
             "enabled": true,

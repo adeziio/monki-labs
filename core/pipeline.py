@@ -46,6 +46,9 @@ class MonkiPipeline:
         )
 
 
+        self.config["character_manager"] = self.characters
+
+
         # AI Services
         self.story = StoryGenerator(
             self.config

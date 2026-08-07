@@ -1,8 +1,6 @@
 from ai.base_ai_service import BaseAIService
 from ai.providers.stable_diffusion_provider import StableDiffusionProvider
 
-from characters.reference_loader import CharacterReferenceLoader
-
 
 class ImageGenerator(BaseAIService):
 
@@ -12,10 +10,8 @@ class ImageGenerator(BaseAIService):
         super().__init__(config)
 
 
-        self.character_loader = (
-            CharacterReferenceLoader(
-                "characters/references/max_the_monkey"
-            )
+        self.character_manager = (
+            config["character_manager"]
         )
 
 
@@ -26,46 +22,71 @@ class ImageGenerator(BaseAIService):
         )
 
 
-        active_series = (
+        self.active_series = (
             config["series"]["active_series"]
         )
 
 
         series_config = (
-            config["series"]["series"][active_series]
+            config["series"]["series"]
+            [self.active_series]
         )
 
 
-        image_generation_config = (
-            series_config["animation_style"]["image_generation"]
+        image_generation = (
+            series_config
+            ["animation_style"]
+            ["image_generation"]
         )
 
 
         self.style_prompt = ", ".join(
-            image_generation_config["style_prompt"]
+
+            image_generation[
+                "style_prompt"
+            ]
+
         )
 
 
         self.negative_prompt = ", ".join(
-            image_generation_config["negative_prompt"]
+
+            image_generation[
+                "negative_prompt"
+            ]
+
         )
 
 
-    def shorten_prompt(self, prompt, max_words=45):
+
+    def shorten_prompt(
+        self,
+        prompt,
+        max_words=70
+    ):
+
 
         words = prompt.split()
 
-        if len(words) > max_words:
 
-            return " ".join(
-                words[:max_words]
-            )
+        if len(words) <= max_words:
 
-        return prompt
+            return prompt
 
 
+        return " ".join(
 
-    def generate(self, storyboard, episode):
+            words[:max_words]
+
+        )
+
+
+
+    def generate(
+        self,
+        storyboard,
+        episode
+    ):
 
 
         self.log(
@@ -73,15 +94,23 @@ class ImageGenerator(BaseAIService):
         )
 
 
-        character_prompt = (
-            self.character_loader
-            .build_prompt()
+        character = (
+
+            self.character_manager
+            .get_main_character(
+                self.active_series
+            )
+
         )
 
 
-        reference_images = (
-            self.character_loader
-            .get_reference_images()
+        character_prompt = (
+
+            self.character_manager
+            .build_visual_prompt(
+                character
+            )
+
         )
 
 
@@ -89,39 +118,57 @@ class ImageGenerator(BaseAIService):
 
 
         for index, scene in enumerate(
+
             storyboard["scenes"],
             start=1
+
         ):
 
 
-            prompt = (
+            scene_prompt = (
 
-                character_prompt
+                f"{character_prompt}. "
 
-                +
+                f"{scene['description']}. "
 
-                " Scene: "
+                f"{self.style_prompt}. "
 
-                +
+                "Full body character, "
+                "centered composition, "
+                "character completely visible."
 
-                str(
-                    scene["description"]
+            )
+
+
+            scene_prompt = (
+
+                self.shorten_prompt(
+                    scene_prompt
                 )
 
-                +
-
-                ". "
-
-                +
-
-                self.style_prompt
-
             )
 
 
-            prompt = self.shorten_prompt(
-                prompt
+            print(
+                "\n=============================="
             )
+
+            print(
+                "IMAGE GENERATION PROMPT"
+            )
+
+            print(
+                "=============================="
+            )
+
+            print(
+                scene_prompt
+            )
+
+            print(
+                "==============================\n"
+            )
+
 
 
             filename = (
@@ -130,12 +177,21 @@ class ImageGenerator(BaseAIService):
 
 
             image_path = (
+
                 self.image_provider.generate(
-                    prompt,
+
+                    scene_prompt,
+
                     self.negative_prompt,
+
                     filename,
-                    episode.get_path() / "scenes"
+
+                    episode.get_path()
+                    /
+                    "scenes"
+
                 )
+
             )
 
 
@@ -147,10 +203,7 @@ class ImageGenerator(BaseAIService):
                     index,
 
                     "image":
-                    image_path,
-
-                    "reference_images":
-                    reference_images
+                    image_path
 
                 }
 

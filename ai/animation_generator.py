@@ -1,12 +1,39 @@
-from ai.base_ai_service import BaseAIService
-
 from pathlib import Path
 
-from moviepy import ImageClip
+from ai.base_ai_service import BaseAIService
+
+from ai.providers.animation_provider import AnimationProvider
+
+
 
 
 
 class AnimationGenerator(BaseAIService):
+
+
+    def __init__(
+        self,
+        config
+    ):
+
+
+        super().__init__(
+            config
+        )
+
+
+        device = (
+            config["hardware"]["device"]
+        )
+
+
+        self.provider = (
+            AnimationProvider(
+                config,
+                device
+            )
+        )
+
 
 
     def generate(
@@ -37,6 +64,7 @@ class AnimationGenerator(BaseAIService):
         )
 
 
+
         for scene in scenes:
 
 
@@ -57,19 +85,11 @@ class AnimationGenerator(BaseAIService):
             )
 
 
-            clip = (
-                ImageClip(
-                    str(image_path)
+            video_path = (
+                self.provider.generate(
+                    image_path,
+                    output_file
                 )
-                .with_duration(3)
-            )
-
-
-            clip.write_videofile(
-                str(output_file),
-                fps=24,
-                codec="libx264",
-                audio=False
             )
 
 
@@ -84,7 +104,7 @@ class AnimationGenerator(BaseAIService):
                     str(image_path),
 
                     "video":
-                    str(output_file),
+                    video_path,
 
                     "animation_status":
                     "complete"
