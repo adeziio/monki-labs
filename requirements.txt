@@ -39,7 +39,7 @@ imageio-ffmpeg
 pydub
 
 # ==================================
-# Local AI - Image and Video Generation
+# Local AI - FLUX Image Generation
 # ==================================
 
 diffusers
@@ -50,6 +50,14 @@ sentencepiece
 protobuf
 einops
 ftfy
+
+# FLUX dependencies
+torch
+torchvision
+torchaudio
+huggingface_hub
+bitsandbytes
+peft
 
 
 # ==================================

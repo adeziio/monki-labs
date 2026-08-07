@@ -2,9 +2,10 @@ from pathlib import Path
 
 import torch
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 from diffusers import StableDiffusionImg2ImgPipeline
+
 
 
 class StableDiffusionProvider:
@@ -14,7 +15,6 @@ class StableDiffusionProvider:
         self,
         config
     ):
-
 
         hardware = (
             config["hardware"]
@@ -30,14 +30,9 @@ class StableDiffusionProvider:
 
             torch.float16
 
-            if
+            if hardware["torch_dtype"] == "float16"
 
-            hardware["torch_dtype"]
-            == "float16"
-
-            else
-
-            torch.float32
+            else torch.float32
 
         )
 
@@ -58,13 +53,11 @@ class StableDiffusionProvider:
 
 
         self.pipeline = (
-
             StableDiffusionImg2ImgPipeline
             .from_pretrained(
                 model_name,
                 torch_dtype=torch_dtype
             )
-
         )
 
 
@@ -93,17 +86,79 @@ class StableDiffusionProvider:
         )
 
 
-        trimmed_prompt = (
-
-            tokenizer.decode(
-                encoded.input_ids[0],
-                skip_special_tokens=True
-            )
-
+        return tokenizer.decode(
+            encoded.input_ids[0],
+            skip_special_tokens=True
         )
 
 
-        return trimmed_prompt
+
+    def create_reference_sheet(
+        self,
+        reference_images
+    ):
+
+        images = []
+
+
+        for path in reference_images:
+
+            image = Image.open(
+                path
+            ).convert(
+                "RGB"
+            )
+
+
+            image.thumbnail(
+                (256,256)
+            )
+
+
+            canvas = Image.new(
+                "RGB",
+                (256,256),
+                "white"
+            )
+
+
+            canvas.paste(
+                image,
+                (
+                    (256-image.width)//2,
+                    (256-image.height)//2
+                )
+            )
+
+
+            images.append(
+                canvas
+            )
+
+
+        sheet = Image.new(
+            "RGB",
+            (
+                256 * len(images),
+                256
+            )
+        )
+
+
+        for index, image in enumerate(images):
+
+            sheet.paste(
+                image,
+                (
+                    index * 256,
+                    0
+                )
+            )
+
+
+        return sheet.resize(
+            (512,512)
+        )
 
 
 
@@ -113,7 +168,7 @@ class StableDiffusionProvider:
         negative_prompt,
         filename,
         output_directory,
-        reference_image
+        reference_images
     ):
 
 
@@ -127,44 +182,34 @@ class StableDiffusionProvider:
         )
 
 
-        image = Image.open(
-            reference_image
-        ).convert(
-            "RGB"
-        )
-
-
-        image = image.resize(
-            (512, 512)
+        reference = (
+            self.create_reference_sheet(
+                reference_images
+            )
         )
 
 
         print(
-            "[Stable Diffusion] Using reference:"
+            "[Stable Diffusion] Using references:"
         )
 
-        print(
-            reference_image
-        )
+
+        for image in reference_images:
+
+            print(
+                image
+            )
 
 
         result = (
-
             self.pipeline(
-
                 prompt=prompt,
-
-                image=image,
-
+                image=reference,
                 negative_prompt=negative_prompt,
-
-                strength=0.55,
-
-                guidance_scale=7.5
-
+                strength=0.65,
+                guidance_scale=8.0
             )
             .images[0]
-
         )
 
 

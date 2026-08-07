@@ -1,4 +1,5 @@
 import json
+
 from pathlib import Path
 
 
@@ -6,14 +7,19 @@ from pathlib import Path
 class CharacterReferenceLoader:
 
 
-    def __init__(self, character_directory):
+    def __init__(
+        self,
+        character_directory
+    ):
 
         self.directory = Path(
             character_directory
         )
 
         self.character_file = (
-            self.directory / "character.json"
+            self.directory
+            /
+            "character.json"
         )
 
 
@@ -26,27 +32,40 @@ class CharacterReferenceLoader:
             encoding="utf-8"
         ) as file:
 
-            return json.load(file)
+            return json.load(
+                file
+            )
 
 
 
     def get_reference_images(self):
 
-        character = self.load()
+        character = (
+            self.load()
+        )
+
+
+        references = (
+            character.get(
+                "reference_images",
+                {}
+            )
+        )
 
 
         images = []
 
 
-        references = (
-            character["reference_images"]
-        )
+        for image in references.get(
+            "images",
+            []
+        ):
 
-
-        for image in references["images"]:
 
             image_path = (
-                self.directory / image
+                self.directory
+                /
+                image
             )
 
 
@@ -61,17 +80,51 @@ class CharacterReferenceLoader:
 
 
 
-    def build_prompt(self):
+    def get_reference_directory(self):
 
-        character = self.load()
-
-
-        visual = (
-            character["visual_identity"]
+        return str(
+            self.directory
         )
 
 
-        clothing = visual["clothing"]
+
+    def build_prompt(self):
+
+        character = (
+            self.load()
+        )
+
+
+        visual = (
+            character.get(
+                "visual_identity",
+                {}
+            )
+        )
+
+
+        body = (
+            visual.get(
+                "body",
+                {}
+            )
+        )
+
+
+        face = (
+            visual.get(
+                "face",
+                {}
+            )
+        )
+
+
+        clothing = (
+            visual.get(
+                "clothing",
+                []
+            )
+        )
 
 
         clothing_text = ", ".join(
@@ -86,13 +139,17 @@ class CharacterReferenceLoader:
         )
 
 
-        return f"""
-            {character['name']} the {character['identity']['species']},
-            cute small cartoon character,
-            {visual['body']['fur']},
-            {visual['body']['shape']},
-            {visual['face']['eyes']},
-            wearing {clothing_text},
-            3D animated cartoon style,
-            family friendly.
-        """
+        return (
+
+            f"{character.get('name')} "
+            f"the "
+            f"{character.get('identity', {}).get('species')}, "
+            f"{body.get('size')} "
+            f"{body.get('shape')}, "
+            f"{body.get('fur')}, "
+            f"{face.get('eyes')}, "
+            f"wearing {clothing_text}, "
+            "3D animated cartoon style, "
+            "family friendly."
+
+        )

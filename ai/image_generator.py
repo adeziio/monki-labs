@@ -1,36 +1,24 @@
 from ai.base_ai_service import BaseAIService
-from ai.providers.stable_diffusion_provider import StableDiffusionProvider
 
-from characters.reference_loader import CharacterReferenceLoader
+from ai.providers.flux_provider import FluxProvider
 
 
 
 class ImageGenerator(BaseAIService):
 
 
-    def __init__(self, config):
+    def __init__(
+        self,
+        config
+    ):
 
         super().__init__(
             config
         )
 
 
-        self.character_manager = (
-            config["character_manager"]
-        )
-
-
-        self.reference_loader = (
-            CharacterReferenceLoader(
-                "characters/references/max_the_monkey"
-            )
-        )
-
-
-        self.image_provider = (
-            StableDiffusionProvider(
-                config
-            )
+        self.image_provider = FluxProvider(
+            config
         )
 
 
@@ -53,20 +41,12 @@ class ImageGenerator(BaseAIService):
 
 
         self.style_prompt = ", ".join(
-
-            image_generation[
-                "style_prompt"
-            ]
-
+            image_generation["style_prompt"]
         )
 
 
         self.negative_prompt = ", ".join(
-
-            image_generation[
-                "negative_prompt"
-            ]
-
+            image_generation["negative_prompt"]
         )
 
 
@@ -80,17 +60,6 @@ class ImageGenerator(BaseAIService):
 
         self.log(
             "Generating scene images"
-        )
-
-
-        reference_images = (
-            self.reference_loader
-            .get_reference_images()
-        )
-
-
-        main_reference = (
-            reference_images[0]
         )
 
 
@@ -108,15 +77,18 @@ class ImageGenerator(BaseAIService):
 
             scene_prompt = (
 
-                f"Create this animation scene: "
+                f"maxmonkey, "
+
                 f"{scene['description']}. "
 
                 f"{self.style_prompt}. "
 
-                "Keep the exact same character identity, "
-                "same face, same fur, same clothing. "
-
-                "Full body, centered composition."
+                "full body character, "
+                "animated movie frame, "
+                "consistent character design, "
+                "cute cartoon monkey, "
+                "blue hoodie, "
+                "red baseball cap"
 
             )
 
@@ -126,11 +98,7 @@ class ImageGenerator(BaseAIService):
             )
 
             print(
-                "IMAGE GENERATION PROMPT"
-            )
-
-            print(
-                "=============================="
+                "FLUX PROMPT"
             )
 
             print(
@@ -159,9 +127,7 @@ class ImageGenerator(BaseAIService):
 
                     episode.get_path()
                     /
-                    "scenes",
-
-                    main_reference
+                    "scenes"
 
                 )
 
