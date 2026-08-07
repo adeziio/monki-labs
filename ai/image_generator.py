@@ -1,17 +1,29 @@
 from ai.base_ai_service import BaseAIService
 from ai.providers.stable_diffusion_provider import StableDiffusionProvider
 
+from characters.reference_loader import CharacterReferenceLoader
+
+
 
 class ImageGenerator(BaseAIService):
 
 
     def __init__(self, config):
 
-        super().__init__(config)
+        super().__init__(
+            config
+        )
 
 
         self.character_manager = (
             config["character_manager"]
+        )
+
+
+        self.reference_loader = (
+            CharacterReferenceLoader(
+                "characters/references/max_the_monkey"
+            )
         )
 
 
@@ -59,29 +71,6 @@ class ImageGenerator(BaseAIService):
 
 
 
-    def shorten_prompt(
-        self,
-        prompt,
-        max_words=70
-    ):
-
-
-        words = prompt.split()
-
-
-        if len(words) <= max_words:
-
-            return prompt
-
-
-        return " ".join(
-
-            words[:max_words]
-
-        )
-
-
-
     def generate(
         self,
         storyboard,
@@ -94,23 +83,14 @@ class ImageGenerator(BaseAIService):
         )
 
 
-        character = (
-
-            self.character_manager
-            .get_main_character(
-                self.active_series
-            )
-
+        reference_images = (
+            self.reference_loader
+            .get_reference_images()
         )
 
 
-        character_prompt = (
-
-            self.character_manager
-            .build_visual_prompt(
-                character
-            )
-
+        main_reference = (
+            reference_images[0]
         )
 
 
@@ -120,6 +100,7 @@ class ImageGenerator(BaseAIService):
         for index, scene in enumerate(
 
             storyboard["scenes"],
+
             start=1
 
         ):
@@ -127,24 +108,15 @@ class ImageGenerator(BaseAIService):
 
             scene_prompt = (
 
-                f"{character_prompt}. "
-
+                f"Create this animation scene: "
                 f"{scene['description']}. "
 
                 f"{self.style_prompt}. "
 
-                "Full body character, "
-                "centered composition, "
-                "character completely visible."
+                "Keep the exact same character identity, "
+                "same face, same fur, same clothing. "
 
-            )
-
-
-            scene_prompt = (
-
-                self.shorten_prompt(
-                    scene_prompt
-                )
+                "Full body, centered composition."
 
             )
 
@@ -170,7 +142,6 @@ class ImageGenerator(BaseAIService):
             )
 
 
-
             filename = (
                 f"scene_{index:03}.png"
             )
@@ -188,7 +159,9 @@ class ImageGenerator(BaseAIService):
 
                     episode.get_path()
                     /
-                    "scenes"
+                    "scenes",
+
+                    main_reference
 
                 )
 
@@ -198,13 +171,8 @@ class ImageGenerator(BaseAIService):
             generated_scenes.append(
 
                 {
-
-                    "scene":
-                    index,
-
-                    "image":
-                    image_path
-
+                    "scene": index,
+                    "image": image_path
                 }
 
             )

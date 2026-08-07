@@ -4,7 +4,6 @@ from ai.base_ai_service import BaseAIService
 from ai.providers.ollama_provider import OllamaProvider
 
 
-
 class StoryGenerator(BaseAIService):
 
 
@@ -72,53 +71,60 @@ class StoryGenerator(BaseAIService):
 
         prompt = f"""
 
-            Create a silent animated cartoon episode.
+Create a silent animated cartoon episode idea.
 
-            Main character:
+Main character:
 
-            {visual_identity}
-
-
-            Character rules:
-
-            {character_prompt}
+{visual_identity}
 
 
-            IMPORTANT:
+Character rules:
 
-            - The main character must always be Max.
-            - Max is a monkey.
-            - Do not create a new main character.
-            - Do not replace Max with another animal.
-            - Do not introduce a different protagonist.
-            - Max never speaks.
-            - Max communicates only through actions, expressions, and physical comedy.
+{character_prompt}
 
 
-            Episode rules:
+Important rules:
 
-            - No dialogue
-            - No narration
-            - Family friendly
-            - Physical comedy only
-            - Classic cartoon timing
-            - Funny visual storytelling
-            - The story must be understandable without words
+- The main character must always be Max.
+- Max is a monkey.
+- Max never speaks.
+- Max communicates through actions, expressions, and physical comedy.
 
 
-            Return ONLY valid JSON.
+Episode rules:
 
-            Format:
+- No dialogue.
+- No narration.
+- Family friendly.
+- Physical comedy only.
+- Classic cartoon timing.
+- The story must work without words.
 
-            {{
-                "concept": "",
-                "hook": "",
-                "setup": "",
-                "escalation": "",
-                "ending": ""
-            }}
 
-        """
+IMPORTANT OUTPUT RULES:
+
+Return ONLY valid JSON.
+
+Do NOT create scenes.
+Do NOT create frames.
+Do NOT create images.
+Do NOT create captions.
+Do NOT create lists.
+Do NOT create nested objects.
+
+Each field must be a single short sentence.
+
+Required format:
+
+{{
+    "concept": "",
+    "hook": "",
+    "setup": "",
+    "escalation": "",
+    "ending": ""
+}}
+
+"""
 
 
         response = self.llm.generate(
@@ -142,24 +148,23 @@ class StoryGenerator(BaseAIService):
 
 
             "concept":
-            "Max discovers something strange",
+            "Max discovers something strange.",
 
 
             "hook":
-            "Max finds something unexpected",
+            "Max finds something unexpected.",
 
 
             "setup":
-            "Max investigates the situation",
+            "Max investigates the situation.",
 
 
             "escalation":
-            "The situation becomes chaotic",
+            "The situation becomes chaotic.",
 
 
             "ending":
-            "A funny surprise happens"
-
+            "A funny surprise happens."
 
         }
 
@@ -173,16 +178,35 @@ class StoryGenerator(BaseAIService):
             )
 
 
+            cleaned = {}
+
+
             for key, fallback in required_fields.items():
 
 
-                if key not in data or not data[key]:
+                value = data.get(
+                    key,
+                    fallback
+                )
 
-                    data[key] = fallback
+
+                if isinstance(
+                    value,
+                    str
+                ):
+
+                    cleaned[key] = value
 
 
+                else:
 
-            return data
+                    cleaned[key] = self.extract_text(
+                        value,
+                        fallback
+                    )
+
+
+            return cleaned
 
 
 
@@ -195,3 +219,68 @@ class StoryGenerator(BaseAIService):
 
 
             return required_fields
+
+
+
+    def extract_text(
+        self,
+        value,
+        fallback
+    ):
+
+
+        if isinstance(
+            value,
+            dict
+        ):
+
+
+            if "description" in value:
+
+                return str(
+                    value["description"]
+                )
+
+
+            if "scene" in value:
+
+                return self.extract_text(
+                    value["scene"],
+                    fallback
+                )
+
+
+
+        if isinstance(
+            value,
+            list
+        ):
+
+
+            results = []
+
+
+            for item in value:
+
+                text = self.extract_text(
+                    item,
+                    ""
+                )
+
+
+                if text:
+
+                    results.append(
+                        text
+                    )
+
+
+            if results:
+
+                return ". ".join(
+                    results
+                )
+
+
+
+        return fallback

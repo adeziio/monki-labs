@@ -2,7 +2,9 @@ from pathlib import Path
 
 import torch
 
-from diffusers import StableDiffusionPipeline
+from PIL import Image
+
+from diffusers import StableDiffusionImg2ImgPipeline
 
 
 class StableDiffusionProvider:
@@ -47,20 +49,6 @@ class StableDiffusionProvider:
         )
 
 
-        self.output_directory = Path(
-            image_config.get(
-                "output_directory",
-                "media/scenes"
-            )
-        )
-
-
-        self.output_directory.mkdir(
-            parents=True,
-            exist_ok=True
-        )
-
-
         model_name = (
             image_config.get(
                 "model",
@@ -70,17 +58,20 @@ class StableDiffusionProvider:
 
 
         self.pipeline = (
-            StableDiffusionPipeline
+
+            StableDiffusionImg2ImgPipeline
             .from_pretrained(
                 model_name,
                 torch_dtype=torch_dtype
             )
+
         )
 
 
         self.pipeline.to(
             self.device
         )
+
 
 
     def trim_prompt(
@@ -103,26 +94,13 @@ class StableDiffusionProvider:
 
 
         trimmed_prompt = (
+
             tokenizer.decode(
                 encoded.input_ids[0],
                 skip_special_tokens=True
             )
+
         )
-
-
-        if trimmed_prompt != prompt:
-
-            print(
-                "[Stable Diffusion] Prompt trimmed"
-            )
-
-            print(
-                f"Original length: {len(prompt)} characters"
-            )
-
-            print(
-                f"Final length: {len(trimmed_prompt)} characters"
-            )
 
 
         return trimmed_prompt
@@ -134,7 +112,8 @@ class StableDiffusionProvider:
         prompt,
         negative_prompt,
         filename,
-        output_directory
+        output_directory,
+        reference_image
     ):
 
 
@@ -148,12 +127,44 @@ class StableDiffusionProvider:
         )
 
 
-        image = (
+        image = Image.open(
+            reference_image
+        ).convert(
+            "RGB"
+        )
+
+
+        image = image.resize(
+            (512, 512)
+        )
+
+
+        print(
+            "[Stable Diffusion] Using reference:"
+        )
+
+        print(
+            reference_image
+        )
+
+
+        result = (
+
             self.pipeline(
+
                 prompt=prompt,
-                negative_prompt=negative_prompt
+
+                image=image,
+
+                negative_prompt=negative_prompt,
+
+                strength=0.55,
+
+                guidance_scale=7.5
+
             )
             .images[0]
+
         )
 
 
@@ -170,7 +181,7 @@ class StableDiffusionProvider:
         )
 
 
-        image.save(
+        result.save(
             output
         )
 

@@ -1,7 +1,10 @@
 class CharacterManager:
 
 
-    def __init__(self, characters_config):
+    def __init__(
+        self,
+        characters_config
+    ):
 
         self.characters = (
             characters_config["characters"]
@@ -20,11 +23,8 @@ class CharacterManager:
                 f"Character not found: {character_id}"
             )
 
-        return (
-            self.characters[
-                character_id
-            ]
-        )
+
+        return self.characters[character_id]
 
 
 
@@ -42,6 +42,7 @@ class CharacterManager:
             ):
 
                 return character
+
 
         return None
 
@@ -77,28 +78,27 @@ class CharacterManager:
         )
 
 
-        prompt = (
+        locked = ", ".join(
 
-            f'{character["name"]}, '
-
-            f'{character["species"]}, '
-
-            f'{body["size"]}, '
-
-            f'{body["shape"]}, '
-
-            f'{body["fur"]}, '
-
-            f'{face["eyes"]}, '
-
-            f'{face["expression"]}, '
-
-            f'wearing {clothing}'
+            character["visual_consistency"]
+            ["locked_features"]
 
         )
 
 
-        return prompt
+        return (
+
+            f"{character['name']}, "
+            f"{character['species']}, "
+            f"{body['size']}, "
+            f"{body['shape']}, "
+            f"{body['fur']}, "
+            f"{face['eyes']}, "
+            f"{face['expression']}, "
+            f"wearing {clothing}, "
+            f"consistent appearance: {locked}"
+
+        )
 
 
 
@@ -110,9 +110,10 @@ class CharacterManager:
 
         return ", ".join(
 
-            character[
-                "behavior_rules"
-            ]
+            character.get(
+                "behavior_rules",
+                []
+            )
 
         )
 
@@ -126,9 +127,10 @@ class CharacterManager:
 
         return ", ".join(
 
-            character[
-                "story_rules"
-            ]
+            character.get(
+                "story_rules",
+                []
+            )
 
         )
 
@@ -140,11 +142,23 @@ class CharacterManager:
     ):
 
 
-        return (
-
+        visual = (
             self.build_visual_prompt(
                 character
             )
+        )
+
+
+        behavior = (
+            self.build_behavior_prompt(
+                character
+            )
+        )
+
+
+        return (
+
+            visual
 
             +
 
@@ -152,8 +166,57 @@ class CharacterManager:
 
             +
 
-            self.build_behavior_prompt(
-                character
-            )
+            behavior
 
         )
+
+
+
+    def get_reference_images(
+        self,
+        character
+    ):
+
+
+        visual_consistency = (
+            character.get(
+                "visual_consistency",
+                {}
+            )
+        )
+
+
+        reference_folder = (
+            visual_consistency.get(
+                "reference_folder"
+            )
+        )
+
+
+        reference_images = (
+            visual_consistency.get(
+                "reference_images",
+                []
+            )
+        )
+
+
+        if not reference_folder:
+
+            return []
+
+
+
+        images = []
+
+
+        for image in reference_images:
+
+            images.append(
+
+                f"{reference_folder}/{image}"
+
+            )
+
+
+        return images

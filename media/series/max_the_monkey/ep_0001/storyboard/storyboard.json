@@ -3,22 +3,22 @@
         {
             "scene": 1,
             "purpose": "Hook",
-            "description": "Max discovers a treasure map in his backyard, leading him on a wild adventure to find the treasure before his rival, Mr. Squirrel."
+            "description": "Max discovers a treasure map and can't resist the adventure"
         },
         {
             "scene": 2,
             "purpose": "Setup",
-            "description": "{'scene1': [{'frame': 0, 'image': 'Max finding the treasure map'}, {'frame': 5, 'action': 'Max excitedly holds up the map and looks around'}], 'scene2': [{'frame': 10, 'image': 'Max putting on his red baseball cap and blue hoodie'}, {'frame': 15, 'action': 'Max looking at the map with a determined expression'}]}"
+            "description": "Max sets out to find the treasure, but encounters obstacles and misadventures along the way"
         },
         {
             "scene": 3,
             "purpose": "Escalation",
-            "description": "{'scene1': [{'frame': 20, 'image': 'Max climbing up a tree'}, {'frame': 25, 'action': 'Max slipping and falling into a bush'}], 'scene2': [{'frame': 30, 'image': 'Max crawling through a tunnel made of branches'}, {'frame': 35, 'action': 'Max getting stuck in the tunnel and struggling to get out'}]}"
+            "description": "As Max gets closer to finding the treasure, things spiral out of control with chaotic consequences"
         },
         {
             "scene": 4,
             "purpose": "Ending",
-            "description": "{'scene1': [{'frame': 40, 'image': 'Max finally finding the treasure chest'}, {'frame': 45, 'action': 'Max excitedly opening the chest and revealing a pile of acorns'}], 'scene2': [{'frame': 50, 'image': 'Mr. Squirrel appearing with a disappointed expression'}, {'frame': 55, 'action': 'Max triumphantly holding up the treasure, and Mr. Squirrel walking away dejectedly'}]}"
+            "description": "Max learns that sometimes it's better to appreciate what you have rather than chasing after something that might not be worth it"
         }
     ]
 }

@@ -5,19 +5,82 @@ from ai.base_ai_service import BaseAIService
 class StoryboardGenerator(BaseAIService):
 
 
-    def normalize_description(self, value):
+    def normalize_description(
+        self,
+        value
+    ):
 
 
-        if isinstance(value, list):
+        if isinstance(
+            value,
+            str
+        ):
 
-            return " ".join(value)
-
-
-        return str(value)
+            return value
 
 
 
-    def generate(self, story):
+        if isinstance(
+            value,
+            dict
+        ):
+
+
+            if "description" in value:
+
+                return str(
+                    value["description"]
+                )
+
+
+            if "scene" in value:
+
+                return self.normalize_description(
+                    value["scene"]
+                )
+
+
+
+        if isinstance(
+            value,
+            list
+        ):
+
+
+            descriptions = []
+
+
+            for item in value:
+
+
+                text = self.normalize_description(
+                    item
+                )
+
+
+                if text:
+
+                    descriptions.append(
+                        text
+                    )
+
+
+            return ". ".join(
+                descriptions
+            )
+
+
+
+        return str(
+            value
+        )
+
+
+
+    def generate(
+        self,
+        story
+    ):
 
 
         self.log(
@@ -27,6 +90,7 @@ class StoryboardGenerator(BaseAIService):
 
         scenes = [
 
+
             {
                 "scene": 1,
 
@@ -34,10 +98,12 @@ class StoryboardGenerator(BaseAIService):
 
                 "description":
                 self.normalize_description(
+
                     story.get(
                         "hook",
                         "Max discovers something interesting"
                     )
+
                 )
 
             },
@@ -50,10 +116,12 @@ class StoryboardGenerator(BaseAIService):
 
                 "description":
                 self.normalize_description(
+
                     story.get(
                         "setup",
                         "Max explores the situation"
                     )
+
                 )
 
             },
@@ -66,10 +134,12 @@ class StoryboardGenerator(BaseAIService):
 
                 "description":
                 self.normalize_description(
+
                     story.get(
                         "escalation",
                         "Things become chaotic"
                     )
+
                 )
 
             },
@@ -82,10 +152,12 @@ class StoryboardGenerator(BaseAIService):
 
                 "description":
                 self.normalize_description(
+
                     story.get(
                         "ending",
                         "A funny surprise happens"
                     )
+
                 )
 
             }
