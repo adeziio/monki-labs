@@ -59,7 +59,10 @@
     "reference_images": {
         "images": [
             "front.png",
-            "side.png"
+            "side.png",
+            "jump.png",
+            "surprise.png",
+            "three_quarter.png"
         ]
     }
 }
