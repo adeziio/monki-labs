@@ -14,7 +14,7 @@
             "enabled": true,
             "provider": "flux",
             "model": "black-forest-labs/FLUX.1-schnell",
-            "lora_path": "models/loras/maxmonkey/maxmonkey_flux_lora_v1.safetensors",
+            "lora_path": "models/loras/maxmonkey/maxmonkey_flux_lora_v2.safetensors",
             "output_directory": "media/scenes"
         },
         "animation_model": {
