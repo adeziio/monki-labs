@@ -1,5 +1,5 @@
 from pathlib import Path
-import json
+
 import torch
 
 from diffusers import FluxPipeline
@@ -7,11 +7,13 @@ from diffusers import FluxPipeline
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+
 LORA_DIRECTORY = (
     PROJECT_ROOT
     / "models"
     / "loras"
 )
+
 
 OUTPUT_DIRECTORY = (
     PROJECT_ROOT
@@ -25,7 +27,7 @@ MODEL_NAME = (
 )
 
 
-def find_loras():
+def find_characters():
 
     characters = []
 
@@ -40,39 +42,49 @@ def find_loras():
 
 
         loras = list(
-            character_folder.glob(
+            character_folder.rglob(
                 "*.safetensors"
             )
         )
 
 
-        for lora in loras:
+        if not loras:
+            continue
 
-            characters.append(
-                {
-                    "name": character_folder.name,
-                    "path": lora
-                }
-            )
+
+        characters.append(
+            {
+                "name": character_folder.name,
+                "loras": sorted(
+                    loras,
+                    key=lambda path: path.name
+                )
+            }
+        )
 
 
     return characters
 
 
-
 def select_character():
 
-    characters = find_loras()
+    characters = find_characters()
 
 
     if not characters:
+
         raise Exception(
             "No LoRA models found in models/loras/"
         )
 
 
-    print("\nAvailable Characters:")
-    print("====================")
+    print(
+        "\nAvailable Characters:"
+    )
+
+    print(
+        "===================="
+    )
 
 
     for index, character in enumerate(
@@ -103,28 +115,114 @@ def select_character():
             return selected
 
 
-        except:
+        except (
+            ValueError,
+            IndexError
+        ):
 
             print(
                 "Invalid selection."
             )
 
 
+def select_lora(character):
+
+    loras = character["loras"]
+
+
+    print(
+        "\nAvailable LoRA Versions:"
+    )
+
+    print(
+        "========================"
+    )
+
+
+    for index, lora in enumerate(
+        loras,
+        start=1
+    ):
+
+        print(
+            f"{index}. {lora.stem}"
+        )
+
+
+    while True:
+
+        choice = input(
+            "\nSelect LoRA version: "
+        )
+
+
+        try:
+
+            choice = int(choice)
+
+            selected = loras[
+                choice - 1
+            ]
+
+            return selected
+
+
+        except (
+            ValueError,
+            IndexError
+        ):
+
+            print(
+                "Invalid selection."
+            )
+
 
 def load_model(lora_path):
 
-    print("\n[FLUX] Loading base model...")
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "cpu"
+    )
 
 
-    pipe = FluxPipeline.from_pretrained(
-        MODEL_NAME,
-        torch_dtype=torch.bfloat16
+    torch_dtype = (
+
+        torch.bfloat16
+        if device == "cuda"
+        else torch.float32
+
     )
 
 
     print(
-        "[FLUX] Loading LoRA:"
+        "\n[FLUX] Loading base model..."
     )
+
+
+    print(
+        f"[FLUX] Device: {device}"
+    )
+
+
+    print(
+        f"[FLUX] Dtype: {torch_dtype}"
+    )
+
+
+    pipe = FluxPipeline.from_pretrained(
+
+        MODEL_NAME,
+
+        torch_dtype=torch_dtype
+
+    )
+
+
+    print(
+        "\n[FLUX] Loading LoRA:"
+    )
+
 
     print(
         lora_path
@@ -133,13 +231,6 @@ def load_model(lora_path):
 
     pipe.load_lora_weights(
         str(lora_path)
-    )
-
-
-    device = (
-        "cuda"
-        if torch.cuda.is_available()
-        else "cpu"
     )
 
 
@@ -156,18 +247,43 @@ def load_model(lora_path):
     return pipe
 
 
-
 def generate_image():
 
     character = select_character()
 
 
-    pipe = load_model(
-        character["path"]
+    lora_path = select_lora(
+        character
     )
 
 
-    print("\nPrompt Example:")
+    pipe = load_model(
+        lora_path
+    )
+
+
+    print(
+        "\nSelected Character:"
+    )
+
+    print(
+        character["name"]
+    )
+
+
+    print(
+        "\nSelected LoRA:"
+    )
+
+    print(
+        lora_path.name
+    )
+
+
+    print(
+        "\nPrompt Example:"
+    )
+
     print(
         "standing in a jungle, holding a banana, cinematic lighting"
     )
@@ -203,6 +319,7 @@ def generate_image():
         "\nFinal Prompt:"
     )
 
+
     print(
         full_prompt
     )
@@ -212,22 +329,27 @@ def generate_image():
         "\nImage width (default 1024): "
     )
 
+
     height_input = input(
         "Image height (default 1024): "
     )
 
 
     width = (
+
         int(width_input)
         if width_input
         else 1024
+
     )
 
 
     height = (
+
         int(height_input)
         if height_input
         else 1024
+
     )
 
 
@@ -237,9 +359,11 @@ def generate_image():
 
 
     steps = (
+
         int(steps_input)
         if steps_input
         else 4
+
     )
 
 
@@ -275,13 +399,16 @@ def generate_image():
 
 
     if not filename:
+
         filename = "image.png"
 
 
     output = (
+
         OUTPUT_DIRECTORY
         /
         filename
+
     )
 
 
@@ -294,10 +421,10 @@ def generate_image():
         "\nComplete!"
     )
 
+
     print(
         f"Saved: {output}"
     )
-
 
 
 if __name__ == "__main__":
