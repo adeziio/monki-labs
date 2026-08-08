@@ -1,3 +1,4 @@
+```python
 from pathlib import Path
 
 import torch
@@ -32,12 +33,14 @@ def find_characters():
     characters = []
 
     if not LORA_DIRECTORY.exists():
+
         return characters
 
 
     for character_folder in LORA_DIRECTORY.iterdir():
 
         if not character_folder.is_dir():
+
             continue
 
 
@@ -49,12 +52,14 @@ def find_characters():
 
 
         if not loras:
+
             continue
 
 
         characters.append(
             {
                 "name": character_folder.name,
+
                 "loras": sorted(
                     loras,
                     key=lambda path: path.name
@@ -234,9 +239,20 @@ def load_model(lora_path):
     )
 
 
-    pipe.to(
-        device
-    )
+    if device == "cuda":
+
+        print(
+            "\n[FLUX] Enabling sequential CPU offload..."
+        )
+
+        pipe.vae.enable_slicing()
+        pipe.vae.enable_tiling()
+
+        pipe.enable_sequential_cpu_offload()
+
+    else:
+
+        pipe.to(device)
 
 
     print(
@@ -266,6 +282,7 @@ def generate_image():
         "\nSelected Character:"
     )
 
+
     print(
         character["name"]
     )
@@ -275,6 +292,7 @@ def generate_image():
         "\nSelected LoRA:"
     )
 
+
     print(
         lora_path.name
     )
@@ -283,6 +301,7 @@ def generate_image():
     print(
         "\nPrompt Example:"
     )
+
 
     print(
         "standing in a jungle, holding a banana, cinematic lighting"
@@ -331,7 +350,7 @@ def generate_image():
 
 
     height_input = input(
-        "Image height (default 1024): "
+        "\nImage height (default 1024): "
     )
 
 
@@ -430,3 +449,4 @@ def generate_image():
 if __name__ == "__main__":
 
     generate_image()
+```
