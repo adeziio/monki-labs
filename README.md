@@ -1,29 +1,29 @@
 # 🐒 Monki Labs
 
-AI-powered animation studio for creating automated cartoon episodes.
+**Monki Labs** is a local, open-source AI animation studio designed to automate the creation of short-form cartoon episodes.
 
-Monki Labs is an open-source pipeline designed to generate complete animated episodes from an idea.
+The project combines locally running AI models with a structured character, story, storyboard, image, animation, audio, and video pipeline.
 
-The goal is to build a fully automated AI animation pipeline capable of producing short-form cartoon content with consistent characters and a repeatable production workflow.
+The long-term goal is to create an automated cartoon production system capable of generating complete episodes with **consistent characters, visual storytelling, physical comedy, music, sound effects, and repeatable production workflows**.
 
 ---
 
-# ✨ Features
+# ✨ Core Features
 
 ## 🎬 Automated Episode Pipeline
 
-Monki Labs manages the entire episode workflow:
+Monki Labs is designed around an end-to-end production pipeline:
 
-```
+```text
 Episode Idea
       ↓
 Story Generation
       ↓
 Storyboard Generation
       ↓
-Scene Image Generation
+Character-Aware Scene Generation
       ↓
-Animation Pipeline
+Animation Generation
       ↓
 Audio Generation
       ↓
@@ -32,132 +32,585 @@ Video Assembly
 Thumbnail Generation
 ```
 
----
-
-## 🧠 AI Story Generation
-
-Generates episode concepts and story structures based on configured series rules.
-
-Supports:
-
-- Episode hooks
-- Story setup
-- Escalation
-- Ending twists
-- Character-driven stories
+The pipeline is built so individual stages can be developed and improved independently.
 
 ---
 
-## 🎨 Character Consistency System
+# 🧠 AI Story Generation
 
-Characters are defined through configuration instead of hardcoded logic.
+Story ideas are generated locally using **Ollama**.
+
+Stories are generated according to the configured series and character rules.
+
+The current story structure includes:
+
+* Concept
+* Hook
+* Setup
+* Escalation
+* Ending
+* Characters
 
 Example:
 
+```json
+{
+    "concept": "Max and his friends get lost in the woods",
+    "hook": "Max accidentally leaves his favorite snack behind",
+    "setup": "Max tries to find his way back home",
+    "escalation": "The situation becomes increasingly chaotic",
+    "ending": "The characters escape with a comedic resolution",
+    "characters": [
+        "maxmonkey",
+        "sidsquirrel"
+    ]
+}
 ```
-characters/
-├── characters.json
-└── references/
-```
 
-Characters include:
+The system is designed specifically for **silent cartoon storytelling**.
 
-- Appearance
-- Clothing
-- Personality
-- Behavior rules
-- Story rules
-- Visual references
-
-Example character:
-
-## Max the Monkey
-
-- Small cartoon monkey
-- Brown fluffy fur
-- Blue hoodie
-- Red baseball cap
-- No dialogue
-- Communicates through facial expressions and physical comedy
+Characters do not require dialogue or narration to communicate the story.
 
 ---
 
-## 🖼️ AI Image Generation
+# 🎞️ Storyboard Generation
 
-Uses local Stable Diffusion generation through Hugging Face Diffusers.
+The generated story is converted into a structured storyboard.
 
-Features:
+Each storyboard scene contains:
 
-- Local AI generation
-- Character reference images
-- Negative prompts
-- Configurable models
-- CPU/GPU support
+* Scene number
+* Purpose
+* Characters
+* Scene description
 
-Generated scenes are stored per episode:
+Example:
 
+```json
+{
+    "scene": 1,
+    "purpose": "Hook",
+    "characters": [
+        "maxmonkey",
+        "sidsquirrel"
+    ],
+    "description": "Max accidentally leaves his favorite snack behind"
+}
 ```
-media/
-└── series/
-    └── max_the_monkey/
-        └── ep_0001/
-            ├── scenes/
-            ├── video/
-            ├── story.json
-            └── storyboard.json
+
+The storyboard acts as the bridge between the narrative system and visual generation.
+
+---
+
+# 🐒 Character System
+
+Characters are defined through configuration rather than hardcoded into the image-generation system.
+
+Each character can define:
+
+* Name
+* Species
+* Role
+* Series
+* Importance
+* LoRA model
+* Trigger word
+* Appearance
+* Clothing
+* Personality
+* Behavior rules
+* Story rules
+* Visual consistency rules
+
+Characters are identified using unique IDs.
+
+Example:
+
+```text
+maxmonkey
+sidsquirrel
+lialynx
+```
+
+This allows new characters to be added without rewriting the image-generation pipeline.
+
+---
+
+# 🎨 Character LoRA System
+
+Monki Labs uses **FLUX LoRA models** to provide character-specific visual consistency.
+
+Each character has its own trained LoRA.
+
+Current characters include:
+
+### 🐒 Max the Monkey
+
+* Brown fluffy fur
+* Small, round body
+* Blue hoodie
+* Red baseball cap
+* Large expressive eyes
+* Curious and playful personality
+
+LoRA:
+
+```text
+models/loras/maxmonkey/
+└── maxmonkey_flux_lora_v3.safetensors
+```
+
+### 🐿️ Sid the Squirrel
+
+* Light orange fur
+* Character-specific clothing
+* Designed as one of Max's recurring friends
+* Silent physical-comedy character
+
+LoRA models are stored under:
+
+```text
+models/loras/sidsquirrel/
+```
+
+### 🐆 Lia the Lynx
+
+* Cream-white fur
+* Pink hoodie
+* Feminine cartoon features
+* Girly eyelashes
+* Daisy flower accessory
+* Recurring character in the Max universe
+
+LoRA models are stored under:
+
+```text
+models/loras/lialynx/
+```
+
+Additional characters can be added using the same structure.
+
+---
+
+# 🧪 LoRA Training
+
+Character LoRAs are trained locally using **FLUX.1-schnell** and AI Toolkit.
+
+The character training workflow uses a curated dataset of high-quality character images and matching text captions.
+
+The current approach focuses on **quality over dataset size** rather than generating large numbers of redundant training images.
+
+The training workflow includes:
+
+* Character-specific datasets
+* Caption files
+* Multiple resolution buckets
+* LoRA training
+* Periodic checkpoints
+* Sample generation during training
+* Final LoRA models for production generation
+
+Example dataset:
+
+```text
+datasets/
+└── maxmonkey/
+    ├── image_001.png
+    ├── image_001.txt
+    ├── image_002.png
+    ├── image_002.txt
+    └── ...
 ```
 
 ---
 
-## 🔊 Audio Pipeline
+# 🖼️ FLUX Image Generation
 
-Supports:
+Monki Labs uses:
 
-- Background music
-- Sound effect planning
-- No-dialogue animation style
+```text
+black-forest-labs/FLUX.1-schnell
+```
 
-The current animation style focuses on visual storytelling inspired by classic physical comedy cartoons.
+through Hugging Face Diffusers.
+
+Character LoRAs are loaded into the FLUX pipeline to generate character-specific images.
+
+The system supports:
+
+* Local FLUX generation
+* Character-specific LoRAs
+* Custom prompts
+* Configurable image dimensions
+* Configurable inference steps
+* CUDA acceleration
+* CPU fallback
 
 ---
 
-## 🎥 Video Assembly
+# 🧪 Ad-Hoc Character Image Generator
 
-Combines:
+A standalone image-generation tool is available for testing characters independently of the full episode pipeline.
 
-- Generated scenes
-- Animation outputs
-- Audio tracks
+```text
+tools/generate_image.py
+```
 
-into final MP4 episodes.
+The tool automatically discovers available character LoRAs from:
+
+```text
+models/loras/
+```
+
+Example:
+
+```text
+Available Characters:
+
+1. maxmonkey
+2. sidsquirrel
+3. lialynx
+```
+
+After selecting a character, available LoRA versions are displayed.
+
+This makes it possible to test:
+
+* Character appearance
+* Expressions
+* Poses
+* Clothing
+* Environments
+* Prompt behavior
+* LoRA versions
+
+without generating an entire episode.
+
+---
+
+# 🎭 Silent Cartoon Philosophy
+
+Monki Labs is designed around a **dialogue-free cartoon format**.
+
+Characters:
+
+* Never speak
+* Do not use dialogue
+* Do not require narration
+* Communicate through movement
+* Communicate through facial expressions
+* Use physical comedy
+
+The intended style is inspired by classic visual-comedy cartoons such as **Tom and Jerry**, where the story can be understood primarily through animation, music, timing, and sound effects.
+
+Comedy should come from:
+
+* Character reactions
+* Physical movement
+* Misunderstandings
+* Escalating situations
+* Cartoon physics
+* Visual surprises
+* Music and sound effects
+
+---
+
+# 🌎 Series System
+
+The current universe is:
+
+## Max the Monkey Adventures
+
+A family-friendly 3D animated cartoon universe centered around Max and his friends.
+
+### Genre
+
+* Comedy
+* Adventure
+
+### Audience
+
+* Family
+* Everyone
+
+### Format
+
+* YouTube Shorts
+* 30–60 seconds
+* 9:16 vertical video
+
+### Visual Style
+
+* 3D animated cartoon
+* Bright colors
+* Expressive characters
+* Cinematic lighting
+* Cartoon physics
+* Family friendly
+
+### World
+
+The primary setting is a colorful cartoon jungle.
+
+Possible locations include:
+
+* Jungle
+* Treehouse
+* River
+* Caves
+* Hidden areas
+
+---
+
+# 🔊 Audio
+
+The animation style intentionally avoids dialogue.
+
+Audio is instead built around:
+
+* Background music
+* Sound effects
+* Comedic timing
+* Suspense
+* Character movement
+* Environmental sounds
+
+The current series configuration supports mood-based music selection such as:
+
+```text
+Funny      → comedy.mp3
+Adventure  → adventure.mp3
+Chaotic    → suspense.mp3
+```
+
+---
+
+# 🎥 Animation
+
+The animation stage is designed to convert generated scene images into animated sequences.
+
+The project currently includes an animation provider architecture with support for:
+
+* Local animation models
+* CUDA acceleration
+* CPU fallback
+* MoviePy-based fallback processing
+
+The animation system is still under active development.
 
 ---
 
 # 🖥️ Hardware Support
 
-Monki Labs automatically detects available hardware.
+Monki Labs detects available hardware automatically.
 
-Supported:
+Supported execution modes include:
 
-| Hardware | Support |
-|---|---|
-| CPU | ✅ |
-| NVIDIA GPU | ✅ |
-| Apple Silicon MPS | ✅ |
+| Hardware          | Support                    |
+| ----------------- | -------------------------- |
+| CPU               | ✅                          |
+| NVIDIA CUDA GPU   | ✅                          |
+| CPU fallback      | ✅                          |
+| Apple Silicon MPS | ⚠️ Configuration dependent |
 
-GPU acceleration is automatically enabled when available.
+When CUDA is unavailable, the system can fall back to CPU processing.
 
 Example:
 
-```
+```text
 Running on device: cpu
 ```
 
 or:
 
-```
+```text
 Running on device: cuda
 ```
+
+AI generation is significantly faster with a compatible NVIDIA GPU.
+
+---
+
+# 🆓 Free-Only Philosophy
+
+Monki Labs is designed to remain **free to run from a software/API perspective**.
+
+The project does not rely on paid external AI APIs or subscription-based AI services.
+
+The intended architecture prioritizes:
+
+* Local AI models
+* Open-source libraries
+* Local inference
+* Local model files
+* Local processing
+
+Hardware requirements and model storage requirements still apply.
+
+---
+
+# ⚙️ Configuration
+
+Monki Labs uses JSON configuration files rather than embedding project behavior directly into the code.
+
+Current configuration includes:
+
+```text
+config/
+├── settings.json
+├── series.json
+├── characters.json
+├── ai_models.json
+├── pipeline.json
+├── audio.json
+├── youtube.json
+└── studio.json
+```
+
+### `characters.json`
+
+Defines the characters and their identities.
+
+Controls:
+
+* Appearance
+* Clothing
+* Personality
+* Behavior
+* Story rules
+* LoRA paths
+* Trigger words
+
+### `series.json`
+
+Defines the series itself.
+
+Controls:
+
+* Genre
+* Audience
+* Episode format
+* Animation style
+* Visual style
+* World rules
+* Tone
+* Audio behavior
+
+### `ai_models.json`
+
+Defines AI model providers and model locations.
+
+Controls:
+
+* Language model
+* Image model
+* Image LoRA
+* Animation model
+* Audio system
+
+### `settings.json`
+
+Defines global execution and output settings.
+
+Controls:
+
+* Local environment
+* Free-only operation
+* Execution mode
+* CPU fallback
+* Output format
+* Resolution
+* FPS
+
+---
+
+# 📁 Project Structure
+
+```text
+monki-labs/
+
+├── ai/
+│   ├── providers/
+│   │   ├── flux_provider.py
+│   │   └── ollama_provider.py
+│   │
+│   ├── story_generator.py
+│   ├── storyboard_generator.py
+│   ├── image_generator.py
+│   ├── animation_generator.py
+│   ├── audio_generator.py
+│   ├── thumbnail_generator.py
+│   └── video_builder.py
+│
+├── characters/
+│   └── character_manager.py
+│
+├── config/
+│   ├── settings.json
+│   ├── series.json
+│   ├── characters.json
+│   ├── ai_models.json
+│   ├── pipeline.json
+│   ├── audio.json
+│   ├── youtube.json
+│   └── studio.json
+│
+├── core/
+│   ├── pipeline.py
+│   ├── config_loader.py
+│   ├── hardware_detector.py
+│   ├── episode_manager.py
+│   └── logger.py
+│
+├── models/
+│   └── loras/
+│       ├── maxmonkey/
+│       ├── sidsquirrel/
+│       └── lialynx/
+│
+├── datasets/
+│   ├── maxmonkey/
+│   ├── sidsquirrel/
+│   └── lialynx/
+│
+├── media/
+│   ├── adhoc/
+│   └── series/
+│
+├── tools/
+│   └── generate_image.py
+│
+├── main.py
+├── install.bat
+└── run.bat
+```
+
+---
+
+# 📦 Episode Output
+
+Generated episodes are organized by series and episode.
+
+Example:
+
+```text
+media/
+└── series/
+    └── max_the_monkey/
+        └── ep_0001/
+            ├── scenes/
+            │   ├── scene_001.png
+            │   ├── scene_002.png
+            │   ├── scene_003.png
+            │   └── scene_004.png
+            │
+            ├── video/
+            │
+            ├── story.json
+            └── storyboard.json
+```
+
+This structure keeps each episode's generated assets isolated and reproducible.
 
 ---
 
@@ -165,9 +618,11 @@ Running on device: cuda
 
 ## Requirements
 
-- Python 3.12+
-- FFmpeg
-- Windows (currently optimized)
+* Python 3.12+
+* FFmpeg
+* Windows currently optimized
+* NVIDIA GPU recommended for AI image generation
+* Sufficient disk space for local AI models
 
 ---
 
@@ -177,7 +632,6 @@ Clone the repository:
 
 ```bash
 git clone <repository-url>
-
 cd monki-labs
 ```
 
@@ -187,16 +641,16 @@ Run the installer:
 install.bat
 ```
 
-The installer automatically:
+The installer is intended to:
 
-- Creates a Python virtual environment
-- Installs dependencies
-- Detects NVIDIA GPUs
-- Installs the correct PyTorch version
-- Checks FFmpeg
-- Verifies the installation
+* Create the Python environment
+* Install dependencies
+* Configure PyTorch
+* Detect NVIDIA hardware
+* Verify FFmpeg
+* Prepare the project environment
 
-Start Monki Labs:
+Start the application:
 
 ```bash
 run.bat
@@ -204,175 +658,167 @@ run.bat
 
 ---
 
-# 📁 Project Structure
+# 🧪 Development Tools
 
-```
-monki-labs/
+### Test Character Generation
 
-├── ai/
-│   ├── providers/
-│   ├── story_generator.py
-│   ├── storyboard_generator.py
-│   ├── image_generator.py
-│   ├── audio_generator.py
-│   └── video_builder.py
-│
-├── characters/
-│   ├── characters.json
-│   └── references/
-│
-├── config/
-│   ├── settings.json
-│   ├── series.json
-│   ├── audio.json
-│   └── ai_models.json
-│
-├── core/
-│   ├── pipeline.py
-│   ├── hardware_detector.py
-│   ├── episode_manager.py
-│   └── config_loader.py
-│
-├── media/
-│   └── series/
-│
-├── install.bat
-├── run.bat
-└── main.py
+Run:
+
+```bash
+python tools/generate_image.py
 ```
+
+The tool allows you to select:
+
+1. Character
+2. LoRA version
+3. Prompt
+4. Image dimensions
+5. Inference steps
+6. Output filename
+
+This is currently the fastest way to validate a newly trained character LoRA before integrating it into the episode pipeline.
 
 ---
 
-# ⚙️ Configuration
+# 🛠️ Development Status
 
-Monki Labs uses JSON configuration files.
+## ✅ Completed / Working
 
-## Series Configuration
-
-Controls:
-
-- Genre
-- Audience
-- Episode structure
-- Visual style
-- World rules
-
-File:
-
-```
-config/series.json
-```
-
----
-
-## Character Configuration
-
-Controls:
-
-- Appearance
-- Personality
-- Behavior
-- Visual consistency
-
-File:
-
-```
-characters/characters.json
-```
+* ✅ Project configuration system
+* ✅ Hardware detection
+* ✅ CPU/CUDA execution handling
+* ✅ Character configuration system
+* ✅ Character manager
+* ✅ Character-specific LoRA configuration
+* ✅ Max character LoRA
+* ✅ Sid character LoRA
+* ✅ Lia character LoRA
+* ✅ FLUX image generation
+* ✅ Ad-hoc character image generation
+* ✅ LoRA selection for ad-hoc generation
+* ✅ Local Ollama story generation
+* ✅ Structured story generation
+* ✅ Storyboard generation
+* ✅ Character-aware story output
+* ✅ Character-aware storyboard output
+* ✅ Episode workspace generation
+* ✅ Scene image generation foundation
+* ✅ Audio pipeline foundation
+* ✅ Animation pipeline foundation
+* ✅ Video assembly foundation
 
 ---
 
-## AI Model Configuration
+# 🚧 Currently In Development
 
-Controls:
+* 🚧 Multi-character scene generation
+* 🚧 Improved visual scene descriptions
+* 🚧 Advanced character interaction
+* 🚧 Animation quality
+* 🚧 Camera movement
+* 🚧 Automated sound-effect generation
+* 🚧 Improved audio synchronization
+* 🚧 Final video quality pipeline
+* 🚧 Thumbnail generation improvements
+* 🚧 YouTube publishing automation
 
-- AI models
-- Providers
-- Output locations
+---
 
-File:
+# 🗺️ Development Direction
 
+The immediate development direction is:
+
+```text
+Character LoRAs
+      ↓
+Character-Aware Stories
+      ↓
+Character-Aware Storyboards
+      ↓
+Multi-Character Scene Generation
+      ↓
+Character Animation
+      ↓
+Music + Sound Effects
+      ↓
+Final Video
+      ↓
+Automated Publishing
 ```
-config/ai_models.json
+
+The most important current focus is **character consistency and multi-character interaction**.
+
+The system should ultimately be able to take a story such as:
+
+```text
+Max and Sid get lost in the jungle.
 ```
 
----
+and automatically determine:
 
-# 🐒 Current Series
-
-## Max the Monkey Adventures
-
-A family-friendly cartoon series built around physical comedy.
-
-Rules:
-
-- No dialogue
-- Expressive animation
-- Cartoon physics
-- Comedy-driven stories
-
-Style:
-
-- 3D animated cartoon
-- Bright colors
-- Cinematic scenes
-- Expressive characters
-
----
-
-# 🛠️ Development Roadmap
-
-## Completed
-
-✅ Automated episode pipeline  
-✅ Story generation  
-✅ Storyboard generation  
-✅ Character configuration system  
-✅ Character reference loading  
-✅ Stable Diffusion scene generation  
-✅ Audio pipeline foundation  
-✅ Video assembly  
-✅ Hardware detection  
-✅ One-click installation  
-
----
-
-## In Progress
-
-🚧 AI motion generation  
-🚧 Advanced animation pipeline  
-🚧 Better camera movement  
-🚧 Automated sound effects  
-🚧 Improved character consistency  
-🚧 YouTube publishing automation  
+* Which characters appear in each scene
+* What each character is doing
+* How they interact
+* Their expressions
+* Their poses
+* Their environment
+* The visual composition
+* The animation required
+* The appropriate music and sound effects
 
 ---
 
 # 🎯 Project Vision
 
-The long-term goal of Monki Labs is to create an automated AI animation studio capable of producing complete animated series with:
+The long-term goal of Monki Labs is to create a **local, automated AI animation studio** capable of producing entire cartoon series.
 
-- Consistent characters
-- Automated storytelling
-- AI-generated animation
-- Music and sound design
-- Video publishing workflows
+The system should eventually handle the complete production process:
 
-The goal is not just generating images, but building an end-to-end creative production system.
+```text
+Idea
+ ↓
+Story
+ ↓
+Characters
+ ↓
+Storyboard
+ ↓
+Images
+ ↓
+Animation
+ ↓
+Music
+ ↓
+Sound Effects
+ ↓
+Video
+ ↓
+Thumbnail
+ ↓
+Publishing
+```
+
+The goal is not simply to generate AI images.
+
+**The goal is to build an automated cartoon production system.**
 
 ---
 
 # 🤝 Contributing
 
-Contributions, ideas, and experiments are welcome.
+Contributions, ideas, experiments, and improvements are welcome.
 
-Potential contribution areas:
+Potential contribution areas include:
 
-- AI model integrations
-- Animation improvements
-- Audio systems
-- Character tools
-- Performance optimization
+* AI model integrations
+* Character systems
+* LoRA training
+* Animation
+* Audio
+* Video processing
+* Performance optimization
+* Production automation
 
 ---
 
