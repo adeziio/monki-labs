@@ -6,7 +6,6 @@ from ai.providers.ollama_provider import OllamaProvider
 
 class StoryGenerator(BaseAIService):
 
-
     def __init__(
         self,
         config
@@ -32,16 +31,14 @@ class StoryGenerator(BaseAIService):
         )
 
 
-
     def generate(self):
-
 
         self.log(
             "Generating episode idea"
         )
 
 
-        character = (
+        main_character = (
             self.character_manager
             .get_main_character(
                 self.active_series
@@ -49,82 +46,111 @@ class StoryGenerator(BaseAIService):
         )
 
 
-        character_prompt = (
-
+        character_ids = (
             self.character_manager
-            .build_story_prompt(
-                character
+            .get_character_ids_for_series(
+                self.active_series
             )
-
         )
 
 
-        visual_identity = (
+        character_descriptions = []
 
-            self.character_manager
-            .build_visual_prompt(
-                character
+
+        for character_id in character_ids:
+
+            character = (
+                self.character_manager
+                .get_character(
+                    character_id
+                )
             )
 
+
+            visual_identity = (
+                self.character_manager
+                .build_visual_prompt(
+                    character
+                )
+            )
+
+
+            character_descriptions.append(
+
+                f"- {character_id}: "
+                f"{visual_identity}"
+
+            )
+
+
+        characters_prompt = "\n".join(
+            character_descriptions
+        )
+
+
+        main_character_id = (
+            self.character_manager
+            .get_character_id(
+                main_character
+            )
         )
 
 
         prompt = f"""
+            Create a silent animated cartoon episode idea.
 
-Create a silent animated cartoon episode idea.
+            Available characters:
 
-Main character:
+            {characters_prompt}
 
-{visual_identity}
+            Main character:
+            {main_character_id}
 
+            Character rules:
 
-Character rules:
+            - Characters never speak.
+            - Characters never use dialogue.
+            - Characters communicate through movement and facial expressions.
+            - Humor comes from physical comedy, reactions, timing, and visual situations.
+            - Characters must retain their established visual identities.
 
-{character_prompt}
+            Episode rules:
 
+            - Max must appear in every episode.
+            - Other characters may appear when they improve the story.
+            - Use only characters from the available character list.
+            - No dialogue.
+            - No narration.
+            - Family friendly.
+            - Physical comedy only.
+            - Classic cartoon timing.
+            - The story must work completely without words.
 
-Important rules:
+            IMPORTANT OUTPUT RULES:
 
-- The main character must always be Max.
-- Max is a monkey.
-- Max never speaks.
-- Max communicates through actions, expressions, and physical comedy.
+            Return ONLY valid JSON.
 
+            Do NOT create scenes.
+            Do NOT create frames.
+            Do NOT create images.
+            Do NOT create captions.
+            Do NOT create nested objects.
 
-Episode rules:
+            The "characters" field must contain character IDs from the available character list.
 
-- No dialogue.
-- No narration.
-- Family friendly.
-- Physical comedy only.
-- Classic cartoon timing.
-- The story must work without words.
+            Each field must be a single short sentence.
 
+            Required format:
 
-IMPORTANT OUTPUT RULES:
-
-Return ONLY valid JSON.
-
-Do NOT create scenes.
-Do NOT create frames.
-Do NOT create images.
-Do NOT create captions.
-Do NOT create lists.
-Do NOT create nested objects.
-
-Each field must be a single short sentence.
-
-Required format:
-
-{{
-    "concept": "",
-    "hook": "",
-    "setup": "",
-    "escalation": "",
-    "ending": ""
-}}
-
-"""
+            {{
+            "concept": "",
+            "hook": "",
+            "setup": "",
+            "escalation": "",
+            "ending": "",
+            "characters": ["{main_character_id}"]
+            }}
+        """
 
 
         response = self.llm.generate(
@@ -137,41 +163,44 @@ Required format:
         )
 
 
-
     def parse_response(
         self,
         response
     ):
 
+        main_character_id = (
+            self.character_manager
+            .get_main_character_id(
+                self.active_series
+            )
+        )
+
 
         required_fields = {
 
-
             "concept":
-            "Max discovers something strange.",
-
+            "The main character discovers something strange.",
 
             "hook":
-            "Max finds something unexpected.",
-
+            "The main character encounters something unexpected.",
 
             "setup":
-            "Max investigates the situation.",
-
+            "The characters investigate the situation.",
 
             "escalation":
-            "The situation becomes chaotic.",
-
+            "The situation becomes increasingly chaotic.",
 
             "ending":
-            "A funny surprise happens."
+            "A funny visual surprise ends the adventure.",
+
+            "characters": [
+                main_character_id
+            ]
 
         }
 
 
-
         try:
-
 
             data = json.loads(
                 response
@@ -181,8 +210,9 @@ Required format:
             cleaned = {}
 
 
-            for key, fallback in required_fields.items():
-
+            for key, fallback in (
+                required_fields.items()
+            ):
 
                 value = data.get(
                     key,
@@ -190,7 +220,63 @@ Required format:
                 )
 
 
-                if isinstance(
+                if key == "characters":
+
+                    if isinstance(
+                        value,
+                        list
+                    ):
+
+                        valid_characters = []
+
+                        for character_id in value:
+
+                            if (
+                                character_id
+                                in self.character_manager.characters
+                            ):
+
+                                character = (
+                                    self.character_manager
+                                    .get_character(
+                                        character_id
+                                    )
+                                )
+
+
+                                if (
+                                    character["series"]
+                                    ==
+                                    self.active_series
+                                ):
+
+                                    valid_characters.append(
+                                        character_id
+                                    )
+
+
+                        if main_character_id not in (
+                            valid_characters
+                        ):
+
+                            valid_characters.insert(
+                                0,
+                                main_character_id
+                            )
+
+
+                        cleaned[key] = (
+                            valid_characters
+                        )
+
+                    else:
+
+                        cleaned[key] = (
+                            fallback
+                        )
+
+
+                elif isinstance(
                     value,
                     str
                 ):
@@ -200,18 +286,18 @@ Required format:
 
                 else:
 
-                    cleaned[key] = self.extract_text(
-                        value,
-                        fallback
+                    cleaned[key] = (
+                        self.extract_text(
+                            value,
+                            fallback
+                        )
                     )
 
 
             return cleaned
 
 
-
         except json.JSONDecodeError:
-
 
             self.log(
                 "AI returned invalid JSON. Using fallback."
@@ -221,19 +307,16 @@ Required format:
             return required_fields
 
 
-
     def extract_text(
         self,
         value,
         fallback
     ):
 
-
         if isinstance(
             value,
             dict
         ):
-
 
             if "description" in value:
 
@@ -250,12 +333,10 @@ Required format:
                 )
 
 
-
         if isinstance(
             value,
             list
         ):
-
 
             results = []
 
@@ -280,7 +361,6 @@ Required format:
                 return ". ".join(
                     results
                 )
-
 
 
         return fallback

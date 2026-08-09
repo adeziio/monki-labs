@@ -69,7 +69,7 @@
             },
             "world": {
                 "name": "Max Jungle World",
-                "description": "A colorful cartoon jungle filled with playful adventures.",
+                "description": "A colorful cartoon jungle filled with playful adventures involving a small cast of recurring animal characters.",
                 "locations": [
                     "jungle",
                     "treehouse",
@@ -80,25 +80,26 @@
                 "world_rules": [
                     "Cartoon logic applies",
                     "Characters never speak",
-                    "Problems are solved through creativity"
+                    "Problems are solved through creativity",
+                    "Humor comes from actions, expressions, timing, and physical comedy"
                 ]
             },
             "episode_structure": {
                 "hook": {
                     "duration_seconds": "0-5",
-                    "goal": "Immediately capture attention"
+                    "goal": "Immediately capture attention with a visual situation"
                 },
                 "setup": {
                     "duration_seconds": "5-20",
-                    "goal": "Introduce Max's goal"
+                    "goal": "Introduce the characters and establish the goal or problem"
                 },
                 "escalation": {
                     "duration_seconds": "20-45",
-                    "goal": "Increase comedy and chaos"
+                    "goal": "Increase comedy and chaos through character interactions"
                 },
                 "ending": {
                     "duration_seconds": "45-60",
-                    "goal": "Funny twist ending"
+                    "goal": "Deliver a funny visual twist ending"
                 }
             },
             "audio": {

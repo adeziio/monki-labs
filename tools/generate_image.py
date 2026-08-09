@@ -1,18 +1,20 @@
-```python
 from pathlib import Path
+import json
 
 import torch
 
 from diffusers import FluxPipeline
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(
+    __file__
+).resolve().parent.parent
 
 
-LORA_DIRECTORY = (
+CHARACTERS_CONFIG = (
     PROJECT_ROOT
-    / "models"
-    / "loras"
+    / "config"
+    / "characters.json"
 )
 
 
@@ -28,43 +30,38 @@ MODEL_NAME = (
 )
 
 
-def find_characters():
+def load_characters():
 
-    characters = []
+    if not CHARACTERS_CONFIG.exists():
 
-    if not LORA_DIRECTORY.exists():
-
-        return characters
-
-
-    for character_folder in LORA_DIRECTORY.iterdir():
-
-        if not character_folder.is_dir():
-
-            continue
-
-
-        loras = list(
-            character_folder.rglob(
-                "*.safetensors"
-            )
+        raise FileNotFoundError(
+            f"Characters config not found: "
+            f"{CHARACTERS_CONFIG}"
         )
 
 
-        if not loras:
+    with open(
+        CHARACTERS_CONFIG,
+        "r",
+        encoding="utf-8"
+    ) as file:
 
-            continue
+        config = json.load(file)
 
 
-        characters.append(
-            {
-                "name": character_folder.name,
+    characters = (
+        config.get(
+            "characters",
+            {}
+        )
+    )
 
-                "loras": sorted(
-                    loras,
-                    key=lambda path: path.name
-                )
-            }
+
+    if not characters:
+
+        raise Exception(
+            "No characters found in "
+            "config/characters.json"
         )
 
 
@@ -73,32 +70,38 @@ def find_characters():
 
 def select_character():
 
-    characters = find_characters()
+    characters = load_characters()
 
 
-    if not characters:
-
-        raise Exception(
-            "No LoRA models found in models/loras/"
-        )
+    character_ids = list(
+        characters.keys()
+    )
 
 
     print(
         "\nAvailable Characters:"
     )
 
+
     print(
         "===================="
     )
 
 
-    for index, character in enumerate(
-        characters,
+    for index, character_id in enumerate(
+        character_ids,
         start=1
     ):
 
+        character = (
+            characters[character_id]
+        )
+
+
         print(
-            f"{index}. {character['name']}"
+            f"{index}. "
+            f"{character_id} "
+            f"({character['name']})"
         )
 
 
@@ -113,11 +116,16 @@ def select_character():
 
             choice = int(choice)
 
-            selected = characters[
+
+            selected_id = character_ids[
                 choice - 1
             ]
 
-            return selected
+
+            return (
+                selected_id,
+                characters[selected_id]
+            )
 
 
         except (
@@ -130,59 +138,76 @@ def select_character():
             )
 
 
-def select_lora(character):
+def get_lora_path(
+    character_id,
+    character
+):
 
-    loras = character["loras"]
-
-
-    print(
-        "\nAvailable LoRA Versions:"
-    )
-
-    print(
-        "========================"
+    lora_config = character.get(
+        "lora"
     )
 
 
-    for index, lora in enumerate(
-        loras,
-        start=1
-    ):
+    if not lora_config:
 
-        print(
-            f"{index}. {lora.stem}"
+        raise Exception(
+            f"No LoRA configuration found "
+            f"for character: {character_id}"
         )
 
 
-    while True:
+    lora_path = Path(
+        lora_config["path"]
+    )
 
-        choice = input(
-            "\nSelect LoRA version: "
+
+    if not lora_path.is_absolute():
+
+        lora_path = (
+            PROJECT_ROOT
+            /
+            lora_path
         )
 
 
-        try:
+    if not lora_path.exists():
 
-            choice = int(choice)
-
-            selected = loras[
-                choice - 1
-            ]
-
-            return selected
+        raise FileNotFoundError(
+            f"LoRA file not found for "
+            f"{character_id}: {lora_path}"
+        )
 
 
-        except (
-            ValueError,
-            IndexError
-        ):
-
-            print(
-                "Invalid selection."
-            )
+    return lora_path
 
 
-def load_model(lora_path):
+def get_trigger_word(
+    character_id,
+    character
+):
+
+    lora_config = character.get(
+        "lora"
+    )
+
+
+    if not lora_config:
+
+        raise Exception(
+            f"No LoRA configuration found "
+            f"for character: {character_id}"
+        )
+
+
+    return lora_config.get(
+        "trigger_word",
+        character_id
+    )
+
+
+def load_model(
+    lora_path
+):
 
     device = (
         "cuda"
@@ -245,14 +270,19 @@ def load_model(lora_path):
             "\n[FLUX] Enabling sequential CPU offload..."
         )
 
+
         pipe.vae.enable_slicing()
         pipe.vae.enable_tiling()
 
+
         pipe.enable_sequential_cpu_offload()
+
 
     else:
 
-        pipe.to(device)
+        pipe.to(
+            device
+        )
 
 
     print(
@@ -265,10 +295,19 @@ def load_model(lora_path):
 
 def generate_image():
 
-    character = select_character()
+    character_id, character = (
+        select_character()
+    )
 
 
-    lora_path = select_lora(
+    lora_path = get_lora_path(
+        character_id,
+        character
+    )
+
+
+    trigger_word = get_trigger_word(
+        character_id,
         character
     )
 
@@ -284,7 +323,8 @@ def generate_image():
 
 
     print(
-        character["name"]
+        f"{character_id} "
+        f"({character['name']})"
     )
 
 
@@ -299,12 +339,23 @@ def generate_image():
 
 
     print(
+        "\nTrigger Word:"
+    )
+
+
+    print(
+        trigger_word
+    )
+
+
+    print(
         "\nPrompt Example:"
     )
 
 
     print(
-        "standing in a jungle, holding a banana, cinematic lighting"
+        "standing in a natural environment, "
+        "cinematic lighting"
     )
 
 
@@ -315,7 +366,7 @@ def generate_image():
 
     full_prompt = (
 
-        f"{character['name']}, "
+        f"{trigger_word}, "
 
         f"{user_prompt}, "
 
@@ -419,7 +470,9 @@ def generate_image():
 
     if not filename:
 
-        filename = "image.png"
+        filename = (
+            f"{character_id}.png"
+        )
 
 
     output = (
@@ -449,4 +502,3 @@ def generate_image():
 if __name__ == "__main__":
 
     generate_image()
-```

@@ -14,76 +14,96 @@ from ai.video_builder import VideoBuilder
 from core.episode_manager import EpisodeManager
 
 
-
 class MonkiPipeline:
-
 
     def __init__(self):
 
         self.logger = Logger()
 
 
-        # Detect hardware first
-        self.hardware = HardwareDetector().detect()
+        self.hardware = (
+            HardwareDetector().detect()
+        )
 
 
         print(
-            f"Running on device: {self.hardware['device']}"
+            f"Running on device: "
+            f"{self.hardware['device']}"
         )
 
 
-        # Load configuration
         loader = ConfigLoader()
 
-        self.config = loader.load_all()
 
-        self.config["hardware"] = self.hardware
-
-
-        # Character system
-        self.characters = CharacterManager(
-            self.config["characters"]
+        self.config = (
+            loader.load_all()
         )
 
 
-        self.config["character_manager"] = self.characters
-
-
-        # AI Services
-        self.story = StoryGenerator(
-            self.config
+        self.config["hardware"] = (
+            self.hardware
         )
 
 
-        self.storyboard = StoryboardGenerator(
-            self.config
+        self.characters = (
+            CharacterManager(
+                self.config["characters"]
+            )
         )
 
 
-        self.images = ImageGenerator(
-            self.config
+        self.config["character_manager"] = (
+            self.characters
         )
 
 
-        self.animation = AnimationGenerator(
-            self.config
+        self.story = (
+            StoryGenerator(
+                self.config
+            )
         )
 
 
-        self.audio = AudioGenerator(
-            self.config
+        self.storyboard = (
+            StoryboardGenerator(
+                self.config
+            )
         )
 
 
-        self.thumbnail = ThumbnailGenerator(
-            self.config
+        self.images = (
+            ImageGenerator(
+                self.config
+            )
         )
 
 
-        self.video = VideoBuilder(
-            self.config
+        self.animation = (
+            AnimationGenerator(
+                self.config
+            )
         )
 
+
+        self.audio = (
+            AudioGenerator(
+                self.config
+            )
+        )
+
+
+        self.thumbnail = (
+            ThumbnailGenerator(
+                self.config
+            )
+        )
+
+
+        self.video = (
+            VideoBuilder(
+                self.config
+            )
+        )
 
 
     def create_episode(self):
@@ -92,20 +112,32 @@ class MonkiPipeline:
             "Creating new episode"
         )
 
-        episode = EpisodeManager(
-            "max_the_monkey"
+
+        active_series = (
+            self.config["series"]
+            ["active_series"]
         )
 
 
-        episode_path = episode.get_path()
+        episode = EpisodeManager(
+            active_series
+        )
+
+
+        episode_path = (
+            episode.get_path()
+        )
 
 
         print(
-            f"Episode workspace: {episode_path}"
+            f"Episode workspace: "
+            f"{episode_path}"
         )
 
 
-        story = self.story.generate()
+        story = (
+            self.story.generate()
+        )
 
 
         episode.save_json(
@@ -115,8 +147,10 @@ class MonkiPipeline:
         )
 
 
-        storyboard = self.storyboard.generate(
-            story
+        storyboard = (
+            self.storyboard.generate(
+                story
+            )
         )
 
 
@@ -127,31 +161,41 @@ class MonkiPipeline:
         )
 
 
-        scenes = self.images.generate(
-            storyboard,
-            episode
+        scenes = (
+            self.images.generate(
+                storyboard,
+                episode
+            )
         )
 
 
-        animations = self.animation.generate(
-            scenes,
-            episode
+        animations = (
+            self.animation.generate(
+                scenes,
+                episode
+            )
         )
 
 
-        audio = self.audio.generate(
-            animations
+        audio = (
+            self.audio.generate(
+                animations
+            )
         )
 
 
-        video = self.video.build(
-            animations,
-            audio
+        video = (
+            self.video.build(
+                animations,
+                audio
+            )
         )
 
 
-        thumbnail = self.thumbnail.generate(
-            video
+        thumbnail = (
+            self.thumbnail.generate(
+                video
+            )
         )
 
 

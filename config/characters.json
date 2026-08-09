@@ -1,11 +1,15 @@
 {
     "characters": {
-        "max": {
+        "maxmonkey": {
             "series": "max_the_monkey",
             "name": "Max",
             "role": "Main Character",
             "species": "Monkey",
             "importance": "Main",
+            "lora": {
+                "path": "models/loras/maxmonkey/maxmonkey_flux_lora_v3.safetensors",
+                "trigger_word": "maxmonkey"
+            },
             "appearance": {
                 "body": {
                     "size": "Small",
@@ -58,8 +62,133 @@
                     "Blue hoodie",
                     "Red baseball cap",
                     "Large eyes"
+                ]
+            }
+        },
+        "sidsquirrel": {
+            "series": "max_the_monkey",
+            "name": "Sid",
+            "role": "Best Friend",
+            "species": "Squirrel",
+            "importance": "Supporting",
+            "lora": {
+                "path": "models/loras/sidsquirrel/sidsquirrel_flux_lora_v1.safetensors",
+                "trigger_word": "sidsquirrel"
+            },
+            "appearance": {
+                "body": {
+                    "size": "Small",
+                    "shape": "Round and cute",
+                    "fur": "Light orange fluffy fur"
+                },
+                "face": {
+                    "eyes": "Large expressive eyes",
+                    "expression": "Highly emotional cartoon expressions"
+                },
+                "clothing": [
+                    {
+                        "item": "hat",
+                        "color": "Character-specific"
+                    }
+                ]
+            },
+            "personality": {
+                "positive_traits": [
+                    "Energetic",
+                    "Playful",
+                    "Loyal",
+                    "Curious"
                 ],
-                "reference_folder": "characters/references/max_the_monkey"
+                "flaws": [
+                    "Impulsive",
+                    "Easily distracted",
+                    "Gets carried away"
+                ]
+            },
+            "behavior_rules": [
+                "Never speaks",
+                "Never uses dialogue",
+                "Communicates through movement",
+                "Uses facial expressions",
+                "Uses physical comedy"
+            ],
+            "story_rules": [
+                "Supports Max during adventures",
+                "Creates additional physical comedy",
+                "Can help create or solve problems"
+            ],
+            "visual_consistency": {
+                "locked_features": [
+                    "Light orange fur",
+                    "Hat",
+                    "Large expressive eyes"
+                ]
+            }
+        },
+        "lialynx": {
+            "series": "max_the_monkey",
+            "name": "Lia",
+            "role": "Love Interest",
+            "species": "Lynx",
+            "importance": "Supporting",
+            "lora": {
+                "path": "models/loras/lialynx/lialynx_flux_lora_v1.safetensors",
+                "trigger_word": "lialynx"
+            },
+            "appearance": {
+                "body": {
+                    "size": "Small",
+                    "shape": "Round and cute",
+                    "fur": "White cream fluffy fur"
+                },
+                "face": {
+                    "eyes": "Large expressive eyes with feminine eyelashes",
+                    "expression": "Highly emotional cartoon expressions"
+                },
+                "clothing": [
+                    {
+                        "item": "hoodie",
+                        "color": "Pink"
+                    },
+                    {
+                        "item": "daisy flower",
+                        "color": "White and yellow"
+                    }
+                ]
+            },
+            "personality": {
+                "positive_traits": [
+                    "Sweet",
+                    "Playful",
+                    "Curious",
+                    "Confident"
+                ],
+                "flaws": [
+                    "Playfully mischievous",
+                    "Can be teasing",
+                    "Sometimes gets caught up in the moment"
+                ]
+            },
+            "behavior_rules": [
+                "Never speaks",
+                "Never uses dialogue",
+                "Communicates through movement",
+                "Uses facial expressions",
+                "Uses physical comedy"
+            ],
+            "story_rules": [
+                "Can appear as Max's love interest",
+                "Communicates affection through actions and expressions",
+                "Can participate in physical comedy and adventures"
+            ],
+            "visual_consistency": {
+                "locked_features": [
+                    "White cream fur",
+                    "Pink hoodie",
+                    "Feminine eyelashes",
+                    "Daisy flower",
+                    "Large expressive eyes"
+                ]
             }
         }
     }

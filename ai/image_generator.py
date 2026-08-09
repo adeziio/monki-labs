@@ -3,9 +3,7 @@ from ai.base_ai_service import BaseAIService
 from ai.providers.flux_provider import FluxProvider
 
 
-
 class ImageGenerator(BaseAIService):
-
 
     def __init__(
         self,
@@ -17,8 +15,11 @@ class ImageGenerator(BaseAIService):
         )
 
 
-        self.image_provider = FluxProvider(
-            config
+        self.config = config
+
+
+        self.character_manager = (
+            config["character_manager"]
         )
 
 
@@ -50,13 +51,76 @@ class ImageGenerator(BaseAIService):
         )
 
 
+        self.image_provider = None
+
+
+    def build_character_prompt(
+        self,
+        character_ids
+    ):
+
+        trigger_words = []
+
+
+        for character_id in character_ids:
+
+            character = (
+                self.character_manager
+                .get_character(
+                    character_id
+                )
+            )
+
+
+            trigger_word = (
+                self.character_manager
+                .get_trigger_word(
+                    character_id
+                )
+            )
+
+
+            trigger_words.append(
+                trigger_word
+            )
+
+
+        return ", ".join(
+            trigger_words
+        )
+
+
+    def get_lora_paths(
+        self,
+        character_ids
+    ):
+
+        lora_paths = []
+
+
+        for character_id in character_ids:
+
+            lora_path = (
+                self.character_manager
+                .get_lora_path(
+                    character_id
+                )
+            )
+
+
+            lora_paths.append(
+                lora_path
+            )
+
+
+        return lora_paths
+
 
     def generate(
         self,
         storyboard,
         episode
     ):
-
 
         self.log(
             "Generating scene images"
@@ -74,28 +138,49 @@ class ImageGenerator(BaseAIService):
 
         ):
 
+            character_ids = (
+                scene.get(
+                    "characters",
+                    []
+                )
+            )
+
+
+            if not character_ids:
+
+                character_ids = [
+                    self.character_manager
+                    .get_main_character_id(
+                        self.active_series
+                    )
+                ]
+
+
+            lora_paths = (
+                self.get_lora_paths(
+                    character_ids
+                )
+            )
+
+
+            self.image_provider = (
+                FluxProvider(
+                    self.config,
+                    lora_paths=lora_paths
+                )
+            )
+
+
+            trigger_words = (
+                self.build_character_prompt(
+                    character_ids
+                )
+            )
+
 
             scene_prompt = (
 
-                "maxmonkey, "
-
-                "Max the monkey character, "
-
-                "cute cartoon monkey, "
-
-                "blue hoodie, "
-
-                "red baseball cap, "
-
-                "consistent character design, "
-
-                "same face, "
-
-                "same fur pattern, "
-
-                "same clothing, "
-
-                "full body character, "
+                f"{trigger_words}, "
 
                 f"{scene['description']}. "
 
@@ -105,7 +190,9 @@ class ImageGenerator(BaseAIService):
 
                 "cinematic lighting, "
 
-                "expressive pose, "
+                "expressive poses, "
+
+                "clear character interactions, "
 
                 "family friendly."
 
@@ -116,13 +203,26 @@ class ImageGenerator(BaseAIService):
                 "\n=============================="
             )
 
+
             print(
-                "FLUX PROMPT"
+                "SCENE CHARACTERS"
             )
+
+
+            print(
+                character_ids
+            )
+
+
+            print(
+                "\nFLUX PROMPT"
+            )
+
 
             print(
                 scene_prompt
             )
+
 
             print(
                 "==============================\n"
@@ -140,8 +240,6 @@ class ImageGenerator(BaseAIService):
 
                     scene_prompt,
 
-                    self.negative_prompt,
-
                     filename,
 
                     episode.get_path()
@@ -157,6 +255,7 @@ class ImageGenerator(BaseAIService):
 
                 {
                     "scene": index,
+                    "characters": character_ids,
                     "image": image_path
                 }
 

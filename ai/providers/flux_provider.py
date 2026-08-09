@@ -7,11 +7,10 @@ from diffusers import FluxPipeline
 
 class FluxProvider:
 
-
     def __init__(
         self,
         config,
-        lora_path=None
+        lora_paths=None
     ):
 
         hardware = (
@@ -48,19 +47,6 @@ class FluxProvider:
         )
 
 
-        if lora_path:
-
-            self.lora_path = Path(
-                lora_path
-            )
-
-        else:
-
-            self.lora_path = Path(
-                image_config["lora_path"]
-            )
-
-
         print(
             "[FLUX] Loading model..."
         )
@@ -75,16 +61,14 @@ class FluxProvider:
         )
 
 
-        print(
-            f"[FLUX] Loading LoRA: {self.lora_path}"
-        )
+        self.loaded_adapters = []
 
 
-        self.pipeline.load_lora_weights(
+        if lora_paths:
 
-            str(self.lora_path)
-
-        )
+            self.load_loras(
+                lora_paths
+            )
 
 
         self.pipeline.to(
@@ -97,6 +81,82 @@ class FluxProvider:
         )
 
 
+    def load_loras(
+        self,
+        lora_paths
+    ):
+
+        if isinstance(
+            lora_paths,
+            (str, Path)
+        ):
+
+            lora_paths = [
+                lora_paths
+            ]
+
+
+        for index, lora_path in enumerate(
+            lora_paths
+        ):
+
+            lora_path = Path(
+                lora_path
+            )
+
+
+            if not lora_path.exists():
+
+                raise FileNotFoundError(
+                    f"LoRA file not found: "
+                    f"{lora_path}"
+                )
+
+
+            adapter_name = (
+                f"character_{index}"
+            )
+
+
+            print(
+                f"[FLUX] Loading LoRA: "
+                f"{lora_path}"
+            )
+
+
+            self.pipeline.load_lora_weights(
+
+                str(lora_path),
+
+                adapter_name=adapter_name
+
+            )
+
+
+            self.loaded_adapters.append(
+                adapter_name
+            )
+
+
+    def set_character_loras(
+        self,
+        lora_paths
+    ):
+
+        self.loaded_adapters = []
+
+
+        self.load_loras(
+            lora_paths
+        )
+
+
+        if self.loaded_adapters:
+
+            self.pipeline.set_adapters(
+                self.loaded_adapters
+            )
+
 
     def generate(
         self,
@@ -104,7 +164,6 @@ class FluxProvider:
         filename,
         output_directory
     ):
-
 
         print(
             "[FLUX] Generating:"

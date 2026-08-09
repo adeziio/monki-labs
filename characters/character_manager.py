@@ -1,5 +1,7 @@
-class CharacterManager:
+from pathlib import Path
 
+
+class CharacterManager:
 
     def __init__(
         self,
@@ -9,7 +11,6 @@ class CharacterManager:
         self.characters = (
             characters_config["characters"]
         )
-
 
 
     def get_character(
@@ -25,7 +26,6 @@ class CharacterManager:
 
 
         return self.characters[character_id]
-
 
 
     def get_main_character(
@@ -47,12 +47,99 @@ class CharacterManager:
         return None
 
 
+    def get_main_character_id(
+        self,
+        series_id
+    ):
+
+        for character_id, character in (
+            self.characters.items()
+        ):
+
+            if (
+                character["series"] == series_id
+                and
+                character["importance"] == "Main"
+            ):
+
+                return character_id
+
+
+        return None
+
+
+    def get_lora_path(
+        self,
+        character_id
+    ):
+
+        character = self.get_character(
+            character_id
+        )
+
+
+        lora_config = character.get(
+            "lora"
+        )
+
+
+        if not lora_config:
+
+            raise Exception(
+                f"No LoRA configuration found "
+                f"for character: {character_id}"
+            )
+
+
+        lora_path = Path(
+            lora_config["path"]
+        )
+
+
+        if not lora_path.exists():
+
+            raise FileNotFoundError(
+                f"LoRA file not found for "
+                f"{character_id}: {lora_path}"
+            )
+
+
+        return lora_path
+
+
+    def get_trigger_word(
+        self,
+        character_id
+    ):
+
+        character = self.get_character(
+            character_id
+        )
+
+
+        lora_config = character.get(
+            "lora"
+        )
+
+
+        if not lora_config:
+
+            raise Exception(
+                f"No LoRA configuration found "
+                f"for character: {character_id}"
+            )
+
+
+        return lora_config.get(
+            "trigger_word",
+            character_id
+        )
+
 
     def build_visual_prompt(
         self,
         character
     ):
-
 
         appearance = (
             character["appearance"]
@@ -101,12 +188,10 @@ class CharacterManager:
         )
 
 
-
     def build_behavior_prompt(
         self,
         character
     ):
-
 
         return ", ".join(
 
@@ -118,12 +203,10 @@ class CharacterManager:
         )
 
 
-
     def build_story_prompt(
         self,
         character
     ):
-
 
         return ", ".join(
 
@@ -135,12 +218,10 @@ class CharacterManager:
         )
 
 
-
     def build_complete_prompt(
         self,
         character
     ):
-
 
         visual = (
             self.build_visual_prompt(
@@ -159,64 +240,56 @@ class CharacterManager:
         return (
 
             visual
-
             +
-
             ". "
-
             +
-
             behavior
 
         )
-
-
-
-    def get_reference_images(
+    
+    def get_character_id(
         self,
         character
     ):
 
+        for character_id, stored_character in (
+            self.characters.items()
+        ):
 
-        visual_consistency = (
-            character.get(
-                "visual_consistency",
-                {}
-            )
-        )
+            if stored_character is character:
 
-
-        reference_folder = (
-            visual_consistency.get(
-                "reference_folder"
-            )
-        )
+                return character_id
 
 
-        reference_images = (
-            visual_consistency.get(
-                "reference_images",
-                []
-            )
-        )
+        for character_id, stored_character in (
+            self.characters.items()
+        ):
+
+            if stored_character == character:
+
+                return character_id
 
 
-        if not reference_folder:
-
-            return []
+        return None
 
 
+    def get_character_ids_for_series(
+        self,
+        series_id
+    ):
 
-        images = []
-
-
-        for image in reference_images:
-
-            images.append(
-
-                f"{reference_folder}/{image}"
-
-            )
+        character_ids = []
 
 
-        return images
+        for character_id, character in (
+            self.characters.items()
+        ):
+
+            if character["series"] == series_id:
+
+                character_ids.append(
+                    character_id
+                )
+
+
+        return character_ids

@@ -85,15 +85,7 @@ huggingface/
 # Generated Media
 # ==================================
 
-media/scenes/*
-media/audio/*
-media/thumbnails/*
-media/output/*
-
-!media/scenes/.gitkeep
-!media/audio/.gitkeep
-!media/thumbnails/.gitkeep
-!media/output/.gitkeep
+media/
 
 
 # ==================================

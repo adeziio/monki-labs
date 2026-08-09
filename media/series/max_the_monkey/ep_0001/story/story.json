@@ -1,7 +1,11 @@
 {
-    "concept": "Max the monkey discovers his favorite food, bananas, are in short supply and must go on a wild adventure to find more.",
-    "hook": "Max's banana craving is suddenly interrupted by an empty fruit bowl, sparking his quest for more.",
-    "setup": "Max explores the jungle, trying different fruits but finding they're not as tasty as bananas.",
-    "escalation": "His search becomes a chaotic scavenger hunt, with Max getting tangled in vines and knocking over trees.",
-    "ending": "A funny surprise happens."
+    "concept": "Max and his friends get lost in the woods",
+    "hook": "Max accidentally leaves his favorite snack behind",
+    "setup": "Max tries to find his way back home, but keeps getting distracted by silly things he finds in the woods",
+    "escalation": "As night falls, Max's friends join him on an adventure to find a way out of the forest before it gets too dark",
+    "ending": "They finally find their way out, exhausted but relieved, and share a laugh about their wild adventure",
+    "characters": [
+        "maxmonkey",
+        "sidsquirrel"
+    ]
 }
