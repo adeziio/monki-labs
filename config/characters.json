@@ -7,7 +7,7 @@
             "species": "Monkey",
             "importance": "Main",
             "lora": {
-                "path": "models/loras/maxmonkey/maxmonkey_flux_lora_v3.safetensors",
+                "path": "models/loras/maxmonkey/maxmonkey_flux_lora.safetensors",
                 "trigger_word": "maxmonkey"
             },
             "appearance": {
@@ -72,7 +72,7 @@
             "species": "Squirrel",
             "importance": "Supporting",
             "lora": {
-                "path": "models/loras/sidsquirrel/sidsquirrel_flux_lora_v1.safetensors",
+                "path": "models/loras/sidsquirrel/sidsquirrel_flux_lora.safetensors",
                 "trigger_word": "sidsquirrel"
             },
             "appearance": {
@@ -132,7 +132,7 @@
             "species": "Lynx",
             "importance": "Supporting",
             "lora": {
-                "path": "models/loras/lialynx/lialynx_flux_lora_v1.safetensors",
+                "path": "models/loras/lialynx/lialynx_flux_lora.safetensors",
                 "trigger_word": "lialynx"
             },
             "appearance": {
