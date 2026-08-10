@@ -186,16 +186,6 @@ class ImageGenerator(BaseAIService):
 
                 f"{self.style_prompt}. "
 
-                "3D animated movie frame, "
-
-                "cinematic lighting, "
-
-                "expressive poses, "
-
-                "clear character interactions, "
-
-                "family friendly."
-
             )
 
 

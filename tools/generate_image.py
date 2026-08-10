@@ -368,19 +368,7 @@ def generate_image():
 
         f"{trigger_word}, "
 
-        f"{user_prompt}, "
-
-        "full body character, "
-
-        "consistent character design, "
-
-        "3D animated movie frame, "
-
-        "cinematic lighting, "
-
-        "expressive pose, "
-
-        "family friendly"
+        f"{user_prompt} "
 
     )
 
