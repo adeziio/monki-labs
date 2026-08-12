@@ -1,11 +1,12 @@
 import requests
 
 
-
 class OllamaProvider:
 
-
-    def __init__(self, config):
+    def __init__(
+        self,
+        config
+    ):
 
         self.url = (
             config["ai_models"]
@@ -29,25 +30,39 @@ class OllamaProvider:
         )
 
 
+    def generate(
+        self,
+        prompt,
+        response_format=None
+    ):
 
-    def generate(self, prompt):
+        request_data = {
+
+            "model": self.model,
+
+            "prompt": prompt,
+
+            "stream": False
+
+        }
+
+
+        if response_format:
+
+            request_data["format"] = (
+                response_format
+            )
+
+        else:
+
+            request_data["format"] = "json"
 
 
         response = requests.post(
 
             f"{self.url}/api/generate",
 
-            json={
-
-                "model": self.model,
-
-                "prompt": prompt,
-
-                "stream": False,
-
-                "format": "json"
-
-            }
+            json=request_data
 
         )
 
@@ -55,4 +70,7 @@ class OllamaProvider:
         response.raise_for_status()
 
 
-        return response.json()["response"]
+        data = response.json()
+
+
+        return data["response"]

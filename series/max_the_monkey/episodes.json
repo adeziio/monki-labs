@@ -1,8 +1,0 @@
-{
-    "episode_memory": {
-        "enabled": false,
-        "track_previous_stories": false,
-        "track_character_growth": false,
-        "remember_previous_events": false
-    }
-}

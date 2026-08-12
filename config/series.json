@@ -78,10 +78,89 @@
                     "hidden areas"
                 ],
                 "world_rules": [
-                    "Cartoon logic applies",
-                    "Characters never speak",
-                    "Problems are solved through creativity",
-                    "Humor comes from actions, expressions, timing, and physical comedy"
+                    "cartoon logic applies",
+                    "characters never speak",
+                    "problems are solved through creativity",
+                    "humor comes from actions, expressions, timing, and physical comedy"
+                ]
+            },
+            "story_generation": {
+                "format": "simple silent visual-comedy cartoon episode",
+                "goal": [
+                    "simple visual premise",
+                    "physical comedy",
+                    "escalation",
+                    "funny visual payoff"
+                ],
+                "rules": [
+                    "use only available characters",
+                    "the main character drives the comedy",
+                    "use one simple central situation",
+                    "keep the story easy to understand visually",
+                    "no dialogue",
+                    "no narration",
+                    "no text",
+                    "no signs",
+                    "no captions",
+                    "no complicated plot",
+                    "no unrelated events",
+                    "no character appearance descriptions",
+                    "no camera directions",
+                    "no sound or music",
+                    "no animation descriptions"
+                ],
+                "comedy_mechanisms": [
+                    "failed attempts",
+                    "slipping",
+                    "falling",
+                    "balancing",
+                    "awkward positions",
+                    "objects rolling away",
+                    "objects behaving unexpectedly",
+                    "bad ideas backfiring",
+                    "accidental chain reactions",
+                    "physical misunderstandings",
+                    "exaggerated reactions",
+                    "ironic consequences"
+                ],
+                "action_rules": [
+                    "the action field is the only scene-level visual instruction",
+                    "every action must describe the physical event visible in the generated image",
+                    "every character physically performing an action must be explicitly identified by character ID",
+                    "every character physically affected by an action must be explicitly identified by character ID",
+                    "do not use collective or ambiguous character references",
+                    "use character IDs exactly as provided in the available characters",
+                    "do not use character names when referring to characters in actions",
+                    "do not describe character appearance in actions",
+                    "preserve the exact physical relationship between characters"
+                ],
+                "forbidden_character_references": [
+                    "they",
+                    "them",
+                    "their",
+                    "everyone",
+                    "all of them",
+                    "both of them",
+                    "all three",
+                    "the three characters",
+                    "the characters",
+                    "the group",
+                    "the others",
+                    "everyone else"
+                ],
+                "character_usage_rules": [
+                    "the top-level characters dictionary defines every character participating in the episode",
+                    "every participating character must appear exactly once in the characters dictionary",
+                    "the main character must always be included with the role main",
+                    "supporting characters must use the role supporting",
+                    "do not create a characters field inside individual scenes",
+                    "scene participation is determined by the action itself"
+                ],
+                "uniqueness_rules": [
+                    "do not simply replace the object from a previous episode",
+                    "avoid repeating the same underlying comedy mechanism",
+                    "look at previous episodes and choose a meaningfully different physical-comedy mechanism",
+                    "keep the new story simple"
                 ]
             },
             "episode_structure": {

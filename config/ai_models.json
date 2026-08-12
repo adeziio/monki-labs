@@ -7,14 +7,18 @@
         "language_model": {
             "enabled": true,
             "provider": "ollama",
-            "model": "llama3",
+            "model": "qwen3:8b",
             "device": "cpu"
         },
         "image_model": {
             "enabled": true,
             "provider": "flux",
             "model": "black-forest-labs/FLUX.1-schnell",
-            "output_directory": "media/scenes"
+            "output_directory": "media/scenes",
+            "height": 1024,
+            "width": 1024,
+            "num_inference_steps": 4,
+            "guidance_scale": 1.0
         },
         "animation_model": {
             "enabled": true,

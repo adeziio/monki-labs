@@ -5,12 +5,12 @@ from core.hardware_detector import HardwareDetector
 from characters.character_manager import CharacterManager
 
 from ai.story_generator import StoryGenerator
-from ai.storyboard_generator import StoryboardGenerator
 from ai.image_generator import ImageGenerator
 from ai.animation_generator import AnimationGenerator
 from ai.audio_generator import AudioGenerator
 from ai.thumbnail_generator import ThumbnailGenerator
 from ai.video_builder import VideoBuilder
+
 from core.episode_manager import EpisodeManager
 
 
@@ -20,30 +20,24 @@ class MonkiPipeline:
 
         self.logger = Logger()
 
-
         self.hardware = (
             HardwareDetector().detect()
         )
-
 
         print(
             f"Running on device: "
             f"{self.hardware['device']}"
         )
 
-
         loader = ConfigLoader()
-
 
         self.config = (
             loader.load_all()
         )
 
-
         self.config["hardware"] = (
             self.hardware
         )
-
 
         self.characters = (
             CharacterManager(
@@ -51,11 +45,9 @@ class MonkiPipeline:
             )
         )
 
-
         self.config["character_manager"] = (
             self.characters
         )
-
 
         self.story = (
             StoryGenerator(
@@ -63,20 +55,11 @@ class MonkiPipeline:
             )
         )
 
-
-        self.storyboard = (
-            StoryboardGenerator(
-                self.config
-            )
-        )
-
-
         self.images = (
             ImageGenerator(
                 self.config
             )
         )
-
 
         self.animation = (
             AnimationGenerator(
@@ -84,13 +67,11 @@ class MonkiPipeline:
             )
         )
 
-
         self.audio = (
             AudioGenerator(
                 self.config
             )
         )
-
 
         self.thumbnail = (
             ThumbnailGenerator(
@@ -98,47 +79,68 @@ class MonkiPipeline:
             )
         )
 
-
         self.video = (
             VideoBuilder(
                 self.config
             )
         )
 
-
-    def create_episode(self):
+    def create_episode(
+        self
+    ):
 
         self.logger.info(
             "Creating new episode"
         )
-
 
         active_series = (
             self.config["series"]
             ["active_series"]
         )
 
-
         episode = EpisodeManager(
             active_series
         )
 
-
         episode_path = (
             episode.get_path()
         )
-
 
         print(
             f"Episode workspace: "
             f"{episode_path}"
         )
 
-
-        story = (
-            self.story.generate()
+        previous_stories = (
+            episode.get_previous_stories()
         )
 
+        print(
+            f"Previous episodes available: "
+            f"{len(previous_stories)}"
+        )
+
+        story = (
+            self.story.generate(
+                previous_stories
+            )
+        )
+
+        if story is None:
+
+            raise RuntimeError(
+                "Story generation failed. "
+                "The story generator returned no valid story."
+            )
+
+        if not story.get(
+            "scenes"
+        ):
+
+            raise RuntimeError(
+                "Story generation failed. "
+                "No valid scenes were generated."
+            )
 
         episode.save_json(
             "story",
@@ -146,28 +148,12 @@ class MonkiPipeline:
             story
         )
 
-
-        storyboard = (
-            self.storyboard.generate(
-                story
-            )
-        )
-
-
-        episode.save_json(
-            "storyboard",
-            "storyboard.json",
-            storyboard
-        )
-
-
         scenes = (
             self.images.generate(
-                storyboard,
+                story,
                 episode
             )
         )
-
 
         animations = (
             self.animation.generate(
@@ -176,13 +162,11 @@ class MonkiPipeline:
             )
         )
 
-
         audio = (
             self.audio.generate(
                 animations
             )
         )
-
 
         video = (
             self.video.build(
@@ -191,13 +175,11 @@ class MonkiPipeline:
             )
         )
 
-
         thumbnail = (
             self.thumbnail.generate(
                 video
             )
         )
-
 
         self.logger.info(
             "Episode generation complete"
