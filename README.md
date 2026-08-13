@@ -1,229 +1,481 @@
 # 🐒 Monki Labs
 
-**Monki Labs** is a fully automated, local-first AI video generation pipeline built to create and eventually publish short-form YouTube content with minimal human involvement.
+Monki Labs is a fully automated AI video generation pipeline designed to create short-form vertical videos with minimal human interaction.
 
-The long-term goal is simple:
-
-> **Generate → Process → Publish → Repeat**
+The project is designed around **local and cloud GPU execution**, with the long-term goal of automatically generating and publishing high-quality videos on a recurring schedule.
 
 ---
 
-## 🚀 Vision
+## 🎯 Goals
 
-Monki Labs is being built as an automated AI content studio capable of:
+Monki Labs aims to:
 
-* 💡 Generating original video concepts
-* 🤖 Creating AI-generated video
-* 🎬 Processing and assembling footage
-* 🎵 Adding audio
-* 🖼️ Generating supporting content such as thumbnails
-* 📤 Uploading videos to YouTube
-* ⏰ Publishing automatically on a recurring schedule
-* ☁️ Running on remote GPU infrastructure without requiring a personal computer to stay powered on
+* 🤖 Automatically generate video concepts using a local language model
+* 🎬 Generate short-form AI videos from those concepts
+* 🎵 Add music and audio automatically
+* 📱 Produce vertical 9:16 videos optimized for short-form platforms
+* 📦 Organize generated videos automatically by content category and run
+* ☁️ Support GPU-based cloud execution
+* 🔄 Eventually run automatically without requiring a local PC
+* 📅 Support recurring automated video generation and publishing
+* 💰 Remain completely free to operate using local/open-source models and free infrastructure where possible
 
-The ultimate goal is a **fully unattended weekly content pipeline**.
+The long-term vision is a pipeline that can run independently, generate quality content, and eventually publish videos automatically.
 
 ---
 
-## 🎬 Current Pipeline
+## 🧠 Current Pipeline
 
-The current system can generate a complete short-form video from start to finish.
+At a high level:
 
 ```text
-💡 Content Generation
+Content Configuration
         ↓
-🧠 Local LLM
+Local LLM
         ↓
-🎥 AI Video Generation
+Video Concept Generation
         ↓
-✂️ Clip Processing
+Wan Video Generation
         ↓
-🎵 Audio
+Video Processing
         ↓
-🎞️ Final Video
+Music / Audio
         ↓
-📁 Organized Output
+Final MP4
+        ↓
+Organized Output
 ```
 
-The pipeline currently produces vertical short-form videos designed for platforms such as YouTube Shorts.
+The application is **configuration-driven**, allowing content and AI settings to be changed without modifying the core pipeline.
 
 ---
 
-## ✨ Current Capabilities
+## 🛠️ Tech Stack
 
-* 🧠 Local AI-powered concept generation
-* 🎥 AI text-to-video generation
-* 📱 Vertical 9:16 video output
-* ⏱️ Configurable short-form duration
-* 🎬 Automatic clip generation and processing
-* 🎵 Optional background music
-* 📂 Organized output by content category and generation run
-* ⚙️ Configuration-driven behavior
-* 🖥️ Local CPU/GPU execution
-* 🔄 Modular pipeline designed for future automation
+### AI
 
----
+* 🧠 Ollama
+* 🤖 Qwen 3 8B
+* 🎥 Wan 2.1 T2V 1.3B
+* 🤗 Hugging Face Diffusers
+* 🔥 PyTorch
 
-## 🤖 AI Stack
+### Video
 
-### Language Model
+* 🎬 MoviePy
+* FFmpeg
+* ImageIO
 
-* **Ollama**
-* **Qwen3 8B**
+### Audio
 
-Used to generate original short-form video concepts and prompts.
+* 🎵 Pydub
+* Local audio assets
 
-### Video Generation
+### Application
 
-* **Wan 2.1 T2V 1.3B**
-* **Hugging Face Diffusers**
-* **PyTorch**
+* 🐍 Python 3.12
+* JSON configuration
+* Virtual environments
 
-Used to turn generated concepts into AI video clips.
+### Development
 
----
-
-## 🛠️ Technology Stack
-
-| Technology   | Purpose                |
-| ------------ | ---------------------- |
-| 🐍 Python    | Core application       |
-| 🧠 Ollama    | Local LLM execution    |
-| 🤖 Qwen3 8B  | Concept generation     |
-| 🎥 Wan 2.1   | AI video generation    |
-| 🔥 PyTorch   | Model execution        |
-| 🤗 Diffusers | AI model pipelines     |
-| 🎬 MoviePy   | Video processing       |
-| 🎞️ FFmpeg   | Video/audio processing |
+* VS Code
+* Git / GitHub
+* Pytest
+* Black
+* Flake8
 
 ---
 
-## 😂 Content Direction
-
-The initial content focus is **viral visual comedy**.
-
-The system is designed around concepts that are:
-
-* ⚡ Fast-paced
-* 😂 Visually funny
-* 🤯 Unexpected
-* 🌀 Absurd
-* 👀 Immediately interesting
-* 🎬 Easy to understand without dialogue
-* 🔄 Independent from other videos
-
-Example concepts include unusual physical events, impossible situations, unexpected object behavior, strange machines, and other forms of visual comedy.
-
-The pipeline is designed to eventually support multiple content categories without rebuilding the core system.
-
----
-
-## ⚙️ Design Principles
-
-### 🆓 Free-First
-
-The project is designed around free and locally available tools whenever possible.
-
-The goal is to avoid unnecessary:
-
-* Paid AI APIs
-* Subscription services
-* API keys
-* Recurring infrastructure costs
-
-### 🧩 Config-Driven
-
-Project behavior should be controlled through configuration rather than unnecessary hard-coded values.
-
-This makes it easier to change content requirements, models, and generation behavior without modifying the core pipeline.
-
-### 🤖 Automation-First
-
-Manual interaction should be minimized.
-
-The long-term goal is for the system to generate and publish content without requiring the user to manually start the process.
-
-### 🧱 Modular
-
-Individual components should be replaceable without requiring the entire application to be rewritten.
-
-### ☁️ Remote-Ready
-
-Although development currently happens locally, the system is being built with eventual remote GPU execution in mind.
-
----
-
-## ☁️ Future Deployment
-
-The eventual goal is to move video generation to a remote GPU environment.
-
-Instead of requiring a personal computer to remain powered on:
+## 📁 Project Structure
 
 ```text
-⏰ Scheduled Trigger
-        ↓
-☁️ Remote GPU
-        ↓
-🧠 Generate Concept
-        ↓
-🎥 Generate Video
-        ↓
-🎵 Process Audio
-        ↓
-🎞️ Create Final Video
-        ↓
-📤 Upload to YouTube
-        ↓
-📅 Publish
+monki-labs/
+│
+├── ai/
+│   ├── providers/
+│   ├── prompt_generator.py
+│   └── video_generator.py
+│
+├── core/
+│   ├── config_loader.py
+│   ├── hardware_detector.py
+│   ├── logger.py
+│   └── pipeline.py
+│
+├── config/
+│   ├── studio.json
+│   ├── content.json
+│   ├── ai_models.json
+│   ├── audio.json
+│   └── youtube.json
+│
+├── media/
+│   └── output/
+│
+├── requirements.txt
+├── requirements-pytorch.txt
+├── install.bat
+├── install.sh
+├── run.bat
+├── run.sh
+├── main.py
+└── README.md
 ```
 
-The target is approximately **one high-quality video per week**, while taking advantage of free GPU resources where practical.
+---
+
+# 💻 Local Setup
+
+Monki Labs is developed locally on Windows using Python 3.12.
+
+## 1. Clone the repository
+
+```powershell
+git clone https://github.com/YOUR_USERNAME/monki-labs.git
+cd monki-labs
+```
+
+If the repository is private, authenticate with GitHub when prompted.
 
 ---
 
-## 📊 Project Status
+## 2. Install dependencies
 
-### ✅ Completed
+Run the Windows installer:
 
-* [x] Configuration-driven pipeline
-* [x] Local LLM integration
-* [x] AI video generation
-* [x] Dynamic video generation settings
-* [x] 9:16 vertical video generation
-* [x] Configurable video duration
-* [x] Automatic clip processing
-* [x] Audio integration
-* [x] Organized generation outputs
-* [x] End-to-end video generation successfully tested
+```powershell
+.\install.bat
+```
 
-### 🚧 In Progress
+The installer:
 
-* [ ] Improve AI video quality
-* [ ] Improve generation speed
-* [ ] Optimize GPU execution
-* [ ] Improve concept generation
-* [ ] Thumbnail generation
-* [ ] YouTube integration
-* [ ] Remote GPU deployment
-* [ ] Automated scheduling
-
-### 🔮 Long-Term Goals
-
-* [ ] Fully unattended weekly publishing
-* [ ] Remote execution without a personal computer
-* [ ] Multiple content categories
-* [ ] Automated quality control
-* [ ] Automated thumbnail generation
-* [ ] Automated YouTube uploads
-* [ ] Automated publishing and scheduling
-* [ ] End-to-end autonomous content pipeline
+* Checks for Python
+* Creates the `.venv` virtual environment
+* Detects whether an NVIDIA GPU is available
+* Installs the appropriate PyTorch build
+* Installs project dependencies
+* Checks for FFmpeg
+* Verifies PyTorch and CUDA availability
 
 ---
 
-## 🐒 The Goal
+## 3. Run Monki Labs
 
-Monki Labs isn't just a video generator.
+Once installation is complete:
 
-The goal is to build a **small automated AI content studio** capable of continuously creating, processing, and publishing short-form content with minimal human involvement.
+```powershell
+.\run.bat
+```
 
-**Generate. Automate. Publish. Repeat.** 🚀
+`run.bat` automatically:
+
+1. Checks that the virtual environment exists
+2. Activates the virtual environment
+3. Runs `main.py`
+4. Reports if Monki Labs exits with an error
+
+You can also run the application manually:
+
+```powershell
+.\.venv\Scripts\activate
+python main.py
+```
+
+---
+
+## 4. Development Workflow
+
+The normal development workflow is:
+
+```text
+Edit code
+   ↓
+.\run.bat
+   ↓
+Review generated video
+   ↓
+Make changes
+   ↓
+.\run.bat
+```
+
+Generated videos are stored under:
+
+```text
+media/output/
+```
+
+Output runs are automatically organized by content category and run number.
+
+For example:
+
+```text
+media/
+└── output/
+    └── Viral Brainrot/
+        ├── 001/
+        │   └── episode.mp4
+        ├── 002/
+        │   └── episode.mp4
+        └── 003/
+            └── episode.mp4
+```
+
+---
+
+## 5. Updating Dependencies
+
+Project dependencies are separated into:
+
+```text
+requirements.txt
+requirements-pytorch.txt
+```
+
+`requirements.txt` contains the general application dependencies.
+
+`requirements-pytorch.txt` contains the PyTorch packages.
+
+If dependencies change, rerun:
+
+```powershell
+.\install.bat
+```
+
+The installer will update the virtual environment with the current dependencies.
+
+---
+
+# ☁️ RunPod / Linux Setup
+
+Monki Labs can run on Linux-based GPU environments such as RunPod without changing the application code.
+
+The same repository and `main.py` are used locally and on cloud GPU environments.
+
+## 1. Clone the private repository
+
+Authenticate with GitHub and clone the repository:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/monki-labs.git
+cd monki-labs
+```
+
+For a private repository, use a GitHub Personal Access Token with appropriate repository access.
+
+---
+
+## 2. Install dependencies
+
+Run the Linux installer:
+
+```bash
+bash install.sh
+```
+
+The installer:
+
+* Creates the Python virtual environment
+* Checks for FFmpeg
+* Checks for the available GPU environment
+* Installs project dependencies
+* Verifies PyTorch and CUDA availability
+
+---
+
+## 3. Run Monki Labs
+
+```bash
+bash run.sh
+```
+
+This activates the virtual environment and runs:
+
+```bash
+python main.py
+```
+
+No application code changes are required to run the pipeline on Linux.
+
+---
+
+## 4. Temporary GPU Environments
+
+RunPod instances can be treated as temporary compute environments.
+
+The repository contains the application and configuration, while generated videos can be retrieved before terminating the instance.
+
+The long-term goal is to use temporary GPU infrastructure only when video generation is required rather than maintaining a continuously running server.
+
+---
+
+# ⚙️ Configuration
+
+Monki Labs is **configuration-driven**.
+
+Core behavior is controlled through JSON configuration files rather than hard-coded application logic.
+
+This allows the pipeline to evolve without repeatedly modifying Python code.
+
+Configuration covers areas such as:
+
+* Content categories
+* Video output requirements
+* AI model selection
+* Audio behavior
+* YouTube configuration
+* Studio-level settings
+
+The application reads the appropriate configuration at runtime.
+
+---
+
+# 🎥 Video Generation
+
+The current pipeline generates short-form vertical videos using Wan 2.1.
+
+Content configuration defines the desired final video characteristics, including:
+
+* Duration
+* Aspect ratio
+* Output FPS
+* Resolution
+* Video format
+
+The video model's generation settings are derived from the content requirements where appropriate.
+
+This keeps the desired output specification centralized rather than requiring the same settings to be maintained across multiple configuration files.
+
+---
+
+# 📦 Output Organization
+
+Each execution creates a new output run.
+
+Outputs are automatically organized using the configured content category name:
+
+```text
+media/output/
+└── <Category Name>/
+    ├── 001/
+    ├── 002/
+    ├── 003/
+    └── ...
+```
+
+This prevents previous generations from being overwritten and keeps individual runs separated.
+
+---
+
+# 🧪 Development Status
+
+## ✅ Currently Working
+
+* Local Python pipeline
+* Configuration-driven architecture
+* Local LLM concept generation
+* Ollama integration
+* Wan 2.1 video generation
+* Automatic video duration
+* Automatic model resolution calculation
+* Vertical 9:16 output
+* Video processing
+* Music integration
+* Automatic output organization
+* Windows installation
+* Linux / GPU installation
+* RunPod-compatible execution
+
+## 🚧 Future Goals
+
+* 🎥 Higher-quality GPU video generation
+* 🎞️ 30–60 FPS final output
+* ✨ Improved visual quality
+* 🎵 Improved audio generation
+* 📺 Automated YouTube uploading
+* 📂 Playlist management
+* ⏰ Scheduled generation
+* ☁️ Automated cloud GPU execution
+* 🏃 Kaggle-based GPU execution
+* 🤖 Fully unattended content generation
+* 📅 Recurring automated publishing
+
+---
+
+# ☁️ Long-Term Automation
+
+The ultimate goal is for Monki Labs to operate without requiring the developer's PC to remain running.
+
+The intended workflow is:
+
+```text
+Scheduled Trigger
+       ↓
+Cloud GPU Environment
+       ↓
+Clone / Update Repository
+       ↓
+Run Monki Labs
+       ↓
+Generate Video
+       ↓
+Process Video
+       ↓
+Upload to YouTube
+       ↓
+Terminate GPU Environment
+```
+
+The application is intentionally being developed so the same pipeline can run locally for development and later on temporary cloud GPU infrastructure for production generation.
+
+---
+
+# 💰 Cost Philosophy
+
+Monki Labs follows a **free-first philosophy**.
+
+The project prioritizes:
+
+* 🆓 Local and open-source AI models
+* 🆓 Free software
+* 🆓 Free development tools
+* 🆓 Free or low-cost infrastructure
+* ☁️ Temporary GPU usage instead of always-on servers
+* 🔑 Avoiding paid AI APIs and unnecessary subscriptions
+
+The goal is to keep the entire content-generation pipeline as close to **$0 operating cost** as realistically possible.
+
+---
+
+# 🔮 Vision
+
+Monki Labs is ultimately intended to become an automated content studio:
+
+```text
+Idea
+ ↓
+AI Concept
+ ↓
+AI Video
+ ↓
+Audio
+ ↓
+Processing
+ ↓
+Quality Output
+ ↓
+YouTube
+ ↓
+Scheduled Repeat
+```
+
+The developer should only need to configure the system and monitor the results.
+
+Everything else should eventually happen automatically.
+
+---
+
+## 📜 License
+
+Private project.
