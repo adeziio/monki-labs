@@ -3,9 +3,9 @@ import platform
 
 class HardwareDetector:
 
-
-    def detect(self):
-
+    def detect(
+        self
+    ):
 
         hardware = {
 
@@ -32,11 +32,9 @@ class HardwareDetector:
 
         }
 
-
         try:
 
             import torch
-
 
             if torch.cuda.is_available():
 
@@ -44,6 +42,9 @@ class HardwareDetector:
                     torch.cuda.current_device()
                 )
 
+                supports_bfloat16 = (
+                    torch.cuda.is_bf16_supported()
+                )
 
                 hardware.update(
 
@@ -64,15 +65,18 @@ class HardwareDetector:
                         ),
 
                         "torch_dtype":
-                        "float16",
+                        (
+                            "bfloat16"
+                            if supports_bfloat16
+                            else "float16"
+                        ),
 
                         "supports_bfloat16":
-                        torch.cuda.is_bf16_supported()
+                        supports_bfloat16
 
                     }
 
                 )
-
 
             elif (
 
@@ -86,7 +90,6 @@ class HardwareDetector:
                 torch.backends.mps.is_available()
 
             ):
-
 
                 hardware.update(
 
@@ -105,16 +108,17 @@ class HardwareDetector:
                         "Apple Silicon GPU",
 
                         "torch_dtype":
-                        "float16"
+                        "float16",
+
+                        "supports_bfloat16":
+                        False
 
                     }
 
                 )
 
-
         except Exception:
 
             pass
-
 
         return hardware

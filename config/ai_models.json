@@ -1,7 +1,7 @@
 {
     "execution": {
         "mode": "local",
-        "device": "cpu",
+        "device": "auto",
         "fallback": "cpu"
     },
     "models": {
@@ -9,7 +9,6 @@
             "enabled": true,
             "provider": "ollama",
             "model": "qwen3:8b",
-            "device": "cpu",
             "thinking": false,
             "timeout": 900
         },
@@ -17,7 +16,6 @@
             "enabled": true,
             "provider": "wan",
             "model": "Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
-            "device": "cpu",
             "steps": {
                 "cpu": 8,
                 "cuda": 20
@@ -27,8 +25,7 @@
         },
         "audio_model": {
             "enabled": true,
-            "provider": "local_audio",
-            "device": "cpu"
+            "provider": "local_audio"
         }
     }
 }

@@ -11,7 +11,6 @@ from moviepy import (
 )
 
 from diffusers import WanPipeline
-
 from diffusers.utils import export_to_video
 
 from ai.base_ai_service import BaseAIService
@@ -199,102 +198,60 @@ class VideoGenerator(
         self
     ):
 
-        configured_device = (
-            self.video_config
+        device = (
+            self.hardware
             .get(
                 "device",
-                "auto"
+                "cpu"
             )
         )
 
-        if configured_device == "auto":
-
-            execution_config = (
-                self.config
-                .get(
-                    "ai_models",
-                    {}
-                )
-                .get(
-                    "execution",
-                    {}
-                )
-            )
-
-            execution_device = (
-                execution_config
-                .get(
-                    "device",
-                    "cpu"
-                )
-            )
-
-            if execution_device == "cuda":
-
-                if torch.cuda.is_available():
-
-                    return "cuda"
-
-                fallback = (
-                    execution_config
-                    .get(
-                        "fallback",
-                        "cpu"
-                    )
-                )
-
-                self.log(
-                    "CUDA detected by configuration "
-                    "but unavailable to PyTorch. "
-                    f"Using fallback device: {fallback}"
-                )
-
-                return fallback
-
-            return execution_device
-
-        if configured_device == "cuda":
-
-            if torch.cuda.is_available():
-
-                return "cuda"
-
-            fallback = (
-                self.config
-                .get(
-                    "ai_models",
-                    {}
-                )
-                .get(
-                    "execution",
-                    {}
-                )
-                .get(
-                    "fallback",
-                    "cpu"
-                )
-            )
+        if device not in (
+            "cpu",
+            "cuda",
+            "mps"
+        ):
 
             self.log(
-                "CUDA requested for video model "
-                "but unavailable. "
-                f"Using fallback device: {fallback}"
+                "Unknown hardware device "
+                f"'{device}'. Using CPU."
             )
 
-            return fallback
+            return "cpu"
 
-        return configured_device
+        return device
 
     def get_dtype(
-        self,
-        device
+        self
     ):
 
-        if device == "cuda":
+        dtype_name = (
+            self.hardware
+            .get(
+                "torch_dtype",
+                "float32"
+            )
+        )
 
-            return torch.bfloat16
+        dtype_map = {
 
-        return torch.float32
+            "float32":
+            torch.float32,
+
+            "float16":
+            torch.float16,
+
+            "bfloat16":
+            torch.bfloat16
+
+        }
+
+        return (
+            dtype_map.get(
+                dtype_name,
+                torch.float32
+            )
+        )
 
     def get_inference_steps(
         self,
@@ -319,16 +276,24 @@ class VideoGenerator(
                 "as a device-specific object."
             )
 
-        if device not in steps_config:
+        steps_key = device
 
-            raise ValueError(
-                f"No video model steps configured "
-                f"for device: {device}"
-            )
+        if steps_key not in steps_config:
+
+            if device == "mps" and "cpu" in steps_config:
+
+                steps_key = "cpu"
+
+            else:
+
+                raise ValueError(
+                    "No video model steps configured "
+                    f"for device: {device}"
+                )
 
         steps = int(
             steps_config[
-                device
+                steps_key
             ]
         )
 
@@ -540,9 +505,7 @@ class VideoGenerator(
         )
 
         dtype = (
-            self.get_dtype(
-                device
-            )
+            self.get_dtype()
         )
 
         model_name = (
@@ -570,6 +533,10 @@ class VideoGenerator(
 
         self.log(
             f"Execution device: {device}"
+        )
+
+        self.log(
+            f"Model dtype: {dtype}"
         )
 
         self.pipeline = (
