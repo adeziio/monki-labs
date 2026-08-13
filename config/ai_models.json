@@ -1,6 +1,7 @@
 {
     "execution": {
-        "mode": "hybrid",
+        "mode": "local",
+        "device": "cpu",
         "fallback": "cpu"
     },
     "models": {
@@ -8,25 +9,18 @@
             "enabled": true,
             "provider": "ollama",
             "model": "qwen3:8b",
-            "device": "cpu"
+            "device": "cpu",
+            "thinking": false,
+            "timeout": 900
         },
-        "image_model": {
+        "video_model": {
             "enabled": true,
-            "provider": "flux",
-            "model": "black-forest-labs/FLUX.1-schnell",
-            "output_directory": "media/scenes",
-            "height": 1024,
-            "width": 1024,
-            "num_inference_steps": 4,
-            "guidance_scale": 1.0
-        },
-        "animation_model": {
-            "enabled": true,
-            "provider": "wan_video",
-            "model": "Wan-AI/Wan2.1-I2V-14B-720P-Diffusers",
-            "device": "auto",
-            "frames": 17,
-            "fps": 8
+            "provider": "wan",
+            "model": "Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
+            "device": "cpu",
+            "steps": 8,
+            "guidance_scale": 6.0,
+            "negative_prompt": "static image, blurry, distorted, low quality, deformed, duplicate objects, text, subtitles, watermark"
         },
         "audio_model": {
             "enabled": true,

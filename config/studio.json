@@ -10,10 +10,5 @@
     },
     "content_formats": [
         "youtube_shorts"
-    ],
-    "future_support": [
-        "multiple_series",
-        "multiple_characters",
-        "multiple_animation_styles"
     ]
 }

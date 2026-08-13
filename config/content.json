@@ -1,0 +1,81 @@
+{
+    "active_category": "viral_brainrot",
+    "categories": {
+        "viral_brainrot": {
+            "name": "Viral Brainrot",
+            "genre": "absurd visual comedy",
+            "tone": [
+                "chaotic",
+                "surprising",
+                "fast-paced",
+                "funny",
+                "unexpected"
+            ],
+            "world": [
+                "ordinary environments",
+                "ordinary objects",
+                "absurd situations",
+                "unexpected physical events"
+            ],
+            "content_rules": [
+                "No fixed characters",
+                "No character identity requirements",
+                "No dialogue required",
+                "No narration required",
+                "Comedy must be understandable visually",
+                "Prioritize immediate visual interest",
+                "Create strong curiosity within the first moment",
+                "Escalate quickly",
+                "Use surprising physical events",
+                "Avoid slow setup",
+                "Avoid repetitive actions",
+                "Every clip should work independently",
+                "Do not require continuity between clips"
+            ],
+            "video": {
+                "duration_seconds": 8,
+                "aspect_ratio": "9:16",
+                "fps": 24,
+                "format": "mp4",
+                "resolution": {
+                    "width": 1080,
+                    "height": 1920
+                }
+            },
+            "generation": {
+                "clip_count": 1,
+                "visual_style": "stylized 3D animation",
+                "motion_style": "fast physical comedy",
+                "camera_style": "dynamic",
+                "continuity": "none"
+            },
+            "prompt_generation": {
+                "categories": [
+                    "absurd physical comedy",
+                    "unexpected object behavior",
+                    "animals doing unusual things",
+                    "surreal everyday situations",
+                    "unexpected transformations",
+                    "tiny versus giant objects",
+                    "impossible physics",
+                    "chaotic environments",
+                    "visual surprises",
+                    "strange machines",
+                    "unexpected collisions",
+                    "funny failures"
+                ],
+                "requirements": [
+                    "Create independent concepts",
+                    "Do not create a connected story",
+                    "Do not use recurring characters",
+                    "Do not require dialogue",
+                    "Make the visual idea immediately interesting",
+                    "Use a clear physical action",
+                    "Include an unexpected visual element",
+                    "Keep the concept simple enough for text-to-video",
+                    "Prioritize concepts that could make viewers stop scrolling"
+                ]
+            }
+        }
+    }
+}

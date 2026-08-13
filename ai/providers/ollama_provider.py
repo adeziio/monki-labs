@@ -8,27 +8,39 @@ class OllamaProvider:
         config
     ):
 
-        self.url = (
+        language_config = (
             config["ai_models"]
             ["models"]
             ["language_model"]
-            .get(
+        )
+
+        self.url = (
+            language_config.get(
                 "url",
                 "http://localhost:11434"
             )
         )
 
-
         self.model = (
-            config["ai_models"]
-            ["models"]
-            ["language_model"]
-            .get(
+            language_config.get(
                 "model",
-                "llama3"
+                ""
             )
         )
 
+        self.timeout = (
+            language_config.get(
+                "timeout",
+                900
+            )
+        )
+
+        self.thinking = (
+            language_config.get(
+                "thinking",
+                False
+            )
+        )
 
     def generate(
         self,
@@ -36,16 +48,17 @@ class OllamaProvider:
         response_format=None
     ):
 
+        self.log(
+            f"Sending prompt to Ollama: "
+            f"{self.model}"
+        )
+
         request_data = {
-
             "model": self.model,
-
             "prompt": prompt,
-
-            "stream": False
-
+            "stream": False,
+            "think": self.thinking
         }
-
 
         if response_format:
 
@@ -53,24 +66,70 @@ class OllamaProvider:
                 response_format
             )
 
-        else:
+        try:
 
-            request_data["format"] = "json"
+            response = requests.post(
 
+                f"{self.url}/api/generate",
 
-        response = requests.post(
+                json=request_data,
 
-            f"{self.url}/api/generate",
+                timeout=self.timeout
 
-            json=request_data
+            )
 
-        )
+            response.raise_for_status()
 
+        except requests.exceptions.Timeout:
 
-        response.raise_for_status()
+            self.log(
+                "Ollama request timed out."
+            )
 
+            raise RuntimeError(
+                "Ollama request timed out after "
+                f"{self.timeout} seconds."
+            )
+
+        except requests.exceptions.RequestException as error:
+
+            self.log(
+                f"Ollama request failed: {error}"
+            )
+
+            raise RuntimeError(
+                f"Ollama request failed: {error}"
+            )
 
         data = response.json()
 
+        result = (
+            data.get(
+                "response",
+                ""
+            )
+        )
 
-        return data["response"]
+        if not isinstance(
+            result,
+            str
+        ):
+
+            return ""
+
+        result = result.strip()
+
+        self.log(
+            "Ollama response received."
+        )
+
+        return result
+
+    def log(
+        self,
+        message
+    ):
+
+        print(
+            f"[Ollama] {message}"
+        )
