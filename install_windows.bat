@@ -1,11 +1,9 @@
 @echo off
-setlocal enabledelayedexpansion
-
+setlocal
 
 echo ==========================================
 echo       Monki Labs Windows Installer
 echo ==========================================
-
 
 echo.
 echo Checking Python...
@@ -19,24 +17,27 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Python detected.
-
+python --version
 
 echo.
 echo Creating virtual environment...
 
 if not exist ".venv" (
     python -m venv .venv
+
+    if %errorlevel% neq 0 (
+        echo ERROR: Failed creating virtual environment.
+        pause
+        exit /b 1
+    )
 )
 
 echo Virtual environment ready.
 
-
 echo.
-echo Activating environment...
+echo Activating virtual environment...
 
 call .venv\Scripts\activate
-
 
 echo.
 echo Upgrading pip...
@@ -44,11 +45,10 @@ echo Upgrading pip...
 python -m pip install --upgrade pip
 
 if %errorlevel% neq 0 (
-    echo Failed upgrading pip.
+    echo ERROR: Failed upgrading pip.
     pause
     exit /b 1
 )
-
 
 echo.
 echo Checking NVIDIA GPU...
@@ -60,35 +60,40 @@ if %errorlevel% equ 0 (
     echo NVIDIA GPU detected.
     echo Installing CUDA PyTorch...
 
-    pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+    python -m pip install --upgrade ^
+        torch ^
+        torchvision ^
+        torchaudio ^
+        --index-url https://download.pytorch.org/whl/cu128
 
 ) else (
 
     echo No NVIDIA GPU detected.
     echo Installing CPU PyTorch...
 
-    pip install --upgrade torch torchvision torchaudio
+    python -m pip install --upgrade ^
+        torch ^
+        torchvision ^
+        torchaudio
 
 )
 
 if %errorlevel% neq 0 (
-    echo Failed installing PyTorch.
+    echo ERROR: Failed installing PyTorch.
     pause
     exit /b 1
 )
-
 
 echo.
 echo Installing Monki Labs dependencies...
 
-pip install --upgrade -r requirements.txt
+python -m pip install --upgrade -r requirements.txt
 
 if %errorlevel% neq 0 (
-    echo Failed installing dependencies.
+    echo ERROR: Failed installing dependencies.
     pause
     exit /b 1
 )
-
 
 echo.
 echo Checking FFmpeg...
@@ -100,10 +105,12 @@ if %errorlevel% neq 0 (
     echo FFmpeg not found.
     echo Installing FFmpeg using winget...
 
-    winget install Gyan.FFmpeg --accept-package-agreements --accept-source-agreements
+    winget install Gyan.FFmpeg ^
+        --accept-package-agreements ^
+        --accept-source-agreements
 
     if %errorlevel% neq 0 (
-        echo Failed installing FFmpeg.
+        echo ERROR: Failed installing FFmpeg.
         pause
         exit /b 1
     )
@@ -114,24 +121,24 @@ if %errorlevel% neq 0 (
 
 )
 
-
 echo.
 echo Checking Ollama...
 
-ollama --version >nul 2>&1
+where ollama >nul 2>&1
 
 if %errorlevel% neq 0 (
 
     echo Ollama not found.
-    echo Installing Ollama using winget...
 
-    winget install Ollama.Ollama --accept-package-agreements --accept-source-agreements
+    echo.
+    echo Please install Ollama for Windows from:
+    echo https://ollama.com/download/windows
 
-    if %errorlevel% neq 0 (
-        echo Failed installing Ollama.
-        pause
-        exit /b 1
-    )
+    echo.
+    echo After installing Ollama, run this installer again.
+
+    pause
+    exit /b 1
 
 ) else (
 
@@ -139,86 +146,106 @@ if %errorlevel% neq 0 (
 
 )
 
+echo.
+echo Stopping existing Ollama processes...
+
+taskkill /F /IM ollama.exe >nul 2>&1
+taskkill /F /IM "ollama app.exe" >nul 2>&1
+taskkill /F /IM "ollama_llama_server.exe" >nul 2>&1
+
+timeout /t 2 /nobreak >nul
 
 echo.
-echo Reading Ollama configuration...
+echo Starting Ollama in CPU-only mode...
 
-for /f "delims=" %%i in ('python -c "import json; c=json.load(open('config/ai_models.json', encoding='utf-8')); m=c.get('models',{}).get('language_model',{}); print(m.get('model','')); print(m.get('provider','')); print(str(m.get('enabled',False)).lower())"') do (
+start "" /B cmd /c "set CUDA_VISIBLE_DEVICES=^& set NVIDIA_VISIBLE_DEVICES=^& set OLLAMA_VULKAN=0^& set OLLAMA_NUM_GPU=0^& ollama serve > ollama.log 2>&1"
 
-    if not defined OLLAMA_CONFIG_MODEL (
-        set "OLLAMA_CONFIG_MODEL=%%i"
-    ) else if not defined OLLAMA_CONFIG_PROVIDER (
-        set "OLLAMA_CONFIG_PROVIDER=%%i"
-    ) else if not defined OLLAMA_CONFIG_ENABLED (
-        set "OLLAMA_CONFIG_ENABLED=%%i"
+echo.
+echo Waiting for Ollama...
+
+set OLLAMA_READY=0
+
+for /L %%i in (1,1,30) do (
+
+    curl -s http://localhost:11434/api/tags >nul 2>&1
+
+    if not errorlevel 1 (
+
+        set OLLAMA_READY=1
+        goto :ollama_ready
+
     )
+
+    timeout /t 1 /nobreak >nul
 
 )
 
+:ollama_ready
 
-if /i "!OLLAMA_CONFIG_ENABLED!"=="true" if /i "!OLLAMA_CONFIG_PROVIDER!"=="ollama" (
-
-    echo Configured Ollama model: !OLLAMA_CONFIG_MODEL!
+if "%OLLAMA_READY%" neq "1" (
 
     echo.
-    echo Starting Ollama...
+    echo ERROR: Ollama failed to start.
 
-    tasklist /FI "IMAGENAME eq ollama.exe" 2>NUL | find /I "ollama.exe" >NUL
+    echo.
+    echo Ollama log:
 
-    if !errorlevel! neq 0 (
-        start "" /B ollama serve
-        timeout /t 5 /nobreak >nul
-    ) else (
-        echo Ollama is already running.
+    if exist ollama.log (
+        type ollama.log
     )
 
+    pause
+    exit /b 1
 
-    echo.
-    echo Checking configured Ollama model...
+)
 
-    ollama list | findstr /I /C:"!OLLAMA_CONFIG_MODEL!" >nul
+echo Ollama is ready.
 
-    if !errorlevel! neq 0 (
+echo.
+echo Checking Qwen model...
 
-        echo Model not found.
-        echo Pulling !OLLAMA_CONFIG_MODEL!...
+ollama list | findstr /C:"qwen3:8b" >nul
 
-        ollama pull !OLLAMA_CONFIG_MODEL!
+if %errorlevel% neq 0 (
 
-        if !errorlevel! neq 0 (
-            echo Failed pulling Ollama model.
-            pause
-            exit /b 1
-        )
+    echo qwen3:8b not found.
+    echo Downloading qwen3:8b...
 
-    ) else (
+    ollama pull qwen3:8b
 
-        echo Ollama model already available.
-
+    if %errorlevel% neq 0 (
+        echo ERROR: Failed to pull qwen3:8b.
+        pause
+        exit /b 1
     )
 
 ) else (
 
-    echo Ollama language model is disabled or provider is not Ollama.
-    echo Skipping Ollama model setup.
+    echo qwen3:8b already installed.
 
 )
-
 
 echo.
 echo Running hardware verification...
 
 python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA Available:', torch.cuda.is_available()); print('Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
 
+echo.
+echo Checking GPU...
+
+nvidia-smi >nul 2>&1
+
+if %errorlevel% equ 0 (
+    nvidia-smi
+)
 
 echo.
 echo ==========================================
-echo   Monki Labs Windows Installation Complete
+echo       Installation Complete
 echo ==========================================
 
-
 echo.
-echo Run:
+echo Run Monki Labs with:
 echo.
 echo run_windows.bat
 echo.
