@@ -203,9 +203,55 @@ class VideoGenerator(
             self.video_config
             .get(
                 "device",
-                "cpu"
+                "auto"
             )
         )
+
+        if configured_device == "auto":
+
+            execution_config = (
+                self.config
+                .get(
+                    "ai_models",
+                    {}
+                )
+                .get(
+                    "execution",
+                    {}
+                )
+            )
+
+            execution_device = (
+                execution_config
+                .get(
+                    "device",
+                    "cpu"
+                )
+            )
+
+            if execution_device == "cuda":
+
+                if torch.cuda.is_available():
+
+                    return "cuda"
+
+                fallback = (
+                    execution_config
+                    .get(
+                        "fallback",
+                        "cpu"
+                    )
+                )
+
+                self.log(
+                    "CUDA detected by configuration "
+                    "but unavailable to PyTorch. "
+                    f"Using fallback device: {fallback}"
+                )
+
+                return fallback
+
+            return execution_device
 
         if configured_device == "cuda":
 
@@ -230,7 +276,8 @@ class VideoGenerator(
             )
 
             self.log(
-                "CUDA requested but unavailable. "
+                "CUDA requested for video model "
+                "but unavailable. "
                 f"Using fallback device: {fallback}"
             )
 
@@ -910,7 +957,7 @@ class VideoGenerator(
             temp_audiofile=(
                 str(
                     self.run_directory
-                    / 
+                    /
                     "temp_audio.m4a"
                 )
             ),
