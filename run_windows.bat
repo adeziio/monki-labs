@@ -14,7 +14,7 @@ echo Checking virtual environment...
 if not exist ".venv\Scripts\activate.bat" (
 
     echo ERROR: Virtual environment not found.
-    echo Please run install.bat first.
+    echo Please run install_windows.bat first.
     pause
     exit /b 1
 
