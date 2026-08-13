@@ -19,7 +19,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-
 echo Python detected.
 
 
@@ -27,11 +26,8 @@ echo.
 echo Creating virtual environment...
 
 if not exist ".venv" (
-
     python -m venv .venv
-
 )
-
 
 echo Virtual environment ready.
 
@@ -57,26 +53,21 @@ if %errorlevel% neq 0 (
 echo.
 echo Checking NVIDIA GPU...
 
-
 nvidia-smi >nul 2>&1
-
 
 if %errorlevel% equ 0 (
 
     echo NVIDIA GPU detected.
-
     echo Installing CUDA PyTorch...
 
-    pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-
+    python -m pip install --upgrade -r requirements-pytorch.txt --extra-index-url https://download.pytorch.org/whl/cu128
 
 ) else (
 
     echo No NVIDIA GPU detected.
-
     echo Installing CPU PyTorch...
 
-    pip install --upgrade torch torchvision torchaudio
+    python -m pip install --upgrade -r requirements-pytorch.txt
 
 )
 
@@ -91,8 +82,7 @@ if %errorlevel% neq 0 (
 echo.
 echo Installing Monki Labs dependencies...
 
-pip install --upgrade -r requirements.txt
-
+python -m pip install --upgrade -r requirements.txt
 
 if %errorlevel% neq 0 (
     echo Failed installing dependencies.
@@ -104,18 +94,14 @@ if %errorlevel% neq 0 (
 echo.
 echo Checking FFmpeg...
 
-
 ffmpeg -version >nul 2>&1
-
 
 if %errorlevel% neq 0 (
 
     echo FFmpeg not found.
-
     echo Installing FFmpeg using winget...
 
     winget install Gyan.FFmpeg --accept-package-agreements --accept-source-agreements
-
 
 ) else (
 
@@ -126,7 +112,6 @@ if %errorlevel% neq 0 (
 
 echo.
 echo Running hardware verification...
-
 
 python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA Available:', torch.cuda.is_available()); print('Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
 
