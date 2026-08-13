@@ -3,24 +3,7 @@
 # ==================================
 
 python-dotenv
-pyyaml
 requests
-
-
-# ==================================
-# Scheduling
-# ==================================
-
-apscheduler
-
-
-# ==================================
-# Image Processing
-# ==================================
-
-Pillow
-opencv-python
-numpy
 
 
 # ==================================
@@ -38,8 +21,9 @@ imageio-ffmpeg
 
 pydub
 
+
 # ==================================
-# Local AI - FLUX Image Generation
+# Local AI - Video Generation
 # ==================================
 
 diffusers
@@ -50,14 +34,17 @@ sentencepiece
 protobuf
 einops
 ftfy
-
-# FLUX dependencies
-torch
-torchvision
-torchaudio
 huggingface_hub
-bitsandbytes
 peft
+
+
+# ==================================
+# Image / Array Processing
+# ==================================
+
+Pillow
+opencv-python
+numpy
 
 
 # ==================================
