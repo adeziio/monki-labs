@@ -18,7 +18,10 @@
             "provider": "wan",
             "model": "Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
             "device": "cpu",
-            "steps": 8,
+            "steps": {
+                "cpu": 8,
+                "cuda": 20
+            },
             "guidance_scale": 6.0,
             "negative_prompt": "static image, blurry, distorted, low quality, deformed, duplicate objects, text, subtitles, watermark"
         },

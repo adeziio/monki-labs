@@ -249,6 +249,51 @@ class VideoGenerator(
 
         return torch.float32
 
+    def get_inference_steps(
+        self,
+        device
+    ):
+
+        steps_config = (
+            self.video_config
+            .get(
+                "steps",
+                {}
+            )
+        )
+
+        if not isinstance(
+            steps_config,
+            dict
+        ):
+
+            raise ValueError(
+                "Video model steps must be configured "
+                "as a device-specific object."
+            )
+
+        if device not in steps_config:
+
+            raise ValueError(
+                f"No video model steps configured "
+                f"for device: {device}"
+            )
+
+        steps = int(
+            steps_config[
+                device
+            ]
+        )
+
+        if steps <= 0:
+
+            raise ValueError(
+                "Video model inference steps "
+                "must be greater than zero."
+            )
+
+        return steps
+
     def get_output_resolution(
         self
     ):
@@ -501,15 +546,17 @@ class VideoGenerator(
             f"Generating clip: {prompt}"
         )
 
+        device = (
+            self.get_device()
+        )
+
         model_width, model_height = (
             self.get_model_resolution()
         )
 
         steps = (
-            self.video_config
-            .get(
-                "steps",
-                8
+            self.get_inference_steps(
+                device
             )
         )
 
@@ -574,6 +621,11 @@ class VideoGenerator(
         self.log(
             f"Model clip duration: "
             f"{actual_duration:.3f} seconds"
+        )
+
+        self.log(
+            f"Inference steps: "
+            f"{steps}"
         )
 
         result = (
@@ -858,7 +910,7 @@ class VideoGenerator(
             temp_audiofile=(
                 str(
                     self.run_directory
-                    /
+                    / 
                     "temp_audio.m4a"
                 )
             ),
