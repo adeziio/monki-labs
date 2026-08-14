@@ -33,7 +33,7 @@
                 "Do not require continuity between clips"
             ],
             "video": {
-                "duration_seconds": 15,
+                "duration_seconds": 5,
                 "aspect_ratio": "9:16",
                 "fps": 60,
                 "format": "mp4",
