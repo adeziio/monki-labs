@@ -42,6 +42,27 @@
                     "height": 1920
                 }
             },
+            "audio": {
+                "enabled": true,
+                "music": {
+                    "enabled": true,
+                    "style": "high-energy comedic background music",
+                    "mood": [
+                        "funny",
+                        "chaotic",
+                        "playful",
+                        "absurd",
+                        "unpredictable"
+                    ],
+                    "instruments": [
+                        "bouncy percussion",
+                        "cartoon-style drums",
+                        "playful bass",
+                        "short comedic accents"
+                    ],
+                    "vocals": false
+                }
+            },
             "generation": {
                 "clip_count": 1,
                 "visual_style": "stylized 3D animation",
