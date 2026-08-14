@@ -585,7 +585,12 @@ class VideoGenerator(
 
         if device == "cuda":
 
-            self.pipeline.enable_model_cpu_offload()
+            self.log(
+                "Enabling sequential CPU offload "
+                "for reduced VRAM usage."
+            )
+
+            self.pipeline.enable_sequential_cpu_offload()
 
         elif device == "mps":
 
@@ -648,11 +653,13 @@ class VideoGenerator(
             ]
         )
 
-        audio_stg_scale = float(
-            self.video_config[
-                "audio_stg_scale"
-            ]
-        )
+        # STG is intentionally disabled.
+        #
+        # LTX-2.3 requires explicit STG block indices
+        # when STG is enabled. We are disabling STG
+        # completely for the current production setup.
+        audio_stg_scale = 0.0
+        stg_scale = 0.0
 
         audio_modality_scale = float(
             self.video_config[
@@ -741,6 +748,7 @@ class VideoGenerator(
                 guidance_scale=guidance_scale,
                 audio_guidance_scale=audio_guidance_scale,
                 audio_stg_scale=audio_stg_scale,
+                stg_scale=stg_scale,
                 audio_modality_scale=audio_modality_scale,
                 output_type="np",
                 return_dict=False
