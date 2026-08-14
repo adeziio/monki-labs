@@ -6,7 +6,6 @@ echo "=========================================="
 echo ""
 
 OLLAMA_URL="http://localhost:11434"
-OLLAMA_LOG="/tmp/monki-ollama.log"
 
 echo "Checking Ollama..."
 
@@ -35,8 +34,6 @@ echo ""
 
 echo "Starting Ollama on CPU..."
 
-rm -f "$OLLAMA_LOG"
-
 # Completely hide NVIDIA GPUs from Ollama.
 # Monki Labs itself will still see and use the GPU.
 export CUDA_VISIBLE_DEVICES=""
@@ -50,7 +47,7 @@ nohup env \
     OLLAMA_VULKAN=0 \
     OLLAMA_NO_CLOUD=1 \
     ollama serve \
-    > "$OLLAMA_LOG" 2>&1 &
+    >/dev/null 2>&1 &
 
 OLLAMA_PID=$!
 
@@ -80,17 +77,6 @@ if [ "$OLLAMA_READY" = false ]; then
 
     echo ""
     echo "ERROR: Ollama failed to start."
-    echo ""
-    echo "Ollama log:"
-    echo "------------------------------------------"
-
-    if [ -f "$OLLAMA_LOG" ]; then
-        cat "$OLLAMA_LOG"
-    else
-        echo "Ollama log not found."
-    fi
-
-    echo "------------------------------------------"
     echo ""
 
     exit 1
@@ -162,17 +148,6 @@ else
     echo "=========================================="
     echo ""
     echo "Exit code: $EXIT_CODE"
-    echo ""
-    echo "Ollama log:"
-    echo "------------------------------------------"
-
-    if [ -f "$OLLAMA_LOG" ]; then
-        cat "$OLLAMA_LOG"
-    else
-        echo "Ollama log not found."
-    fi
-
-    echo "------------------------------------------"
 
 fi
 
