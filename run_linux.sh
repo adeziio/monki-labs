@@ -33,16 +33,6 @@ sleep 3
 echo "Existing Ollama processes stopped."
 echo ""
 
-echo "Checking GPU memory..."
-
-if command -v nvidia-smi >/dev/null 2>&1; then
-
-    nvidia-smi
-
-    echo ""
-
-fi
-
 echo "Starting Ollama on CPU..."
 
 rm -f "$OLLAMA_LOG"

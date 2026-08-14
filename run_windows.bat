@@ -34,15 +34,6 @@ timeout /t 3 /nobreak >nul
 echo Existing Ollama processes stopped.
 echo.
 
-echo Checking GPU memory...
-
-where nvidia-smi >nul 2>&1
-
-if not errorlevel 1 (
-nvidia-smi
-echo.
-)
-
 echo Starting Ollama on CPU...
 
 del /Q "%OLLAMA_LOG%" >nul 2>&1
