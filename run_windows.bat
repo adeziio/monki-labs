@@ -74,7 +74,7 @@ if "%OLLAMA_READY%"=="0" (
 echo Ollama is ready.
 echo.
 
-echo Verifying GPU memory is still available...
+echo Checking GPU memory...
 
 where nvidia-smi >nul 2>&1
 

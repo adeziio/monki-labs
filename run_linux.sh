@@ -86,7 +86,7 @@ fi
 echo "Ollama is ready."
 echo ""
 
-echo "Verifying GPU memory is still available..."
+echo "Checking GPU memory..."
 
 if command -v nvidia-smi >/dev/null 2>&1; then
 
