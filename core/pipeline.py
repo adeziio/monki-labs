@@ -18,7 +18,7 @@ class MonkiPipeline:
         )
 
         print(
-            f"Running on device: "
+            f"[SYSTEM] Running on device: "
             f"{self.hardware['device']}"
         )
 
@@ -42,16 +42,8 @@ class MonkiPipeline:
         self
     ):
 
-        self.logger.info(
-            "Creating new video"
-        )
-
         video = (
             self.video.generate()
-        )
-
-        self.logger.info(
-            "Video generation complete"
         )
 
         return video

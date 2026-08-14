@@ -15,8 +15,8 @@ def main():
           `\  '---'  /`
             `-.___.-`
 
-             MONKI LABS
-           AI VIDEO STUDIO
+            MONKI LABS
+         AI VIDEO STUDIO
 """)
 
     pipeline = MonkiPipeline()

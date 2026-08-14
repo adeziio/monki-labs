@@ -131,5 +131,5 @@ class OllamaProvider:
     ):
 
         print(
-            f"[Ollama] {message}"
+            f"[OLLAMA] {message}"
         )

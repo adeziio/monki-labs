@@ -12,7 +12,8 @@ class AudioGenerator(BaseAIService):
     ):
 
         super().__init__(
-            config
+            config,
+            "AUDIO"
         )
 
         self.audio_rules = (
@@ -34,7 +35,6 @@ class AudioGenerator(BaseAIService):
         self.music_directory = Path(
             self.audio_rules["music"]["directory"]
         )
-
 
     def generate(
         self,
@@ -125,7 +125,7 @@ class AudioGenerator(BaseAIService):
                             default_path
                         )
 
-            print(
+            self.log(
                 f"Selected music: {music_file}"
             )
 

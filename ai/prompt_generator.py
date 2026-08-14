@@ -15,7 +15,8 @@ class PromptGenerator(
     ):
 
         super().__init__(
-            config
+            config,
+            "PROMPT"
         )
 
         self.config = config
@@ -118,8 +119,7 @@ class PromptGenerator(
         return f"""
 Generate exactly {count} independent short-form AI video concepts.
 
-These concepts will be converted directly from text into short AI video
-clips.
+These concepts will be converted directly into short text-to-video clips.
 
 There is NO story continuity.
 
@@ -144,26 +144,156 @@ IMPORTANT:
 
 Return exactly {count} concepts.
 
-Each concept should describe one visually interesting situation.
+Each concept must describe a SINGLE continuous visual action that can be animated clearly over approximately 8 seconds.
 
-The viewer should understand the basic visual idea immediately.
+The video must feel DYNAMIC and physically active from beginning to end.
 
-Prioritize:
+Do NOT write prompts that mainly describe a static scene.
 
-- visual curiosity
-- absurdity
-- unexpected physical behavior
-- unusual scale
-- surprising movement
-- visual comedy
-- strange objects
-- impossible situations
-- quick escalation
-- strong visual payoff
+Do NOT simply describe an object sitting, standing, floating, spinning, changing appearance, or moving in place.
 
-Do not create traditional stories.
+The subject should physically MOVE THROUGH THE ENVIRONMENT.
 
-Do not create multi-scene narratives.
+MOTION IS THE PRIORITY.
+
+Every prompt should clearly communicate:
+
+1. SUBJECT MOVEMENT
+Describe what the main subject physically does.
+
+Use strong action verbs such as:
+runs, jumps, falls, slides, rolls, flies, swings, crashes, tumbles, races, bounces, launches, chases, collides, falls toward, rushes toward, moves past, flies across.
+
+2. MOVEMENT DIRECTION
+Clearly indicate where the subject moves.
+
+Examples:
+- across the room
+- toward the camera
+- away from the camera
+- from left to right
+- down a staircase
+- through a doorway
+- across a table
+- upward into the air
+- toward another object
+
+3. CONTINUOUS MOTION
+The action should continue throughout the clip.
+
+Avoid prompts where most of the video would consist of a subject remaining in one position.
+
+4. ENVIRONMENTAL INTERACTION
+The moving subject should interact with objects or the environment whenever appropriate.
+
+Examples:
+- knocks something over
+- bounces off a surface
+- crashes into an object
+- slides underneath something
+- jumps over an obstacle
+- sends objects flying
+- pushes something across the floor
+- causes a physical reaction
+
+5. CAMERA MOTION
+Include a simple camera movement that follows or emphasizes the action.
+
+Examples:
+- the camera tracks alongside the subject
+- the camera follows from behind
+- the camera pans rapidly with the movement
+- the camera pushes toward the action
+- the camera tilts downward as the subject falls
+- the camera pulls back as the action escalates
+
+The camera should feel active rather than completely stationary.
+
+6. ESCALATION
+The physical action should build toward a clear visual payoff.
+
+The ending should be the most visually interesting moment.
+
+7. VISUAL CLARITY
+Describe only what should visibly happen.
+
+Do not explain why something is funny.
+
+Do not explain the concept.
+
+Do not include abstract descriptions.
+
+Do not include dialogue.
+
+Do not require narration.
+
+Do not require text on screen.
+
+Do not rely on sound to make the action understandable.
+
+8. SHORT-FORM VIDEO STRUCTURE
+
+Think of each prompt as:
+
+START:
+The subject begins a physical action.
+
+MOTION:
+The subject continuously moves through the environment.
+
+ESCALATION:
+The movement becomes faster, larger, more chaotic, or more surprising.
+
+PAYOFF:
+The action ends with a strong visible physical event.
+
+These are NOT separate scenes.
+
+The entire concept must be one continuous visual sequence.
+
+9. MOTION OVER TRANSFORMATION
+
+Prefer physical movement over purely visual transformation.
+
+Weak:
+"A pencil transforms into a rainbow pencil."
+
+Better:
+"A pencil rolls rapidly down a hallway, launches off a small ramp into the air, crashes into a pencil sharpener, and shoots back out across the floor covered in rainbow shavings."
+
+10. AVOID STATIC COMPOSITIONS
+
+Avoid prompts like:
+
+- "A character stands in a room while..."
+- "An object sits on a table and..."
+- "A creature looks at..."
+- "Something floats in place..."
+- "Something spins in place..."
+- "Something changes into..."
+- "Something suddenly becomes..."
+
+Unless the subject is also clearly moving through the environment.
+
+11. CAMERA AND SUBJECT MOVEMENT SHOULD WORK TOGETHER
+
+Do not add random camera movement.
+
+The camera should follow, reveal, emphasize, or react to the physical action.
+
+For example:
+
+"The camera tracks alongside the running subject, quickly pans as it jumps, then pushes toward the impact."
+
+12. KEEP PROMPTS CONCISE
+
+Each prompt should normally be one or two sentences.
+
+Use concrete visual language.
+
+Do not write a traditional story.
+
+Do not create multiple separate scenes.
 
 Do not reference previous or future clips.
 
@@ -175,11 +305,21 @@ Do not require dialogue.
 
 Do not require narration.
 
-Do not explain why something is funny.
+Prioritize:
 
-Simply describe what should visibly happen.
+- strong physical movement
+- movement through space
+- camera movement
+- environmental interaction
+- visual comedy
+- absurdity
+- unexpected physical behavior
+- unusual scale
+- surprising motion
+- escalating action
+- strong visual payoff
 
-Keep each prompt concise enough for a text-to-video model.
+The final prompt should give a text-to-video model enough information to understand BOTH what is happening AND how everything is moving.
 
 Return ONLY the JSON array.
 
@@ -192,9 +332,9 @@ Do not include an explanation.
 Example:
 
 [
-    "A tiny elephant struggles to push an enormous beach ball across a crowded beach before the ball suddenly rolls downhill.",
-    "A vending machine starts shaking violently before launching colorful drinks into the air.",
-    "A giant rubber duck bounces through a miniature city and accidentally knocks over a skyscraper."
+    "A tiny elephant races across a crowded beach pushing an enormous beach ball, weaving between people as the camera tracks alongside it. The ball suddenly rolls downhill, dragging the elephant behind it before crashing into a stack of beach chairs.",
+    "A vending machine violently rolls across a convenience store while the camera follows from behind, bouncing off shelves and sending drinks flying before crashing through the front doors.",
+    "A giant rubber duck bounces rapidly through a miniature city, crushing through streets and launching over buildings as the camera pulls back to reveal the growing chaos."
 ]
 """
 

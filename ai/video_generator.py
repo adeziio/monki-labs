@@ -27,7 +27,8 @@ class VideoGenerator(
     ):
 
         super().__init__(
-            config
+            config,
+            "VIDEO"
         )
 
         self.config = config
