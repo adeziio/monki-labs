@@ -524,6 +524,32 @@ class VideoGenerator(
 
         return steps
 
+    def get_spatio_temporal_guidance_blocks(
+        self
+    ):
+
+        blocks = (
+            self.video_config.get(
+                "spatio_temporal_guidance_blocks",
+                []
+            )
+        )
+
+        if not isinstance(
+            blocks,
+            list
+        ):
+
+            raise ValueError(
+                "LTX spatio-temporal guidance "
+                "blocks must be configured as a list."
+            )
+
+        return [
+            int(block)
+            for block in blocks
+        ]
+
     def load_pipeline(
         self
     ):
@@ -660,6 +686,10 @@ class VideoGenerator(
             ]
         )
 
+        spatio_temporal_guidance_blocks = (
+            self.get_spatio_temporal_guidance_blocks()
+        )
+
         negative_prompt = (
             self.video_config.get(
                 "negative_prompt",
@@ -738,6 +768,9 @@ class VideoGenerator(
                 audio_guidance_scale=audio_guidance_scale,
                 audio_stg_scale=audio_stg_scale,
                 audio_modality_scale=audio_modality_scale,
+                spatio_temporal_guidance_blocks=(
+                    spatio_temporal_guidance_blocks
+                ),
                 output_type="np",
                 return_dict=False
             )
