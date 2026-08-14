@@ -14,18 +14,22 @@
         },
         "video_model": {
             "enabled": true,
-            "provider": "wan",
-            "model": "Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
+            "provider": "ltx",
+            "model": "diffusers/LTX-2.3-Diffusers",
+            "generation_resolution": {
+                "width": 576,
+                "height": 1024
+            },
+            "generation_fps": 24,
             "steps": {
                 "cpu": 8,
-                "cuda": 20
+                "cuda": 30
             },
-            "guidance_scale": 6.0,
-            "negative_prompt": "static image, blurry, distorted, low quality, deformed, duplicate objects, text, subtitles, watermark"
-        },
-        "audio_model": {
-            "enabled": true,
-            "provider": "local_audio"
+            "guidance_scale": 3.0,
+            "audio_guidance_scale": 7.0,
+            "audio_stg_scale": 1.0,
+            "audio_modality_scale": 3.0,
+            "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
         }
     }
 }

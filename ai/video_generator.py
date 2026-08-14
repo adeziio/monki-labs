@@ -1,17 +1,22 @@
 from pathlib import Path
-import random
 import re
 
 import torch
 
 from moviepy import (
     VideoFileClip,
-    AudioFileClip,
     concatenate_videoclips
 )
 
-from diffusers import WanPipeline
-from diffusers.utils import export_to_video
+from diffusers import LTX2Pipeline
+
+from diffusers.pipelines.ltx2.export_utils import (
+    encode_video
+)
+
+from diffusers.pipelines.ltx2.utils import (
+    DEFAULT_NEGATIVE_PROMPT
+)
 
 from ai.base_ai_service import BaseAIService
 from ai.prompt_generator import PromptGenerator
@@ -27,8 +32,7 @@ class VideoGenerator(
     ):
 
         super().__init__(
-            config,
-            "VIDEO"
+            config
         )
 
         self.config = config
@@ -65,11 +69,15 @@ class VideoGenerator(
         )
 
         self.video_output_config = (
-            self.category_config
-            .get(
-                "video",
-                {}
-            )
+            self.category_config[
+                "video"
+            ]
+        )
+
+        self.generation_config = (
+            self.category_config[
+                "generation"
+            ]
         )
 
         self.prompt_generator = (
@@ -200,12 +208,18 @@ class VideoGenerator(
     ):
 
         device = (
-            self.hardware
-            .get(
-                "device",
-                "cpu"
-            )
+            self.hardware[
+                "device"
+            ]
         )
+
+        if device == "auto":
+
+            if torch.cuda.is_available():
+
+                return "cuda"
+
+            return "cpu"
 
         if device not in (
             "cpu",
@@ -213,25 +227,48 @@ class VideoGenerator(
             "mps"
         ):
 
-            self.log(
-                "Unknown hardware device "
-                f"'{device}'. Using CPU."
+            raise ValueError(
+                "Unsupported execution device: "
+                f"{device}"
             )
 
-            return "cpu"
+        if (
+            device == "cuda"
+            and
+            not torch.cuda.is_available()
+        ):
+
+            fallback = (
+                self.hardware.get(
+                    "fallback"
+                )
+            )
+
+            if fallback:
+
+                self.log(
+                    "CUDA requested but unavailable. "
+                    f"Using configured fallback: {fallback}"
+                )
+
+                return fallback
+
+            raise RuntimeError(
+                "CUDA requested but unavailable "
+                "and no fallback device is configured."
+            )
 
         return device
 
     def get_dtype(
-        self
+        self,
+        device
     ):
 
         dtype_name = (
-            self.hardware
-            .get(
-                "torch_dtype",
-                "float32"
-            )
+            self.hardware[
+                "torch_dtype"
+            ]
         )
 
         dtype_map = {
@@ -247,97 +284,62 @@ class VideoGenerator(
 
         }
 
-        return (
-            dtype_map.get(
-                dtype_name,
-                torch.float32
-            )
-        )
-
-    def get_inference_steps(
-        self,
-        device
-    ):
-
-        steps_config = (
-            self.video_config
-            .get(
-                "steps",
-                {}
-            )
-        )
-
-        if not isinstance(
-            steps_config,
-            dict
-        ):
+        if dtype_name not in dtype_map:
 
             raise ValueError(
-                "Video model steps must be configured "
-                "as a device-specific object."
+                "Unsupported torch dtype: "
+                f"{dtype_name}"
             )
 
-        steps_key = device
+        if device == "cpu":
 
-        if steps_key not in steps_config:
+            return torch.float32
 
-            if device == "mps" and "cpu" in steps_config:
+        return dtype_map[
+            dtype_name
+        ]
 
-                steps_key = "cpu"
-
-            else:
-
-                raise ValueError(
-                    "No video model steps configured "
-                    f"for device: {device}"
-                )
-
-        steps = int(
-            steps_config[
-                steps_key
-            ]
-        )
-
-        if steps <= 0:
-
-            raise ValueError(
-                "Video model inference steps "
-                "must be greater than zero."
-            )
-
-        return steps
-
-    def get_output_resolution(
+    def get_generation_resolution(
         self
     ):
 
         resolution = (
-            self.video_output_config
-            .get(
-                "resolution",
-                {}
-            )
+            self.video_config[
+                "generation_resolution"
+            ]
         )
 
         width = int(
-            resolution.get(
-                "width",
-                1080
-            )
+            resolution[
+                "width"
+            ]
         )
 
         height = int(
-            resolution.get(
-                "height",
-                1920
-            )
+            resolution[
+                "height"
+            ]
         )
 
         if width <= 0 or height <= 0:
 
             raise ValueError(
-                "Video resolution must contain "
-                "positive width and height values."
+                "LTX generation resolution "
+                "must contain positive values."
+            )
+
+        if width % 32 != 0:
+
+            raise ValueError(
+                "LTX generation width must "
+                "be divisible by 32."
+            )
+
+        if height % 32 != 0:
+
+            raise ValueError(
+                "LTX generation height must "
+                "be divisible by 32."
             )
 
         return (
@@ -345,81 +347,94 @@ class VideoGenerator(
             height
         )
 
-    def get_model_resolution(
+    def get_generation_fps(
         self
     ):
 
-        output_width, output_height = (
-            self.get_output_resolution()
+        fps = float(
+            self.video_config[
+                "generation_fps"
+            ]
         )
 
-        aspect_ratio = (
-            output_width
-            /
-            output_height
-        )
+        if fps <= 0:
 
-        model_max_area = (
-            480 * 832
-        )
-
-        model_height = (
-            int(
-                (
-                    model_max_area
-                    /
-                    aspect_ratio
-                )
-                ** 0.5
+            raise ValueError(
+                "LTX generation FPS must "
+                "be greater than zero."
             )
+
+        return fps
+
+    def get_output_resolution(
+        self
+    ):
+
+        resolution = (
+            self.video_output_config[
+                "resolution"
+            ]
         )
 
-        model_width = (
-            int(
-                model_height
-                * aspect_ratio
-            )
+        width = int(
+            resolution[
+                "width"
+            ]
         )
 
-        model_width = (
-            max(
-                16,
-                (model_width // 16) * 16
-            )
+        height = int(
+            resolution[
+                "height"
+            ]
         )
 
-        model_height = (
-            max(
-                16,
-                (model_height // 16) * 16
+        if width <= 0 or height <= 0:
+
+            raise ValueError(
+                "Final video resolution must "
+                "contain positive values."
             )
-        )
 
         return (
-            model_width,
-            model_height
+            width,
+            height
+        )
+
+    def get_output_aspect_ratio(
+        self
+    ):
+
+        return (
+            self.video_output_config[
+                "aspect_ratio"
+            ]
+        )
+
+    def get_output_format(
+        self
+    ):
+
+        return (
+            self.video_output_config[
+                "format"
+            ]
         )
 
     def get_clip_duration(
         self
     ):
 
-        duration = (
-            self.video_output_config
-            .get(
-                "duration_seconds",
-                8
-            )
-        )
-
         duration = float(
-            duration
+            self.video_output_config[
+                "duration_seconds"
+            ]
         )
 
         if duration <= 0:
 
             raise ValueError(
-                "Video duration must be greater than zero."
+                "Video duration must "
+                "be greater than zero."
             )
 
         return duration
@@ -428,45 +443,20 @@ class VideoGenerator(
         self
     ):
 
-        fps = (
-            self.video_output_config
-            .get(
-                "fps",
-                24
-            )
-        )
-
         fps = float(
-            fps
+            self.video_output_config[
+                "fps"
+            ]
         )
 
         if fps <= 0:
 
             raise ValueError(
-                "Video FPS must be greater than zero."
+                "Output FPS must "
+                "be greater than zero."
             )
 
         return fps
-
-    def get_model_fps(
-        self
-    ):
-
-        output_fps = (
-            self.get_output_fps()
-        )
-
-        model_fps = (
-            output_fps / 3
-        )
-
-        if model_fps <= 0:
-
-            raise ValueError(
-                "Derived model FPS must be greater than zero."
-            )
-
-        return model_fps
 
     def get_frame_count(
         self,
@@ -474,24 +464,65 @@ class VideoGenerator(
     ):
 
         model_fps = (
-            self.get_model_fps()
+            self.get_generation_fps()
         )
 
         raw_frame_count = (
-            duration * model_fps
+            duration
+            *
+            model_fps
         )
 
         frame_count = (
             round(
-                (raw_frame_count - 1) / 4
-            ) * 4
-            + 1
+                (
+                    raw_frame_count
+                    -
+                    1
+                )
+                /
+                8
+            )
+            *
+            8
+            +
+            1
         )
 
-        return max(
-            frame_count,
-            5
+        return frame_count
+
+    def get_inference_steps(
+        self,
+        device
+    ):
+
+        steps_config = (
+            self.video_config[
+                "steps"
+            ]
         )
+
+        if device not in steps_config:
+
+            raise ValueError(
+                "No LTX inference steps "
+                f"configured for device: {device}"
+            )
+
+        steps = int(
+            steps_config[
+                device
+            ]
+        )
+
+        if steps <= 0:
+
+            raise ValueError(
+                "LTX inference steps "
+                "must be greater than zero."
+            )
+
+        return steps
 
     def load_pipeline(
         self
@@ -506,50 +537,65 @@ class VideoGenerator(
         )
 
         dtype = (
-            self.get_dtype()
+            self.get_dtype(
+                device
+            )
         )
 
         model_name = (
-            self.video_config
-            ["model"]
+            self.video_config[
+                "model"
+            ]
         )
 
         provider = (
-            self.video_config
-            .get(
-                "provider",
-                ""
-            )
+            self.video_config[
+                "provider"
+            ]
         )
 
-        if provider.lower() != "wan":
+        if provider.lower() != "ltx":
 
             raise RuntimeError(
-                f"Unsupported video provider: {provider}"
+                "Unsupported video provider: "
+                f"{provider}"
             )
 
         self.log(
-            f"Loading video model: {model_name}"
+            f"Loading video model: "
+            f"{model_name}"
         )
 
         self.log(
-            f"Execution device: {device}"
+            f"Execution device: "
+            f"{device}"
         )
 
         self.log(
-            f"Model dtype: {dtype}"
+            f"Model dtype: "
+            f"{dtype}"
         )
 
         self.pipeline = (
-            WanPipeline.from_pretrained(
+            LTX2Pipeline.from_pretrained(
                 model_name,
                 torch_dtype=dtype
             )
         )
 
-        self.pipeline.to(
-            device
-        )
+        if device == "cuda":
+
+            self.pipeline.enable_model_cpu_offload()
+
+        elif device == "mps":
+
+            self.pipeline.to(
+                device
+            )
+
+        else:
+
+            self.pipeline.enable_sequential_cpu_offload()
 
     def generate_clip(
         self,
@@ -558,7 +604,8 @@ class VideoGenerator(
     ):
 
         self.log(
-            f"Generating clip: {prompt}"
+            f"Generating audio-video clip: "
+            f"{prompt}"
         )
 
         device = (
@@ -566,32 +613,16 @@ class VideoGenerator(
         )
 
         model_width, model_height = (
-            self.get_model_resolution()
+            self.get_generation_resolution()
+        )
+
+        model_fps = (
+            self.get_generation_fps()
         )
 
         steps = (
             self.get_inference_steps(
                 device
-            )
-        )
-
-        guidance_scale = (
-            self.video_config
-            .get(
-                "guidance_scale",
-                6.0
-            )
-        )
-
-        model_fps = (
-            self.get_model_fps()
-        )
-
-        negative_prompt = (
-            self.video_config
-            .get(
-                "negative_prompt",
-                ""
             )
         )
 
@@ -605,17 +636,59 @@ class VideoGenerator(
             )
         )
 
+        guidance_scale = float(
+            self.video_config[
+                "guidance_scale"
+            ]
+        )
+
+        audio_guidance_scale = float(
+            self.video_config[
+                "audio_guidance_scale"
+            ]
+        )
+
+        audio_stg_scale = float(
+            self.video_config[
+                "audio_stg_scale"
+            ]
+        )
+
+        audio_modality_scale = float(
+            self.video_config[
+                "audio_modality_scale"
+            ]
+        )
+
+        negative_prompt = (
+            self.video_config.get(
+                "negative_prompt",
+                DEFAULT_NEGATIVE_PROMPT
+            )
+        )
+
         output_width, output_height = (
             self.get_output_resolution()
         )
 
+        output_fps = (
+            self.get_output_fps()
+        )
+
         actual_duration = (
-            frames / model_fps
+            frames
+            /
+            model_fps
         )
 
         self.log(
-            f"Content resolution: "
+            f"Final content resolution: "
             f"{output_width}x{output_height}"
+        )
+
+        self.log(
+            f"Final aspect ratio: "
+            f"{self.get_output_aspect_ratio()}"
         )
 
         self.log(
@@ -629,8 +702,17 @@ class VideoGenerator(
         )
 
         self.log(
-            f"Generating {frames} frames "
-            f"at {model_fps:g} FPS"
+            f"Model generation FPS: "
+            f"{model_fps:g}"
+        )
+
+        self.log(
+            f"Final output FPS: "
+            f"{output_fps:g}"
+        )
+
+        self.log(
+            f"Generating {frames} frames"
         )
 
         self.log(
@@ -643,20 +725,22 @@ class VideoGenerator(
             f"{steps}"
         )
 
-        result = (
+        video, audio = (
             self.pipeline(
                 prompt=prompt,
                 negative_prompt=negative_prompt,
-                height=model_height,
                 width=model_width,
+                height=model_height,
                 num_frames=frames,
+                frame_rate=model_fps,
+                num_inference_steps=steps,
                 guidance_scale=guidance_scale,
-                num_inference_steps=steps
+                audio_guidance_scale=audio_guidance_scale,
+                audio_stg_scale=audio_stg_scale,
+                audio_modality_scale=audio_modality_scale,
+                output_type="np",
+                return_dict=False
             )
-        )
-
-        frames_output = (
-            result.frames[0]
         )
 
         output_path = Path(
@@ -668,10 +752,21 @@ class VideoGenerator(
             exist_ok=True
         )
 
-        export_to_video(
-            frames_output,
-            str(output_path),
-            fps=model_fps
+        encode_video(
+            video[0],
+            fps=model_fps,
+            audio=audio[0]
+            .float()
+            .cpu(),
+            audio_sample_rate=(
+                self.pipeline
+                .vocoder
+                .config
+                .output_sampling_rate
+            ),
+            output_path=str(
+                output_path
+            )
         )
 
         return str(
@@ -684,7 +779,7 @@ class VideoGenerator(
     ):
 
         self.log(
-            "Combining generated clips"
+            "Combining generated audio-video clips"
         )
 
         clips = []
@@ -715,141 +810,27 @@ class VideoGenerator(
             clips
         )
 
-    def get_music_path(
-        self
-    ):
-
-        audio_config = (
-            self.config.get(
-                "audio",
-                {}
-            )
-        )
-
-        audio_rules = (
-            audio_config.get(
-                "audio_rules",
-                {}
-            )
-        )
-
-        music_config = (
-            audio_rules.get(
-                "music",
-                {}
-            )
-        )
-
-        if not music_config.get(
-            "enabled",
-            False
-        ):
-
-            return None
-
-        music_directory = Path(
-            music_config.get(
-                "directory",
-                "assets/audio/music"
-            )
-        )
-
-        if not music_directory.exists():
-
-            return None
-
-        files = [
-            path
-            for path in music_directory.iterdir()
-            if (
-                path.is_file()
-                and
-                path.suffix.lower()
-                in (
-                    ".mp3",
-                    ".wav",
-                    ".m4a",
-                    ".ogg"
-                )
-            )
-        ]
-
-        if not files:
-
-            return None
-
-        return str(
-            random.choice(
-                files
-            )
-        )
-
-    def add_music(
-        self,
-        video,
-        music_path
-    ):
-
-        if not music_path:
-
-            return (
-                video,
-                None
-            )
-
-        music = (
-            AudioFileClip(
-                music_path
-            )
-        )
-
-        if music.duration > video.duration:
-
-            music = music.subclipped(
-                0,
-                video.duration
-            )
-
-        else:
-
-            music = music.with_duration(
-                video.duration
-            )
-
-        video = (
-            video.with_audio(
-                music
-            )
-        )
-
-        return (
-            video,
-            music
-        )
-
     def generate(
         self
     ):
 
         self.log(
-            "Starting short-form video generation"
+            "Starting short-form "
+            "audio-video generation"
         )
 
-        generation_config = (
-            self.category_config
-            .get(
-                "generation",
-                {}
-            )
+        clip_count = int(
+            self.generation_config[
+                "clip_count"
+            ]
         )
 
-        clip_count = (
-            generation_config
-            .get(
-                "clip_count",
-                1
+        if clip_count <= 0:
+
+            raise ValueError(
+                "Generation clip count "
+                "must be greater than zero."
             )
-        )
 
         prompts = (
             self.prompt_generator
@@ -861,7 +842,8 @@ class VideoGenerator(
         if not prompts:
 
             raise RuntimeError(
-                "No video prompts were generated."
+                "No video prompts "
+                "were generated."
             )
 
         self.load_pipeline()
@@ -896,21 +878,22 @@ class VideoGenerator(
             )
         )
 
-        music_path = (
-            self.get_music_path()
+        output_format = (
+            self.get_output_format()
         )
 
-        final_video, music = (
-            self.add_music(
-                final_video,
-                music_path
+        if output_format.lower() != "mp4":
+
+            raise ValueError(
+                "The current LTX video "
+                "export pipeline requires "
+                "MP4 output."
             )
-        )
 
         output_path = (
             self.run_directory
             /
-            "episode.mp4"
+            f"episode.{output_format}"
         )
 
         output_fps = (
@@ -936,14 +919,11 @@ class VideoGenerator(
 
             clip.close()
 
-        if music:
-
-            music.close()
-
         final_video.close()
 
         self.log(
-            f"Final video created: {output_path}"
+            f"Final audio-video created: "
+            f"{output_path}"
         )
 
         return {
