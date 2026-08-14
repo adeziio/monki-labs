@@ -3,28 +3,18 @@ import re
 
 import torch
 
-from moviepy import (
-    VideoFileClip,
-    concatenate_videoclips
-)
+from moviepy import (VideoFileClip, concatenate_videoclips)
 
 from diffusers import LTX2Pipeline
 
-from diffusers.pipelines.ltx2.export_utils import (
-    encode_video
-)
+from diffusers.pipelines.ltx2.export_utils import (encode_video)
 
-from diffusers.pipelines.ltx2.utils import (
-    DEFAULT_NEGATIVE_PROMPT
-)
+from diffusers.pipelines.ltx2.utils import (DEFAULT_NEGATIVE_PROMPT)
 
 from ai.base_ai_service import BaseAIService
 from ai.prompt_generator import PromptGenerator
 
-
-class VideoGenerator(
-    BaseAIService
-):
+class VideoGenerator(BaseAIService):
 
     def __init__(
         self,
@@ -586,13 +576,11 @@ class VideoGenerator(
         if device == "cuda":
 
             self.log(
-                "Benchmark mode: "
-                "loading entire pipeline directly onto CUDA."
+                "Enabling sequential CPU offload "
+                "for reduced VRAM usage."
             )
 
-            self.pipeline.to(
-                "cuda"
-            )
+            self.pipeline.enable_sequential_cpu_offload()
 
         elif device == "mps":
 
@@ -655,12 +643,11 @@ class VideoGenerator(
             ]
         )
 
-        # STG is intentionally disabled.
-        #
-        # LTX-2.3 requires explicit STG block indices
-        # whenever STG is enabled. Keeping this at zero
-        # avoids that requirement and reduces memory usage.
-        audio_stg_scale = 0.0
+        audio_stg_scale = float(
+            self.video_config[
+                "audio_stg_scale"
+            ]
+        )
 
         audio_modality_scale = float(
             self.video_config[
@@ -751,7 +738,8 @@ class VideoGenerator(
                 audio_stg_scale=audio_stg_scale,
                 audio_modality_scale=audio_modality_scale,
                 output_type="np",
-                return_dict=False
+                return_dict=False,
+                spatio_temporal_guidance_scale=0.0
             )
         )
 
