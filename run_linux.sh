@@ -145,8 +145,6 @@ else
 fi
 
 echo ""
-echo "Running Monki Labs..."
-echo ""
 
 # IMPORTANT:
 # Do NOT inherit CUDA_VISIBLE_DEVICES="" into Monki Labs.

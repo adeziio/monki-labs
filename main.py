@@ -2,6 +2,22 @@ from core.pipeline import MonkiPipeline
 
 
 def main():
+    print(r"""
+              __,__
+     .--.  .-"     "-.  .--.
+    / .. \/  .-. .-.  \/ .. \
+   | |  '|  /   Y   \  |'  | |
+   | \   \  \ 0 | 0 /  /   / |
+    \ '- ,\.-"`` ``"-./, -' /
+     `'-' /_   ^ ^   _\ '-'`
+         |  \._   _./  |
+         \   \`-.-`/   /
+          `\  '---'  /`
+            `-.___.-`
+
+             MONKI LABS
+           AI VIDEO STUDIO
+""")
 
     pipeline = MonkiPipeline()
 

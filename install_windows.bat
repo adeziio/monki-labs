@@ -22,7 +22,7 @@ python --version
 echo.
 echo Creating virtual environment...
 
-if not exist ".venv" (
+if not exist ".venv\Scripts\activate.bat" (
     python -m venv .venv
 
     if %errorlevel% neq 0 (
@@ -37,7 +37,7 @@ echo Virtual environment ready.
 echo.
 echo Activating virtual environment...
 
-call .venv\Scripts\activate
+call .venv\Scripts\activate.bat
 
 echo.
 echo Upgrading pip...
@@ -158,22 +158,31 @@ timeout /t 2 /nobreak >nul
 echo.
 echo Starting Ollama in CPU-only mode...
 
-start "" /B cmd /c "set CUDA_VISIBLE_DEVICES=^& set NVIDIA_VISIBLE_DEVICES=^& set OLLAMA_VULKAN=0^& set OLLAMA_NUM_GPU=0^& ollama serve > ollama.log 2>&1"
+set "OLLAMA_CPU_SCRIPT=%TEMP%\monki_ollama_cpu.bat"
+
+(
+    echo @echo off
+    echo set "CUDA_VISIBLE_DEVICES="
+    echo set "NVIDIA_VISIBLE_DEVICES="
+    echo set "OLLAMA_VULKAN=0"
+    echo set "OLLAMA_NUM_GPU=0"
+    echo ollama serve ^> "%CD%\ollama.log" 2^>^&1
+) > "%OLLAMA_CPU_SCRIPT%"
+
+start "Monki Labs Ollama" /min cmd /c call "%OLLAMA_CPU_SCRIPT%"
 
 echo.
 echo Waiting for Ollama...
 
-set OLLAMA_READY=0
+set "OLLAMA_READY=0"
 
 for /L %%i in (1,1,30) do (
 
-    curl -s http://localhost:11434/api/tags >nul 2>&1
+    curl -s --max-time 2 http://localhost:11434/api/tags >nul 2>&1
 
     if not errorlevel 1 (
-
-        set OLLAMA_READY=1
+        set "OLLAMA_READY=1"
         goto :ollama_ready
-
     )
 
     timeout /t 1 /nobreak >nul
@@ -189,9 +198,18 @@ if "%OLLAMA_READY%" neq "1" (
 
     echo.
     echo Ollama log:
+    echo ------------------------------------------
 
     if exist ollama.log (
         type ollama.log
+    ) else (
+        echo Ollama log not found.
+    )
+
+    echo ------------------------------------------
+
+    if exist "%OLLAMA_CPU_SCRIPT%" (
+        del "%OLLAMA_CPU_SCRIPT%" >nul 2>&1
     )
 
     pause
@@ -200,6 +218,10 @@ if "%OLLAMA_READY%" neq "1" (
 )
 
 echo Ollama is ready.
+
+if exist "%OLLAMA_CPU_SCRIPT%" (
+    del "%OLLAMA_CPU_SCRIPT%" >nul 2>&1
+)
 
 echo.
 echo Checking Qwen model...

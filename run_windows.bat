@@ -1,145 +1,189 @@
 @echo off
-setlocal
+setlocal EnableExtensions EnableDelayedExpansion
 
 echo ==========================================
-echo       Starting Monki Labs
+echo Starting Monki Labs
 echo ==========================================
-
 echo.
-echo Activating virtual environment...
 
-if not exist ".venv\Scripts\activate.bat" (
+set "OLLAMA_URL=http://localhost:11434"
+set "OLLAMA_LOG=ollama.log"
 
-    echo ERROR: Virtual environment not found.
-    echo Please run install_windows.bat first.
-
-    pause
-    exit /b 1
-
-)
-
-call .venv\Scripts\activate
-
-echo.
 echo Checking Ollama...
 
 where ollama >nul 2>&1
 
-if %errorlevel% neq 0 (
-
-    echo ERROR: Ollama not found.
-    echo Please run install_windows.bat first.
-
-    pause
-    exit /b 1
-
+if errorlevel 1 (
+echo.
+echo ERROR: Ollama is not installed.
+echo Please run install_windows.bat first.
+exit /b 1
 )
 
 echo Ollama detected.
+echo.
+
+echo Stopping existing Ollama processes...
+
+taskkill /F /IM ollama.exe >nul 2>&1
+taskkill /F /IM ollama_llama_server.exe >nul 2>&1
+taskkill /F /IM llama-server.exe >nul 2>&1
+
+timeout /t 3 /nobreak >nul
+
+echo Existing Ollama processes stopped.
+echo.
+
+echo Checking GPU memory...
+
+where nvidia-smi >nul 2>&1
+
+if not errorlevel 1 (
+nvidia-smi
+echo.
+)
+
+echo Starting Ollama on CPU...
+
+del /Q "%OLLAMA_LOG%" >nul 2>&1
+
+set "OLLAMA_NUM_GPU=0"
+set "OLLAMA_VULKAN=0"
+set "OLLAMA_NO_CLOUD=1"
+
+start "" /B ollama serve >"%OLLAMA_LOG%" 2>&1
+
+echo Ollama started.
+echo.
+
+echo Waiting for Ollama...
+
+set "OLLAMA_READY=0"
+
+for /L %%i in (1,1,30) do (
+curl -s --max-time 2 "%OLLAMA_URL%/api/tags" >nul 2>&1
+
+if not errorlevel 1 (
+    set "OLLAMA_READY=1"
+)
+
+if "!OLLAMA_READY!"=="1" (
+    rem Ollama is ready.
+    set "OLLAMA_WAIT_DONE=1"
+)
+
+if "!OLLAMA_WAIT_DONE!"=="1" (
+    rem Continue looping silently until loop completes.
+)
+
+if "!OLLAMA_READY!"=="1" (
+    rem Give the service a moment to fully initialize.
+    timeout /t 1 /nobreak >nul
+    set "OLLAMA_LOOP_DONE=1"
+)
+
+)
+
+if "%OLLAMA_READY%"=="0" (
 
 echo.
-echo Checking Ollama service...
+echo ERROR: Ollama failed to start.
+echo.
 
-curl -s http://localhost:11434/api/tags >nul 2>&1
+echo Ollama log:
+echo ------------------------------------------
 
-if %errorlevel% neq 0 (
+if exist "%OLLAMA_LOG%" (
+    type "%OLLAMA_LOG%"
+) else (
+    echo Ollama log not found.
+)
 
-    echo Ollama is not running.
-    echo Starting Ollama in CPU-only mode...
+echo ------------------------------------------
+echo.
 
-    start "" /B cmd /c "set CUDA_VISIBLE_DEVICES=^& set NVIDIA_VISIBLE_DEVICES=^& set OLLAMA_VULKAN=0^& set OLLAMA_NUM_GPU=0^& ollama serve > ollama.log 2>&1"
+exit /b 1
 
-    echo Waiting for Ollama...
+)
 
-    set OLLAMA_READY=0
+echo Ollama is ready.
+echo.
 
-    for /L %%i in (1,1,30) do (
+echo Verifying GPU memory is still available...
 
-        curl -s http://localhost:11434/api/tags >nul 2>&1
+where nvidia-smi >nul 2>&1
 
-        if not errorlevel 1 (
+if not errorlevel 1 (
+nvidia-smi
+echo.
+)
 
-            set OLLAMA_READY=1
-            goto :ollama_ready
+echo Checking Ollama model...
 
-        )
+ollama list | findstr /C:"qwen3:8b" >nul 2>&1
 
-        timeout /t 1 /nobreak >nul
+if errorlevel 1 (
 
-    )
+echo qwen3:8b not found.
+echo Pulling qwen3:8b...
+echo.
 
-    :ollama_ready
+ollama pull qwen3:8b
 
-    if "%OLLAMA_READY%" neq "1" (
-
-        echo.
-        echo ERROR: Ollama failed to start.
-
-        echo.
-        echo Ollama log:
-
-        if exist ollama.log (
-            type ollama.log
-        )
-
-        pause
-        exit /b 1
-
-    )
-
-    echo Ollama started successfully.
+if errorlevel 1 (
+    echo.
+    echo ERROR: Failed to pull qwen3:8b.
+    exit /b 1
+)
 
 ) else (
 
-    echo Ollama is already running.
-
-)
-
-echo.
-echo Checking Ollama model...
-
-ollama list | findstr /C:"qwen3:8b" >nul
-
-if %errorlevel% neq 0 (
-
-    echo ERROR: qwen3:8b is not installed.
-    echo Please run install_windows.bat first.
-
-    pause
-    exit /b 1
-
-)
-
 echo qwen3:8b detected.
 
+)
+
 echo.
-echo Running Monki Labs...
+
+REM Ollama is already running separately in CPU-only mode.
+REM Clear the Ollama-specific environment variables before
+REM launching Monki Labs so the video pipeline can use its GPU.
+
+set "OLLAMA_NUM_GPU="
+set "OLLAMA_VULKAN="
+set "OLLAMA_NO_CLOUD="
 
 python main.py
 
-if %errorlevel% neq 0 (
+set "EXIT_CODE=%errorlevel%"
 
-    echo.
-    echo ==========================================
-    echo       Monki Labs Failed
-    echo ==========================================
-    echo.
-    echo Ollama log:
+echo.
 
-    if exist ollama.log (
-        type ollama.log
-    )
+if "%EXIT_CODE%"=="0" (
 
-    echo.
-    pause
-    exit /b 1
+echo ==========================================
+echo        Monki Labs Complete
+echo ==========================================
+
+) else (
+
+echo ==========================================
+echo        Monki Labs Failed
+echo ==========================================
+echo.
+echo Exit code: %EXIT_CODE%
+echo.
+
+echo Ollama log:
+echo ------------------------------------------
+
+if exist "%OLLAMA_LOG%" (
+    type "%OLLAMA_LOG%"
+) else (
+    echo Ollama log not found.
+)
+
+echo ------------------------------------------
 
 )
 
-echo.
-echo ==========================================
-echo       Monki Labs Complete
-echo ==========================================
-
-echo.
-pause
+exit /b %EXIT_CODE%
