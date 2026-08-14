@@ -3,18 +3,28 @@ import re
 
 import torch
 
-from moviepy import (VideoFileClip, concatenate_videoclips)
+from moviepy import (
+    VideoFileClip,
+    concatenate_videoclips
+)
 
 from diffusers import LTX2Pipeline
 
-from diffusers.pipelines.ltx2.export_utils import (encode_video)
+from diffusers.pipelines.ltx2.export_utils import (
+    encode_video
+)
 
-from diffusers.pipelines.ltx2.utils import (DEFAULT_NEGATIVE_PROMPT)
+from diffusers.pipelines.ltx2.utils import (
+    DEFAULT_NEGATIVE_PROMPT
+)
 
 from ai.base_ai_service import BaseAIService
 from ai.prompt_generator import PromptGenerator
 
-class VideoGenerator(BaseAIService):
+
+class VideoGenerator(
+    BaseAIService
+):
 
     def __init__(
         self,
@@ -575,12 +585,7 @@ class VideoGenerator(BaseAIService):
 
         if device == "cuda":
 
-            self.log(
-                "Enabling sequential CPU offload "
-                "for reduced VRAM usage."
-            )
-
-            self.pipeline.enable_sequential_cpu_offload()
+            self.pipeline.enable_model_cpu_offload()
 
         elif device == "mps":
 
@@ -738,8 +743,7 @@ class VideoGenerator(BaseAIService):
                 audio_stg_scale=audio_stg_scale,
                 audio_modality_scale=audio_modality_scale,
                 output_type="np",
-                return_dict=False,
-                spatio_temporal_guidance_scale=0.0
+                return_dict=False
             )
         )
 
