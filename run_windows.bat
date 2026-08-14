@@ -74,15 +74,6 @@ if "%OLLAMA_READY%"=="0" (
 echo Ollama is ready.
 echo.
 
-echo Checking GPU memory...
-
-where nvidia-smi >nul 2>&1
-
-if not errorlevel 1 (
-    nvidia-smi
-    echo.
-)
-
 echo Checking Ollama model...
 
 ollama list | findstr /C:"qwen3:8b" >nul 2>&1
@@ -105,6 +96,17 @@ if errorlevel 1 (
 
     echo qwen3:8b detected.
 
+)
+
+echo.
+
+echo Checking GPU memory...
+
+where nvidia-smi >nul 2>&1
+
+if not errorlevel 1 (
+    nvidia-smi
+    echo.
 )
 
 echo.

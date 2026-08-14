@@ -86,16 +86,6 @@ fi
 echo "Ollama is ready."
 echo ""
 
-echo "Checking GPU memory..."
-
-if command -v nvidia-smi >/dev/null 2>&1; then
-
-    nvidia-smi
-
-    echo ""
-
-fi
-
 echo "Checking Ollama model..."
 
 if ollama list | grep -q "qwen3:8b"; then
@@ -117,6 +107,18 @@ else
         exit 1
 
     fi
+
+fi
+
+echo ""
+
+echo "Checking GPU memory..."
+
+if command -v nvidia-smi >/dev/null 2>&1; then
+
+    nvidia-smi
+
+    echo ""
 
 fi
 
