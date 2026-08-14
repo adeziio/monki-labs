@@ -39,7 +39,7 @@ set "OLLAMA_NUM_GPU=0"
 set "OLLAMA_VULKAN=0"
 set "OLLAMA_NO_CLOUD=1"
 
-start "" /B ollama serve
+start "" /B cmd /c "ollama serve >nul 2>&1"
 
 echo Ollama started.
 echo.
