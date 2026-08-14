@@ -585,7 +585,12 @@ class VideoGenerator(
 
         if device == "cuda":
 
-            self.pipeline.enable_model_cpu_offload()
+            self.log(
+                "Enabling sequential CPU offload "
+                "for reduced VRAM usage."
+            )
+
+            self.pipeline.enable_sequential_cpu_offload()
 
         elif device == "mps":
 
@@ -648,11 +653,12 @@ class VideoGenerator(
             ]
         )
 
-        audio_stg_scale = float(
-            self.video_config[
-                "audio_stg_scale"
-            ]
-        )
+        # STG is intentionally disabled.
+        #
+        # LTX-2.3 requires explicit STG block indices
+        # whenever STG is enabled. Keeping this at zero
+        # avoids that requirement and reduces memory usage.
+        audio_stg_scale = 0.0
 
         audio_modality_scale = float(
             self.video_config[
@@ -725,6 +731,10 @@ class VideoGenerator(
             f"{steps}"
         )
 
+        self.log(
+            "Spatio-Temporal Guidance: disabled"
+        )
+
         video, audio = (
             self.pipeline(
                 prompt=prompt,
@@ -738,7 +748,6 @@ class VideoGenerator(
                 audio_guidance_scale=audio_guidance_scale,
                 audio_stg_scale=audio_stg_scale,
                 audio_modality_scale=audio_modality_scale,
-                spatio_temporal_guidance_blocks=[28],
                 output_type="np",
                 return_dict=False
             )
