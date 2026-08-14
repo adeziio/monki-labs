@@ -17,8 +17,8 @@
             "provider": "ltx",
             "model": "diffusers/LTX-2.3-Diffusers",
             "generation_resolution": {
-                "width": 576,
-                "height": 1024
+                "width": 512,
+                "height": 896
             },
             "generation_fps": 24,
             "steps": {
@@ -28,9 +28,6 @@
             "guidance_scale": 3.0,
             "audio_guidance_scale": 7.0,
             "audio_stg_scale": 1.0,
-            "spatio_temporal_guidance_blocks": [
-                28
-            ],
             "audio_modality_scale": 3.0,
             "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
         }
