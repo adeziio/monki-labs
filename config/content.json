@@ -43,7 +43,7 @@
                 }
             },
             "generation": {
-                "clip_count": 4,
+                "clip_count": 1,
                 "visual_style": "stylized 3D animation",
                 "motion_style": "fast physical comedy",
                 "camera_style": "dynamic",
