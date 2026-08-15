@@ -131,6 +131,15 @@ unset CUDA_VISIBLE_DEVICES
 unset NVIDIA_VISIBLE_DEVICES
 unset OLLAMA_VULKAN
 
+# Configure PyTorch CUDA memory allocation for Monki Labs.
+# This can reduce CUDA memory fragmentation during large LTX-2.3
+# VAE decoding workloads.
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
+
+echo "PyTorch CUDA memory configuration:"
+echo "PYTORCH_CUDA_ALLOC_CONF=$PYTORCH_CUDA_ALLOC_CONF"
+echo ""
+
 python main.py
 
 EXIT_CODE=$?
