@@ -119,11 +119,11 @@ class PromptGenerator(
         return f"""
 Generate exactly {count} independent short-form AI video concepts.
 
-These concepts will be converted directly into short text-to-video clips.
+Each concept will be used directly as a text-to-video generation prompt.
 
-There is NO story continuity.
+There is NO required story continuity between separate concepts.
 
-Each concept must work completely independently.
+Each concept must be understandable as a complete visual idea on its own.
 
 GENRE:
 {genre}
@@ -144,78 +144,120 @@ IMPORTANT:
 
 Return exactly {count} concepts.
 
-Each concept must describe a SINGLE continuous visual action that can be animated clearly over approximately 8 seconds.
+For every concept, return an object using exactly this structure:
 
-The video must feel DYNAMIC and physically active from beginning to end.
+{{
+    "title": "Short descriptive title",
+    "prompt": "Complete text-to-video prompt"
+}}
 
-Do NOT write prompts that mainly describe a static scene.
+The title should be short, descriptive, and directly related to the visual concept.
 
-Do NOT simply describe an object sitting, standing, floating, spinning, changing appearance, or moving in place.
+The prompt should describe a coherent visual sequence that can naturally continue for the configured video duration.
 
-The subject should physically MOVE THROUGH THE ENVIRONMENT.
+Do NOT assume a specific duration.
 
-MOTION IS THE PRIORITY.
+Do NOT mention seconds, frames, clip length, or timing instructions.
 
-Every prompt should clearly communicate:
+Do NOT create a traditional written story.
 
-1. SUBJECT MOVEMENT
-Describe what the main subject physically does.
+The video should feel like ONE coherent sequence rather than a list of unrelated events.
 
-Use strong action verbs such as:
-runs, jumps, falls, slides, rolls, flies, swings, crashes, tumbles, races, bounces, launches, chases, collides, falls toward, rushes toward, moves past, flies across.
+The model should have freedom to determine the exact subject, environment, physical behavior, and visual details.
 
-2. MOVEMENT DIRECTION
-Clearly indicate where the subject moves.
+MOTION:
 
-Examples:
-- across the room
-- toward the camera
-- away from the camera
-- from left to right
-- down a staircase
-- through a doorway
-- across a table
-- upward into the air
-- toward another object
+Physical movement is important.
 
-3. CONTINUOUS MOTION
-The action should continue throughout the clip.
+The main subject should generally move through the environment or cause visible physical interaction.
 
-Avoid prompts where most of the video would consist of a subject remaining in one position.
+Prefer clear movement such as:
 
-4. ENVIRONMENTAL INTERACTION
-The moving subject should interact with objects or the environment whenever appropriate.
+- running
+- sliding
+- rolling
+- falling
+- jumping
+- flying
+- swinging
+- bouncing
+- crashing
+- tumbling
+- racing
+- chasing
+- colliding
+- launching
+- moving through an environment
 
-Examples:
-- knocks something over
-- bounces off a surface
-- crashes into an object
-- slides underneath something
-- jumps over an obstacle
-- sends objects flying
-- pushes something across the floor
-- causes a physical reaction
+Do not force multiple different actions simply to make the prompt feel exciting.
 
-5. CAMERA MOTION
-Include a simple camera movement that follows or emphasizes the action.
+A strong primary action with natural escalation is better than many unrelated actions.
 
-Examples:
-- the camera tracks alongside the subject
-- the camera follows from behind
-- the camera pans rapidly with the movement
-- the camera pushes toward the action
-- the camera tilts downward as the subject falls
-- the camera pulls back as the action escalates
+ENVIRONMENTAL INTERACTION:
 
-The camera should feel active rather than completely stationary.
+Whenever appropriate, allow the subject to interact with its surroundings.
 
-6. ESCALATION
-The physical action should build toward a clear visual payoff.
+Examples include:
 
-The ending should be the most visually interesting moment.
+- knocking objects over
+- pushing objects
+- bouncing off surfaces
+- colliding with objects
+- moving around obstacles
+- causing nearby objects to react
+- disturbing the environment
+- creating a visible physical consequence
 
-7. VISUAL CLARITY
-Describe only what should visibly happen.
+These interactions should naturally follow from the main action.
+
+CAMERA:
+
+Include simple camera behavior that supports the action.
+
+Examples include:
+
+- tracking the subject
+- following from behind
+- panning with movement
+- moving toward the action
+- pulling back to reveal the result
+- tilting as the subject moves vertically
+- reacting to a major impact
+
+Do not use random camera movements.
+
+The camera should help communicate the physical action clearly.
+
+ESCALATION:
+
+The visual situation should naturally become more interesting as the sequence progresses.
+
+Escalation can come from:
+
+- increasing speed
+- increasing scale
+- increasingly chaotic environmental interaction
+- an unexpected obstacle
+- an unexpected change in direction
+- a larger physical consequence
+- a surprising visual payoff
+
+Do not force several unrelated events into the same prompt.
+
+The ending should provide a clear visual payoff, but the entire sequence should still feel like one connected action.
+
+VISUAL CLARITY:
+
+The prompt should be easy for a video model to visualize.
+
+Describe:
+
+- what is visible
+- what is moving
+- where it is moving
+- what it interacts with
+- how the camera follows the action
+- what visible consequence occurs
 
 Do not explain why something is funny.
 
@@ -223,83 +265,67 @@ Do not explain the concept.
 
 Do not include abstract descriptions.
 
-Do not include dialogue.
+Do not require dialogue.
 
 Do not require narration.
 
 Do not require text on screen.
 
-Do not rely on sound to make the action understandable.
+Do not rely on sound for the visual action to make sense.
 
-8. SHORT-FORM VIDEO STRUCTURE
+PROMPT LENGTH:
 
-Think of each prompt as:
+Keep the prompt concise.
 
-START:
-The subject begins a physical action.
+Normally use one or two sentences.
 
-MOTION:
-The subject continuously moves through the environment.
+Use enough detail for the video model to understand the sequence, but do not overload the prompt with unnecessary choreography.
 
-ESCALATION:
-The movement becomes faster, larger, more chaotic, or more surprising.
+Avoid long chains of actions connected with:
 
-PAYOFF:
-The action ends with a strong visible physical event.
+"then"
 
-These are NOT separate scenes.
+"and then"
 
-The entire concept must be one continuous visual sequence.
+"after that"
 
-9. MOTION OVER TRANSFORMATION
+"followed by"
 
-Prefer physical movement over purely visual transformation.
+A prompt should generally focus on one primary physical idea with supporting environmental interactions.
 
-Weak:
-"A pencil transforms into a rainbow pencil."
+WE WANT:
 
-Better:
-"A pencil rolls rapidly down a hallway, launches off a small ramp into the air, crashes into a pencil sharpener, and shoots back out across the floor covered in rainbow shavings."
+One clear visual action.
 
-10. AVOID STATIC COMPOSITIONS
+Movement through space.
 
-Avoid prompts like:
+Natural environmental interaction.
 
-- "A character stands in a room while..."
-- "An object sits on a table and..."
-- "A creature looks at..."
-- "Something floats in place..."
-- "Something spins in place..."
-- "Something changes into..."
-- "Something suddenly becomes..."
+Simple camera movement.
 
-Unless the subject is also clearly moving through the environment.
+Gradual escalation.
 
-11. CAMERA AND SUBJECT MOVEMENT SHOULD WORK TOGETHER
+A strong visual payoff.
 
-Do not add random camera movement.
+WE DO NOT WANT:
 
-The camera should follow, reveal, emphasize, or react to the physical action.
+A sequence containing many unrelated actions.
 
-For example:
+A traditional story.
 
-"The camera tracks alongside the running subject, quickly pans as it jumps, then pushes toward the impact."
+Multiple separate scenes.
 
-12. KEEP PROMPTS CONCISE
+A static composition.
 
-Each prompt should normally be one or two sentences.
+A subject simply standing while things happen around it.
 
-Use concrete visual language.
+A subject performing many unrelated actions just because they sound exciting.
 
-Do not write a traditional story.
-
-Do not create multiple separate scenes.
-
-Do not reference previous or future clips.
+Do not reference previous or future concepts.
 
 Do not use recurring characters.
 
-Do not use character names.
+Do not use configured character names.
 
 Do not require dialogue.
 
@@ -307,19 +333,18 @@ Do not require narration.
 
 Prioritize:
 
-- strong physical movement
-- movement through space
-- camera movement
-- environmental interaction
 - visual comedy
 - absurdity
-- unexpected physical behavior
-- unusual scale
-- surprising motion
-- escalating action
+- physical movement
+- unusual situations
+- unexpected behavior
+- environmental interaction
+- surprising scale
+- escalating physical consequences
+- clear visual storytelling
 - strong visual payoff
 
-The final prompt should give a text-to-video model enough information to understand BOTH what is happening AND how everything is moving.
+The concept should remain visually coherent even if the video generation model decides to introduce natural camera movement or scene changes.
 
 Return ONLY the JSON array.
 
@@ -332,9 +357,14 @@ Do not include an explanation.
 Example:
 
 [
-    "A tiny elephant races across a crowded beach pushing an enormous beach ball, weaving between people as the camera tracks alongside it. The ball suddenly rolls downhill, dragging the elephant behind it before crashing into a stack of beach chairs.",
-    "A vending machine violently rolls across a convenience store while the camera follows from behind, bouncing off shelves and sending drinks flying before crashing through the front doors.",
-    "A giant rubber duck bounces rapidly through a miniature city, crushing through streets and launching over buildings as the camera pulls back to reveal the growing chaos."
+    {{
+        "title": "Runaway Shopping Cart",
+        "prompt": "A shopping cart races uncontrollably through a crowded supermarket aisle, weaving around displays and knocking items loose as the camera tracks alongside it before the cart launches through the automatic doors and crashes into a towering display outside."
+    }},
+    {{
+        "title": "Giant Balloon Escape",
+        "prompt": "A giant balloon breaks free inside a busy warehouse and drifts rapidly through the aisles, dragging loose objects behind it as workers scatter and the camera follows its unpredictable path before it bursts through the roof."
+    }}
 ]
 """
 
@@ -430,19 +460,38 @@ Example:
 
             if not isinstance(
                 item,
-                str
+                dict
             ):
 
                 continue
 
-            item = item.strip()
+            title = item.get(
+                "title",
+                ""
+            )
 
-            if not item:
+            prompt = item.get(
+                "prompt",
+                ""
+            )
+
+            title = str(
+                title
+            ).strip()
+
+            prompt = str(
+                prompt
+            ).strip()
+
+            if not title or not prompt:
 
                 continue
 
             prompts.append(
-                item
+                {
+                    "title": title,
+                    "prompt": prompt
+                }
             )
 
         if not prompts:

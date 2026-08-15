@@ -826,11 +826,6 @@ class VideoGenerator(
             ]
         )
 
-        # STG is intentionally disabled.
-        #
-        # LTX-2.3 requires explicit STG block indices
-        # when STG is enabled. We are disabling STG
-        # completely for the current production setup.
         audio_stg_scale = 0.0
         stg_scale = 0.0
 
@@ -981,31 +976,154 @@ class VideoGenerator(
 
         clips = []
 
-        for clip_path in clip_paths:
+        try:
 
-            clips.append(
-                VideoFileClip(
-                    clip_path
+            for clip_path in clip_paths:
+
+                clips.append(
+                    VideoFileClip(
+                        clip_path
+                    )
+                )
+
+            if not clips:
+
+                raise RuntimeError(
+                    "No video clips were generated."
+                )
+
+            final_video = (
+                concatenate_videoclips(
+                    clips,
+                    method="compose"
                 )
             )
 
-        if not clips:
+            return (
+                final_video,
+                clips
+            )
+
+        except Exception:
+
+            for clip in clips:
+
+                clip.close()
+
+            raise
+
+    def write_prompt_file(
+        self,
+        prompts
+    ):
+
+        prompt_path = (
+            self.run_directory
+            /
+            "prompt.txt"
+        )
+
+        sections = []
+
+        for index, item in enumerate(
+            prompts,
+            start=1
+        ):
+
+            title = (
+                str(
+                    item.get(
+                        "title",
+                        ""
+                    )
+                ).strip()
+            )
+
+            prompt = (
+                str(
+                    item.get(
+                        "prompt",
+                        ""
+                    )
+                ).strip()
+            )
+
+            if not title or not prompt:
+
+                continue
+
+            sections.append(
+                "\n".join(
+                    [
+                        f"TITLE: {title}",
+                        f"PROMPT: {prompt}"
+                    ]
+                )
+            )
+
+        if not sections:
 
             raise RuntimeError(
-                "No video clips were generated."
+                "No usable prompts available "
+                "for prompt.txt."
             )
 
-        final_video = (
-            concatenate_videoclips(
-                clips,
-                method="compose"
+        prompt_path.write_text(
+            "\n\n"
+            +
+            (
+                "\n\n"
+                +
+                ("=" * 72)
+                +
+                "\n\n"
+            ).join(
+                sections
             )
+            +
+            "\n",
+            encoding="utf-8"
         )
 
-        return (
-            final_video,
-            clips
+        self.log(
+            f"Prompt file created: "
+            f"{prompt_path}"
         )
+
+        return str(
+            prompt_path
+        )
+
+    def cleanup_intermediate_clips(
+        self,
+        clip_paths
+    ):
+
+        for clip_path in clip_paths:
+
+            path = Path(
+                clip_path
+            )
+
+            if not path.exists():
+
+                continue
+
+            try:
+
+                path.unlink()
+
+                self.log(
+                    f"Removed intermediate clip: "
+                    f"{path.name}"
+                )
+
+            except OSError as error:
+
+                self.log(
+                    f"Could not remove intermediate "
+                    f"clip {path.name}: {error}"
+                )
 
     def generate(
         self
@@ -1043,90 +1161,142 @@ class VideoGenerator(
                 "were generated."
             )
 
+        if len(prompts) != clip_count:
+
+            self.log(
+                f"Requested {clip_count} prompts "
+                f"but received {len(prompts)} usable prompts."
+            )
+
+        self.write_prompt_file(
+            prompts
+        )
+
         self.load_pipeline()
 
         clip_paths = []
 
-        for index, prompt in enumerate(
-            prompts,
-            start=1
-        ):
+        try:
 
-            output_path = (
-                self.clip_output_directory
-                /
-                f"clip_{index:03}.mp4"
-            )
+            for index, item in enumerate(
+                prompts,
+                start=1
+            ):
 
-            clip_path = (
-                self.generate_clip(
-                    prompt,
-                    output_path
+                prompt = (
+                    str(
+                        item.get(
+                            "prompt",
+                            ""
+                        )
+                    ).strip()
+                )
+
+                if not prompt:
+
+                    continue
+
+                output_path = (
+                    self.clip_output_directory
+                    /
+                    f"_clip_{index:03}.mp4"
+                )
+
+                clip_path = (
+                    self.generate_clip(
+                        prompt,
+                        output_path
+                    )
+                )
+
+                clip_paths.append(
+                    clip_path
+                )
+
+            if not clip_paths:
+
+                raise RuntimeError(
+                    "No video clips were generated."
+                )
+
+            final_video, clips = (
+                self.combine_clips(
+                    clip_paths
                 )
             )
 
-            clip_paths.append(
-                clip_path
-            )
+            try:
 
-        final_video, clips = (
-            self.combine_clips(
-                clip_paths
-            )
-        )
+                output_format = (
+                    self.get_output_format()
+                )
 
-        output_format = (
-            self.get_output_format()
-        )
+                if output_format.lower() != "mp4":
 
-        if output_format.lower() != "mp4":
+                    raise ValueError(
+                        "The current LTX video "
+                        "export pipeline requires "
+                        "MP4 output."
+                    )
 
-            raise ValueError(
-                "The current LTX video "
-                "export pipeline requires "
-                "MP4 output."
-            )
-
-        output_path = (
-            self.run_directory
-            /
-            f"episode.{output_format}"
-        )
-
-        output_fps = (
-            self.get_output_fps()
-        )
-
-        final_video.write_videofile(
-            str(output_path),
-            fps=output_fps,
-            codec="libx264",
-            audio_codec="aac",
-            temp_audiofile=(
-                str(
+                output_path = (
                     self.run_directory
                     /
-                    "temp_audio.m4a"
+                    f"episode.{output_format}"
                 )
-            ),
-            remove_temp=True
-        )
 
-        for clip in clips:
+                output_fps = (
+                    self.get_output_fps()
+                )
 
-            clip.close()
+                final_video.write_videofile(
+                    str(output_path),
+                    fps=output_fps,
+                    codec="libx264",
+                    audio_codec="aac",
+                    temp_audiofile=(
+                        str(
+                            self.run_directory
+                            /
+                            "_temp_audio.m4a"
+                        )
+                    ),
+                    remove_temp=True
+                )
 
-        final_video.close()
+            finally:
 
-        self.log(
-            f"Final audio-video created: "
-            f"{output_path}"
-        )
+                for clip in clips:
 
-        return {
-            "output": str(
-                output_path
-            ),
-            "clips": clip_paths,
-            "prompts": prompts
-        }
+                    clip.close()
+
+                final_video.close()
+
+            self.cleanup_intermediate_clips(
+                clip_paths
+            )
+
+            self.log(
+                f"Final audio-video created: "
+                f"{output_path}"
+            )
+
+            return {
+                "output": str(
+                    output_path
+                ),
+                "prompt_file": str(
+                    self.run_directory
+                    /
+                    "prompt.txt"
+                ),
+                "prompts": prompts
+            }
+
+        except Exception:
+
+            self.cleanup_intermediate_clips(
+                clip_paths
+            )
+
+            raise
