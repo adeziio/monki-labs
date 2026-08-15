@@ -23,7 +23,7 @@
             "generation_fps": 24,
             "steps": {
                 "cpu": 8,
-                "cuda": 30
+                "cuda": 20
             },
             "guidance_scale": 3.0,
             "audio": {
