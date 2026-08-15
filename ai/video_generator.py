@@ -586,11 +586,11 @@ class VideoGenerator(
         if device == "cuda":
 
             self.log(
-                "Enabling sequential CPU offload "
+                "Enabling model CPU offload "
                 "for reduced VRAM usage."
             )
 
-            self.pipeline.enable_sequential_cpu_offload()
+            self.pipeline.enable_model_cpu_offload()
 
         elif device == "mps":
 
