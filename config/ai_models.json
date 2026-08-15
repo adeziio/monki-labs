@@ -17,8 +17,8 @@
             "provider": "ltx",
             "model": "diffusers/LTX-2.3-Diffusers",
             "generation_resolution": {
-                "width": 512,
-                "height": 896
+                "width": 768,
+                "height": 1344
             },
             "generation_fps": 24,
             "steps": {
