@@ -531,6 +531,82 @@ class VideoGenerator(
 
         return steps
 
+    def get_guidance_scale(
+        self
+    ):
+
+        guidance_scale = float(
+            self.video_config[
+                "guidance_scale"
+            ]
+        )
+
+        if guidance_scale < 0:
+
+            raise ValueError(
+                "LTX guidance scale "
+                "must not be negative."
+            )
+
+        return guidance_scale
+
+    def get_audio_guidance_scale(
+        self
+    ):
+
+        audio_guidance_scale = float(
+            self.video_config[
+                "audio_guidance_scale"
+            ]
+        )
+
+        if audio_guidance_scale < 0:
+
+            raise ValueError(
+                "LTX audio guidance scale "
+                "must not be negative."
+            )
+
+        return audio_guidance_scale
+
+    def get_stg_scale(
+        self
+    ):
+
+        stg_scale = float(
+            self.video_config[
+                "stg_scale"
+            ]
+        )
+
+        if stg_scale < 0:
+
+            raise ValueError(
+                "LTX STG scale "
+                "must not be negative."
+            )
+
+        return stg_scale
+
+    def get_audio_stg_scale(
+        self
+    ):
+
+        audio_stg_scale = float(
+            self.video_config[
+                "audio_stg_scale"
+            ]
+        )
+
+        if audio_stg_scale < 0:
+
+            raise ValueError(
+                "LTX audio STG scale "
+                "must not be negative."
+            )
+
+        return audio_stg_scale
+
     def build_audio_prompt(
         self
     ):
@@ -814,20 +890,21 @@ class VideoGenerator(
             )
         )
 
-        guidance_scale = float(
-            self.video_config[
-                "guidance_scale"
-            ]
+        guidance_scale = (
+            self.get_guidance_scale()
         )
 
-        audio_guidance_scale = float(
-            self.video_config[
-                "audio_guidance_scale"
-            ]
+        audio_guidance_scale = (
+            self.get_audio_guidance_scale()
         )
 
-        audio_stg_scale = 0.0
-        stg_scale = 0.0
+        stg_scale = (
+            self.get_stg_scale()
+        )
+
+        audio_stg_scale = (
+            self.get_audio_stg_scale()
+        )
 
         audio_modality_scale = float(
             self.video_config[
@@ -901,8 +978,40 @@ class VideoGenerator(
         )
 
         self.log(
-            "Spatio-Temporal Guidance: disabled"
+            f"Guidance scale: "
+            f"{guidance_scale:g}"
         )
+
+        self.log(
+            f"Audio guidance scale: "
+            f"{audio_guidance_scale:g}"
+        )
+
+        self.log(
+            f"STG scale: "
+            f"{stg_scale:g}"
+        )
+
+        self.log(
+            f"Audio STG scale: "
+            f"{audio_stg_scale:g}"
+        )
+
+        if (
+            stg_scale == 0
+            and
+            audio_stg_scale == 0
+        ):
+
+            self.log(
+                "Spatio-Temporal Guidance: disabled"
+            )
+
+        else:
+
+            self.log(
+                "Spatio-Temporal Guidance: enabled"
+            )
 
         if self.build_audio_prompt():
 
