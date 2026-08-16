@@ -17,7 +17,7 @@
             "provider": "ltx",
             "model": "diffusers/LTX-2.3-Diffusers",
             "device_allocation": {
-                "mode": "model",
+                "mode": "gpu",
                 "vae_tiling": true,
                 "vae_slicing": true,
                 "attention_slicing": true
