@@ -262,14 +262,13 @@ The installer:
 ## 3. Run Monki Labs
 
 ```bash
-bash run_linux
+bash run_linux.sh
 ```
 
 The Linux runner:
 
-* Starts Ollama as a CPU-only process
-* Keeps the GPU available for Monki Labs
-* Configures PyTorch CUDA memory handling
+* Starts Ollama with GPU acceleration (fast prompt generation)
+* Configures PyTorch CUDA memory handling (`expandable_segments:True`)
 * Runs the main pipeline
 
 No application code changes are required to run the pipeline on Linux.
@@ -283,6 +282,99 @@ RunPod instances can be treated as temporary compute environments.
 The repository contains the application and configuration, while generated videos can be retrieved before terminating the instance.
 
 The long-term goal is to use temporary GPU infrastructure only when video generation is required rather than maintaining a continuously running server.
+
+---
+
+# 🖥️ Hardware Requirements
+
+LTX-2.3 is a large model (~50GB in bfloat16). It requires substantial GPU and system memory.
+
+## Minimum (production)
+
+| Component | Requirement |
+|---|---|
+| **GPU VRAM** | 48GB (RTX A6000, RTX L40S) |
+| **System RAM** | 100GB+ |
+| **Storage** | 200GB+ NVMe (model cache + outputs) |
+| **CPU** | 8+ cores |
+
+## Recommended (production)
+
+| Component | Recommendation |
+|---|---|
+| **GPU** | RTX L40S (48GB VRAM) |
+| **System RAM** | 100GB+ |
+| **Cost** | ~$1.00/hour on RunPod |
+
+## Why 48GB VRAM is required
+
+The LTX-2.3 pipeline includes a Gemma 3 text encoder (~16GB) plus a video transformer, VAE, and audio components. The full model is ~50GB in bfloat16 — it cannot fit entirely on a 24GB GPU. The pipeline uses **model-level CPU offload** (`enable_model_cpu_offload`) to keep only the active component on GPU at a time, which requires 48GB VRAM.
+
+## Local development
+
+No consumer laptop GPU (8-16GB VRAM) can run this model. For local development, use a **dry-run / test mode** that validates pipeline logic on CPU without loading the full model. Production generation should use cloud GPU instances.
+
+---
+
+# 🏭 Production Configuration
+
+The following configuration has been tested and verified to run end-to-end on an RTX L40S (48GB VRAM, 100GB+ RAM):
+
+## `config/ai_models.json` (video model)
+
+```json
+{
+    "device_allocation": {
+        "mode": "model",
+        "vae_tiling": false,
+        "vae_slicing": true,
+        "attention_slicing": false
+    },
+    "generation_resolution": {
+        "width": 768,
+        "height": 1344
+    },
+    "steps": { "cpu": 8, "cuda": 25 },
+    "stg_scale": 1.5,
+    "audio_stg_scale": 0.0,
+    "guidance_scale": 3.5,
+    "audio_guidance_scale": 5.0,
+    "stg_blocks": { "indices": [28] }
+}
+```
+
+## `config/content.json` (content)
+
+```json
+{
+    "video": {
+        "duration_seconds": 6,
+        "aspect_ratio": "9:16",
+        "fps": 30,
+        "resolution": { "width": 1080, "height": 1920 }
+    },
+    "generation": {
+        "clip_count": 2
+    }
+}
+```
+
+## Key settings explained
+
+* **`mode: "model"`** — model-level CPU offload. Keeps only the active component on GPU. Required for 48GB VRAM.
+* **`generation_resolution: 768×1344`** — the generation resolution. Output is upscaled to 1080×1920. Higher resolutions (e.g., 896×1600) are possible but increase VRAM usage.
+* **`clip_count: 2` × `duration_seconds: 6`** — two 6-second clips concatenated into a 12-second episode. This multi-clip architecture is required because the transformer must hold all frames' latents in VRAM simultaneously — a single 12s clip (289 frames) exceeds 48GB.
+* **`stg_scale: 1.5`** — Spatio-Temporal Guidance applied to block 28. Improves sharpness and motion coherence.
+* **`audio_stg_scale: 0.0`** — audio STG disabled to reduce VRAM. Audio (music + SFX) is still generated.
+* **`low_cpu_mem_usage: true`** — loads the model directly in bfloat16, avoiding the fp32 double-buffer peak during load.
+
+## Expected performance (L40S)
+
+| Metric | Value |
+|---|---|
+| Per clip (25 steps, 145 frames) | ~9-10 min |
+| Full episode (2 clips + encode) | ~20-25 min |
+| Cost @ ~$1.00/hr | ~$0.35-0.45 per episode |
 
 ---
 
@@ -414,6 +506,7 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 * Configurable generation resolution
 * Configurable inference steps
 * Configurable guidance settings
+* Spatio-Temporal Guidance (STG)
 * Vertical 9:16 output
 * Single-prompt generation
 * Multi-prompt / multi-clip architecture
@@ -424,19 +517,17 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 * Windows installation
 * Linux / GPU installation
 * RunPod-compatible execution
+* GPU memory optimization (model offload + memory hygiene)
+* End-to-end production pipeline on cloud GPU
 
 ## 🚧 Current Focus
 
-* 🎥 Improving generated video quality
-* 🔍 Testing generation resolution and inference settings
 * 🎬 Improving prompt quality and visual clarity
-* ⚡ Optimizing GPU memory usage
+* 📺 Automated YouTube uploading
 * ⏱️ Testing longer video durations
 
 ## 🔮 Future Goals
 
-* 🎥 Consistently higher-quality video generation
-* 📺 Automated YouTube uploading
 * 📂 Playlist management
 * ⏰ Scheduled generation
 * ☁️ Automated cloud GPU execution
