@@ -925,8 +925,15 @@ class VideoGenerator(
                 "No CPU offload enabled."
             )
 
+            target_dtype = (
+                self.get_dtype(
+                    "cuda"
+                )
+            )
+
             self.pipeline.to(
-                "cuda"
+                device="cuda",
+                dtype=target_dtype
             )
 
         elif allocation_mode == "sequential":
