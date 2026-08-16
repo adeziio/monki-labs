@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import gc
 
 import torch
 
@@ -880,7 +881,8 @@ class VideoGenerator(
         self.pipeline = (
             LTX2Pipeline.from_pretrained(
                 model_name,
-                torch_dtype=dtype
+                torch_dtype=dtype,
+                low_cpu_mem_usage=True
             )
         )
 
@@ -1264,6 +1266,13 @@ class VideoGenerator(
             )
         )
 
+        del video
+        del audio
+
+        gc.collect()
+
+        torch.cuda.empty_cache()
+
         return str(
             output_path
         )
@@ -1515,6 +1524,24 @@ class VideoGenerator(
                 clip_paths.append(
                     clip_path
                 )
+
+                gc.collect()
+
+                torch.cuda.empty_cache()
+
+            self.log(
+                "All clips generated. "
+                "Releasing video model from memory "
+                "before final assembly."
+            )
+
+            del self.pipeline
+
+            self.pipeline = None
+
+            gc.collect()
+
+            torch.cuda.empty_cache()
 
             if not clip_paths:
 

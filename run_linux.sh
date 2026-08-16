@@ -32,20 +32,24 @@ sleep 3
 echo "Existing Ollama processes stopped."
 echo ""
 
-echo "Starting Ollama on CPU..."
+echo "Starting Ollama with GPU acceleration..."
 
-# Completely hide NVIDIA GPUs from Ollama.
-# Monki Labs itself will still see and use the GPU.
-export CUDA_VISIBLE_DEVICES=""
-export NVIDIA_VISIBLE_DEVICES=""
+# Let Ollama use the GPU for fast prompt generation.
+# OLLAMA_KEEP_ALIVE=0 unloads the Ollama model from VRAM
+# immediately after each request, keeping the GPU free
+# for the LTX video pipeline that runs afterward.
+export CUDA_VISIBLE_DEVICES="0"
+export NVIDIA_VISIBLE_DEVICES="0"
 export OLLAMA_VULKAN=0
 export OLLAMA_NO_CLOUD=1
+export OLLAMA_KEEP_ALIVE="0"
 
 nohup env \
-    CUDA_VISIBLE_DEVICES="" \
-    NVIDIA_VISIBLE_DEVICES="" \
+    CUDA_VISIBLE_DEVICES="0" \
+    NVIDIA_VISIBLE_DEVICES="0" \
     OLLAMA_VULKAN=0 \
     OLLAMA_NO_CLOUD=1 \
+    OLLAMA_KEEP_ALIVE="0" \
     ollama serve \
     >/dev/null 2>&1 &
 
@@ -125,11 +129,12 @@ fi
 echo ""
 
 # IMPORTANT:
-# Do NOT inherit CUDA_VISIBLE_DEVICES="" into Monki Labs.
-# Ollama is already running as a separate CPU-only process.
+# Do NOT inherit Ollama's environment into Monki Labs.
+# Ollama is already running as a separate process.
 unset CUDA_VISIBLE_DEVICES
 unset NVIDIA_VISIBLE_DEVICES
 unset OLLAMA_VULKAN
+unset OLLAMA_KEEP_ALIVE
 
 # Configure PyTorch CUDA memory allocation for Monki Labs.
 # This can reduce CUDA memory fragmentation during large LTX-2.3

@@ -33,7 +33,7 @@
                 "Do not require continuity between clips"
             ],
             "video": {
-                "duration_seconds": 12,
+                "duration_seconds": 3,
                 "aspect_ratio": "9:16",
                 "fps": 30,
                 "format": "mp4",
@@ -64,7 +64,7 @@
                 }
             },
             "generation": {
-                "clip_count": 1,
+                "clip_count": 2,
                 "visual_style": "stylized 3D animation",
                 "motion_style": "fast physical comedy",
                 "camera_style": "dynamic",
