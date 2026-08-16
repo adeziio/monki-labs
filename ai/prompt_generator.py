@@ -19,8 +19,6 @@ class PromptGenerator(
             "PROMPT"
         )
 
-        self.config = config
-
         self.llm = OllamaProvider(
             config
         )
@@ -29,7 +27,7 @@ class PromptGenerator(
             config["content"]
         )
 
-        self.active_category = (
+        active_category = (
             content_config[
                 "active_category"
             ]
@@ -39,14 +37,20 @@ class PromptGenerator(
             content_config[
                 "categories"
             ][
-                self.active_category
+                active_category
             ]
         )
 
         self.prompt_config = (
-            self.category_config
-            .get(
+            self.category_config.get(
                 "prompt_generation",
+                {}
+            )
+        )
+
+        self.generation_config = (
+            self.category_config.get(
+                "generation",
                 {}
             )
         )
@@ -57,213 +61,388 @@ class PromptGenerator(
     ):
 
         genre = (
-            self.category_config
-            .get(
+            self.category_config.get(
                 "genre",
                 ""
             )
         )
 
         tone = (
-            self.category_config
-            .get(
+            self.category_config.get(
                 "tone",
                 []
             )
         )
 
         world = (
-            self.category_config
-            .get(
+            self.category_config.get(
                 "world",
                 []
             )
         )
 
-        categories = (
-            self.prompt_config
-            .get(
-                "categories",
+        protagonists = (
+            self.category_config.get(
+                "protagonists",
+                []
+            )
+        )
+
+        comedy_types = (
+            self.category_config.get(
+                "comedy_types",
+                []
+            )
+        )
+
+        rules = (
+            self.category_config.get(
+                "rules",
+                []
+            )
+        )
+
+        comedy_structure = (
+            self.prompt_config.get(
+                "comedy_structure",
                 []
             )
         )
 
         requirements = (
-            self.prompt_config
-            .get(
+            self.prompt_config.get(
                 "requirements",
                 []
             )
         )
 
-        tone_text = ", ".join(
-            str(item)
-            for item in tone
+        clip_roles = (
+            self.generation_config.get(
+                "clip_roles",
+                []
+            )
         )
 
-        world_text = ", ".join(
-            str(item)
-            for item in world
+        visual_style = (
+            self.generation_config.get(
+                "visual_style",
+                ""
+            )
         )
 
-        category_text = ", ".join(
-            str(item)
-            for item in categories
+        motion_style = (
+            self.generation_config.get(
+                "motion_style",
+                ""
+            )
         )
 
-        requirement_text = "\n".join(
-            f"- {item}"
-            for item in requirements
+        camera_style = (
+            self.generation_config.get(
+                "camera_style",
+                ""
+            )
+        )
+
+        tone_text = (
+            ", ".join(
+                str(item)
+                for item in tone
+            )
+        )
+
+        world_text = (
+            ", ".join(
+                str(item)
+                for item in world
+            )
+        )
+
+        protagonist_text = (
+            ", ".join(
+                str(item)
+                for item in protagonists
+            )
+        )
+
+        comedy_type_text = (
+            ", ".join(
+                str(item)
+                for item in comedy_types
+            )
+        )
+
+        rule_text = (
+            "\n".join(
+                f"- {item}"
+                for item in rules
+            )
+        )
+
+        structure_text = (
+            " → ".join(
+                str(item)
+                for item in comedy_structure
+            )
+        )
+
+        requirement_text = (
+            "\n".join(
+                f"- {item}"
+                for item in requirements
+            )
+        )
+
+        clip_role_text = (
+            "\n".join(
+                f"- Clip {index}: {role}"
+                for index, role in enumerate(
+                    clip_roles,
+                    start=1
+                )
+            )
+        )
+
+        style_parts = [
+            visual_style,
+            motion_style,
+            camera_style
+        ]
+
+        style_suffix = (
+            ", ".join(
+                str(part).strip()
+                for part in style_parts
+                if str(part).strip()
+            )
         )
 
         return f"""
-Generate exactly {count} independent short-form AI video concepts.
+Generate exactly {count} independent short-form vertical video concepts.
 
 Each concept will be used directly as a text-to-video generation prompt.
 
-There is NO required story continuity between separate concepts.
+The concepts will be combined into one short-form video, but the individual clips have NO continuity requirement. A character from one concept does not need to appear in another concept.
 
-Each concept must be understandable as a complete visual idea on its own.
+The goal is not random chaos.
+
+The goal is CHARACTER-DRIVEN ABSURD COMEDY.
+
+A viewer should immediately understand:
+
+WHO is doing something,
+WHAT they are trying to do,
+WHAT simple problem they encounter,
+HOW they react,
+and WHY the final visual result is funny or surprising.
+
+CREATIVE PRIORITY:
+
+Character → Goal → Problem → Reaction → Escalation → Payoff
+
+Use this structure as the underlying logic of every concept:
+
+{structure_text}
 
 GENRE:
+
 {genre}
 
 TONE:
+
 {tone_text}
 
 WORLD:
+
 {world_text}
 
-POSSIBLE CONCEPT CATEGORIES:
-{category_text}
+ALLOWED PROTAGONIST TYPES:
 
-REQUIREMENTS:
+{protagonist_text}
+
+The protagonist must be a living being or character-like creature with a visible face.
+
+Inanimate objects can appear in the environment or be interacted with, but they must never be the protagonist or primary acting entity.
+
+POSSIBLE COMEDY TYPES:
+
+{comedy_type_text}
+
+GENERAL CONTENT RULES:
+
+{rule_text}
+
+PROMPT REQUIREMENTS:
+
 {requirement_text}
 
-IMPORTANT:
+CLIP VARIETY:
 
-Return exactly {count} concepts.
+When multiple clips are requested, deliberately vary the type of comedic experience.
 
-For every concept, return an object using exactly this structure:
+Use these configured clip roles when available:
 
-{{
-    "title": "Short descriptive title",
-    "prompt": "Complete text-to-video prompt"
-}}
+{clip_role_text}
 
-The title should be short, descriptive, and directly related to the visual concept.
+Do not force these roles if they would produce weak ideas, but use them as a guide to make the final set feel varied.
 
-The prompt should describe a coherent visual sequence that can naturally continue for the configured video duration.
+Do not make all concepts involve running, crashing, falling, or chasing.
 
-Do NOT assume a specific duration.
+Mix different types of comedy such as:
 
-Do NOT mention seconds, frames, clip length, or timing instructions.
+- character behavior
+- facial reaction
+- awkward situations
+- physical challenges
+- misunderstandings
+- absurd goals
+- environmental interaction
+- visual reveals
+- unexpected consequences
 
-Do NOT create a traditional written story.
+Do not create four versions of the same joke.
 
-The video should feel like ONE coherent sequence rather than a list of unrelated events.
+RETENTION:
 
-The model should have freedom to determine the exact subject, environment, physical behavior, and visual details.
+The first visual moment must already contain something interesting.
 
-MOTION:
+Do not begin with a character simply standing, walking normally, or waiting for something to happen.
 
-Physical movement is important.
+The opening should immediately communicate the unusual situation, character behavior, or visual contradiction.
 
-The main subject should generally move through the environment or cause visible physical interaction.
+Create a curiosity gap naturally.
 
-Prefer clear movement such as:
+The viewer should want to know what happens to the character next.
+
+Do not explain the joke to the viewer.
+
+Let the visual situation communicate it.
+
+CHARACTER:
+
+Every concept must have one clear primary protagonist.
+
+The protagonist must have:
+
+- a recognizable physical appearance
+- a visible face
+- a readable emotional state
+- a clear intention or goal
+- physical interaction with the environment
+
+The protagonist should drive the action.
+
+Do not create a passive character while unrelated events happen around them.
+
+COMEDY:
+
+The humor should come primarily from the character's behavior, reaction, goal, mistake, misunderstanding, or situation.
+
+Absurdity should support the premise rather than replace it.
+
+Do not add random explosions, crashes, transformations, creatures, vehicles, or environmental destruction simply to increase intensity.
+
+Every major event should logically follow from the central premise.
+
+ACTION:
+
+Use physical movement when it supports the idea.
+
+Movement may include:
 
 - running
-- sliding
-- rolling
-- falling
 - jumping
-- flying
-- swinging
-- bouncing
-- crashing
-- tumbling
-- racing
+- sliding
+- climbing
+- grabbing
+- struggling
+- balancing
+- hiding
+- sneaking
 - chasing
-- colliding
-- launching
-- moving through an environment
+- escaping
+- pushing
+- pulling
+- tumbling
+- flying
+- reacting
 
-Do not force multiple different actions simply to make the prompt feel exciting.
+Do not force multiple actions into one concept.
 
-A strong primary action with natural escalation is better than many unrelated actions.
+One strong physical idea is better than a chain of unrelated actions.
 
-ENVIRONMENTAL INTERACTION:
+ENVIRONMENT:
 
-Whenever appropriate, allow the subject to interact with its surroundings.
+Use a simple, recognizable environment that helps communicate the joke.
 
-Examples include:
+The environment can create the problem, provide an obstacle, or amplify the character's reaction.
 
-- knocking objects over
-- pushing objects
-- bouncing off surfaces
-- colliding with objects
-- moving around obstacles
-- causing nearby objects to react
-- disturbing the environment
-- creating a visible physical consequence
-
-These interactions should naturally follow from the main action.
+Avoid overly complicated environments that distract from the protagonist.
 
 CAMERA:
 
-Include simple camera behavior that supports the action.
+Use camera movement only when it improves visual clarity or comedic timing.
 
-Examples include:
+Configured camera direction:
 
-- tracking the subject
-- following from behind
-- panning with movement
-- moving toward the action
-- pulling back to reveal the result
-- tilting as the subject moves vertically
-- reacting to a major impact
+{camera_style}
 
-Do not use random camera movements.
+Examples of useful camera behavior include:
 
-The camera should help communicate the physical action clearly.
+- tracking the protagonist
+- following movement
+- pushing toward a reaction
+- revealing the consequence
+- pulling back for a visual reveal
+- remaining relatively stable during facial comedy
+
+Do not add random camera movements.
 
 ESCALATION:
 
-The visual situation should naturally become more interesting as the sequence progresses.
+Use one natural escalation.
 
-Escalation can come from:
+The situation should become slightly more difficult, surprising, embarrassing, or absurd.
 
-- increasing speed
-- increasing scale
-- increasingly chaotic environmental interaction
-- an unexpected obstacle
-- an unexpected change in direction
-- a larger physical consequence
-- a surprising visual payoff
+Do not turn the escalation into a completely different event.
 
-Do not force several unrelated events into the same prompt.
+The escalation should come directly from the original premise.
 
-The ending should provide a clear visual payoff, but the entire sequence should still feel like one connected action.
+PAYOFF:
+
+End with a clear visual payoff.
+
+The payoff can be:
+
+- an unexpected result
+- a character reaction
+- a harmless failure
+- an ironic outcome
+- a visual reveal
+- an absurd success
+- an unexpected consequence
+
+The ending should feel like the natural conclusion of the central joke.
 
 VISUAL CLARITY:
 
-The prompt should be easy for a video model to visualize.
+Describe only what the video model needs to visualize.
 
-Describe:
+Include:
 
-- what is visible
-- what is moving
-- where it is moving
-- what it interacts with
-- how the camera follows the action
-- what visible consequence occurs
+- protagonist
+- environment
+- physical behavior
+- facial reaction
+- camera behavior
+- escalation
+- payoff
+
+Use concrete nouns and physical verbs.
+
+Avoid abstract explanations.
 
 Do not explain why something is funny.
-
-Do not explain the concept.
-
-Do not include abstract descriptions.
 
 Do not require dialogue.
 
@@ -271,84 +450,50 @@ Do not require narration.
 
 Do not require text on screen.
 
-Do not rely on sound for the visual action to make sense.
+Do not rely on sound to communicate the joke.
 
 PROMPT LENGTH:
 
-Keep the prompt concise.
+Write each prompt as one chronological paragraph of roughly 40-80 words.
 
-Normally use one or two sentences.
+Do not mention:
 
-Use enough detail for the video model to understand the sequence, but do not overload the prompt with unnecessary choreography.
+- seconds
+- frames
+- duration
+- clip length
+- timing instructions
+- previous clips
+- future clips
+- continuity
+- configured character names
 
-Avoid long chains of actions connected with:
+The prompt should describe one coherent visual sequence.
 
-"then"
+Do not write a traditional story.
 
-"and then"
+Do not write multiple separate scenes.
 
-"after that"
+Do not overload the prompt with unnecessary choreography.
 
-"followed by"
+STYLE:
 
-A prompt should generally focus on one primary physical idea with supporting environmental interactions.
+Every prompt MUST end with the configured visual style:
 
-WE WANT:
+{style_suffix}
 
-One clear visual action.
+IMPORTANT:
 
-Movement through space.
+Return exactly {count} concepts.
 
-Natural environmental interaction.
+Every concept must use exactly this structure:
 
-Simple camera movement.
+{{
+    "title": "Short descriptive title",
+    "prompt": "Complete text-to-video prompt"
+}}
 
-Gradual escalation.
-
-A strong visual payoff.
-
-WE DO NOT WANT:
-
-A sequence containing many unrelated actions.
-
-A traditional story.
-
-Multiple separate scenes.
-
-A static composition.
-
-A subject simply standing while things happen around it.
-
-A subject performing many unrelated actions just because they sound exciting.
-A static subject with no clear protagonist.
-Slow setup before the action begins.
-
-Do not reference previous or future concepts.
-
-Do not require continuity between concepts.
-
-Do not use configured character names.
-
-Do not require dialogue.
-
-Do not require narration.
-
-Prioritize:
-
-- visual comedy
-- absurdity
-- physical movement
-- unusual situations
-- unexpected behavior
-- environmental interaction
-- surprising scale
-- escalating physical consequences
-- clear visual storytelling
-- strong visual payoff
-- a clear character or animal protagonist
-- immediate action that hooks in the first frame
-
-The concept should remain visually coherent even if the video generation model decides to introduce natural camera movement or scene changes.
+The title must be short and directly describe the visual premise.
 
 Return ONLY the JSON array.
 
@@ -356,24 +501,27 @@ Do not include markdown.
 
 Do not include a code block.
 
-Do not include an explanation.
+Do not include explanations.
 
-Example:
+Do not include commentary.
 
-[
-    {{
-        "title": "Runaway Shopping Cart",
-        "prompt": "A shopping cart races uncontrollably through a crowded supermarket aisle, weaving around displays and knocking items loose as the camera tracks alongside it before the cart launches through the automatic doors and crashes into a towering display outside."
-    }},
-    {{
-        "title": "Giant Balloon Escape",
-        "prompt": "A giant balloon breaks free inside a busy warehouse and drifts rapidly through the aisles, dragging loose objects behind it as workers scatter and the camera follows its unpredictable path before it bursts through the roof."
-    }},
-    {{
-        "title": "Cat vs. Gravity",
-        "prompt": "A house cat discovers it can stick to the ceiling and walk upside down, then uses this to chase a laser pointer dot across the kitchen cabinets and fridge as the camera tilts and pans to follow its impossible path before it finally crashes down into a pile of spilled cereal."
-    }}
-]
+Before returning the JSON, internally verify:
+
+- The requested number of concepts is present.
+- Every concept has a clear protagonist.
+- Every protagonist has a visible face.
+- No inanimate object is the protagonist.
+- Every concept is independent.
+- Every concept has one central comedic premise.
+- Every concept has a clear goal or intention.
+- Every concept has a problem or obstacle.
+- Every protagonist visibly reacts.
+- Every concept has one natural escalation.
+- Every concept has a visual payoff.
+- The concepts are meaningfully varied.
+- The prompts do not require dialogue or narration.
+- The prompts do not depend on sound.
+- The configured visual style appears at the end of every prompt.
 """
 
     def generate(
@@ -473,22 +621,18 @@ Example:
 
                 continue
 
-            title = item.get(
-                "title",
-                ""
-            )
-
-            prompt = item.get(
-                "prompt",
-                ""
-            )
-
             title = str(
-                title
+                item.get(
+                    "title",
+                    ""
+                )
             ).strip()
 
             prompt = str(
-                prompt
+                item.get(
+                    "prompt",
+                    ""
+                )
             ).strip()
 
             if not title or not prompt:

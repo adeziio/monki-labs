@@ -3,34 +3,70 @@
     "categories": {
         "viral_brainrot": {
             "name": "Viral Brainrot",
-            "genre": "absurd visual comedy",
+            "genre": "character-driven absurd visual comedy",
             "tone": [
-                "chaotic",
-                "surprising",
-                "fast-paced",
                 "funny",
-                "unexpected"
+                "surprising",
+                "playful",
+                "absurd",
+                "unpredictable"
             ],
             "world": [
-                "ordinary environments",
-                "ordinary objects",
-                "absurd situations",
-                "unexpected physical events"
+                "ordinary everyday environments",
+                "familiar public places",
+                "homes and workplaces",
+                "outdoor environments",
+                "simple surreal situations"
             ],
-            "content_rules": [
-                "No fixed characters",
-                "No character identity requirements",
-                "No dialogue required",
-                "No narration required",
-                "Comedy must be understandable visually",
-                "Prioritize immediate visual interest",
-                "Create strong curiosity within the first moment",
-                "Escalate quickly",
-                "Use surprising physical events",
-                "Avoid slow setup",
-                "Avoid repetitive actions",
-                "Every clip should work independently",
-                "Do not require continuity between clips"
+            "protagonists": [
+                "animals",
+                "humans",
+                "humanoid creatures",
+                "fictional creatures",
+                "monsters"
+            ],
+            "comedy_types": [
+                "animal behaving like a person",
+                "character attempting an absurd task",
+                "overconfident character facing a simple problem",
+                "character misunderstanding a situation",
+                "character trying to accomplish something ridiculous",
+                "character versus an ordinary environment",
+                "character protecting something unimportant as if it were extremely valuable",
+                "character attempting something clearly beyond its ability",
+                "character hiding something ridiculous",
+                "character competing against an unexpected opponent",
+                "character reacting dramatically to an ordinary problem",
+                "character caught in an unexpectedly embarrassing situation",
+                "tiny character dealing with something enormous",
+                "large character struggling with something tiny",
+                "ordinary situation becoming visually absurd"
+            ],
+            "rules": [
+                "The protagonist must be a living being or character-like creature.",
+                "The protagonist must have a visible face and readable emotional reaction.",
+                "Inanimate objects may appear only as props, obstacles, environments, or consequences.",
+                "Never make an inanimate object the protagonist or primary acting entity.",
+                "Every clip must work completely independently.",
+                "Do not create continuity between clips.",
+                "Do not require the same character to appear in multiple clips.",
+                "Do not require dialogue.",
+                "Do not require narration.",
+                "The visual joke must be understandable without sound.",
+                "The premise must be simple enough to understand immediately.",
+                "The character should have a clear goal, intention, or desire.",
+                "The character should encounter one simple problem or obstacle.",
+                "The character should visibly react to the problem.",
+                "Use one primary comedic idea per clip.",
+                "Use one natural escalation rather than many unrelated events.",
+                "End with a clear visual payoff.",
+                "Avoid random destruction without a comedic reason.",
+                "Avoid meaningless chaos.",
+                "Avoid long setups.",
+                "Avoid static characters simply watching events happen.",
+                "Avoid long chains of unrelated actions.",
+                "Prioritize character behavior and facial reactions over spectacle.",
+                "Prioritize curiosity and visual clarity over complexity."
             ],
             "video": {
                 "duration_seconds": 6,
@@ -49,10 +85,9 @@
                     "style": "high-energy comedic background music",
                     "mood": [
                         "funny",
-                        "chaotic",
                         "playful",
-                        "absurd",
-                        "unpredictable"
+                        "chaotic",
+                        "absurd"
                     ],
                     "instruments": [
                         "bouncy percussion",
@@ -64,40 +99,47 @@
                 }
             },
             "generation": {
-                "clip_count": 2,
+                "clip_count": 1,
                 "visual_style": "stylized 3D animation",
-                "motion_style": "fast physical comedy",
-                "camera_style": "dynamic",
-                "continuity": "none"
+                "motion_style": "expressive physical comedy",
+                "camera_style": "clear cinematic movement that follows the character and supports the joke",
+                "continuity": "none",
+                "clip_roles": [
+                    "immediate absurd premise",
+                    "strong character reaction",
+                    "physical challenge or escalating problem",
+                    "surprising comedic payoff"
+                ]
             },
             "prompt_generation": {
-                "categories": [
-                    "absurd physical comedy",
-                    "animals in absurd situations",
-                    "personified objects with agency",
-                    "unlikely character protagonists",
-                    "surreal everyday situations",
-                    "unexpected transformations",
-                    "tiny versus giant scale",
-                    "impossible physics",
-                    "chaotic environments",
-                    "visual surprises",
-                    "unexpected collisions",
-                    "funny failures",
-                    "relatable scenarios gone wrong"
+                "comedy_structure": [
+                    "character",
+                    "goal",
+                    "simple problem",
+                    "visible reaction",
+                    "natural escalation",
+                    "visual payoff"
                 ],
                 "requirements": [
-                    "Create independent concepts",
-                    "Each concept should feature a clear character or animal protagonist",
-                    "Do not create a connected story",
-                    "Do not require dialogue",
-                    "Make the visual idea immediately interesting",
-                    "Start the action immediately — no slow setup",
-                    "Use a clear physical action",
-                    "Include an unexpected visual element",
-                    "Keep the concept simple enough for text-to-video",
-                    "Prioritize concepts that could make viewers stop scrolling",
-                    "Include a satisfying visual payoff at the end"
+                    "Generate independent concepts rather than a connected story.",
+                    "Give each concept one clear comedic premise.",
+                    "Choose a protagonist from the configured protagonist types.",
+                    "Make the protagonist visually expressive and emotionally readable.",
+                    "Make the premise understandable from the first visual moment.",
+                    "Create immediate curiosity without a slow introduction.",
+                    "Give the protagonist a simple visible goal or intention.",
+                    "Introduce one clear obstacle or problem.",
+                    "Use character behavior and reaction as the main source of comedy.",
+                    "Use physical movement and environmental interaction when appropriate.",
+                    "Include one natural escalation.",
+                    "End with a satisfying visual payoff.",
+                    "Keep the action simple enough for text-to-video generation.",
+                    "Use variety across the requested clips.",
+                    "Do not repeat the same type of protagonist, premise, or comedic mechanism unnecessarily.",
+                    "Do not make objects the protagonist.",
+                    "Do not create traditional multi-scene stories.",
+                    "Do not require dialogue, narration, or text on screen.",
+                    "End every prompt with the configured visual style."
                 ]
             }
         }
