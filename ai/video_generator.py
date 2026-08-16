@@ -11,9 +11,14 @@ from moviepy import (
 
 from diffusers import LTX2Pipeline
 
-from diffusers.pipelines.ltx2.export_utils import (
-    encode_video
-)
+try:
+    from diffusers.utils import (
+        encode_video
+    )
+except ImportError:
+    from diffusers.pipelines.ltx2.export_utils import (
+        encode_video
+    )
 
 from diffusers.pipelines.ltx2.utils import (
     DEFAULT_NEGATIVE_PROMPT
