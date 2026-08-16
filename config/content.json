@@ -73,28 +73,31 @@
             "prompt_generation": {
                 "categories": [
                     "absurd physical comedy",
-                    "unexpected object behavior",
-                    "animals doing unusual things",
+                    "animals in absurd situations",
+                    "personified objects with agency",
+                    "unlikely character protagonists",
                     "surreal everyday situations",
                     "unexpected transformations",
-                    "tiny versus giant objects",
+                    "tiny versus giant scale",
                     "impossible physics",
                     "chaotic environments",
                     "visual surprises",
-                    "strange machines",
                     "unexpected collisions",
-                    "funny failures"
+                    "funny failures",
+                    "relatable scenarios gone wrong"
                 ],
                 "requirements": [
                     "Create independent concepts",
+                    "Each concept should feature a clear character or animal protagonist",
                     "Do not create a connected story",
-                    "Do not use recurring characters",
                     "Do not require dialogue",
                     "Make the visual idea immediately interesting",
+                    "Start the action immediately — no slow setup",
                     "Use a clear physical action",
                     "Include an unexpected visual element",
                     "Keep the concept simple enough for text-to-video",
-                    "Prioritize concepts that could make viewers stop scrolling"
+                    "Prioritize concepts that could make viewers stop scrolling",
+                    "Include a satisfying visual payoff at the end"
                 ]
             }
         }

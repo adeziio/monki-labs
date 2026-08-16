@@ -320,10 +320,12 @@ A static composition.
 A subject simply standing while things happen around it.
 
 A subject performing many unrelated actions just because they sound exciting.
+A static subject with no clear protagonist.
+Slow setup before the action begins.
 
 Do not reference previous or future concepts.
 
-Do not use recurring characters.
+Do not require continuity between concepts.
 
 Do not use configured character names.
 
@@ -343,6 +345,8 @@ Prioritize:
 - escalating physical consequences
 - clear visual storytelling
 - strong visual payoff
+- a clear character or animal protagonist
+- immediate action that hooks in the first frame
 
 The concept should remain visually coherent even if the video generation model decides to introduce natural camera movement or scene changes.
 
@@ -364,6 +368,10 @@ Example:
     {{
         "title": "Giant Balloon Escape",
         "prompt": "A giant balloon breaks free inside a busy warehouse and drifts rapidly through the aisles, dragging loose objects behind it as workers scatter and the camera follows its unpredictable path before it bursts through the roof."
+    }},
+    {{
+        "title": "Cat vs. Gravity",
+        "prompt": "A house cat discovers it can stick to the ceiling and walk upside down, then uses this to chase a laser pointer dot across the kitchen cabinets and fridge as the camera tilts and pans to follow its impossible path before it finally crashes down into a pile of spilled cereal."
     }}
 ]
 """
