@@ -35,7 +35,7 @@
             "video": {
                 "duration_seconds": 12,
                 "aspect_ratio": "9:16",
-                "fps": 60,
+                "fps": 30,
                 "format": "mp4",
                 "resolution": {
                     "width": 1080,

@@ -828,12 +828,7 @@ class VideoGenerator(
 
         if device == "cuda":
 
-            self.log(
-                "Enabling sequential CPU offload "
-                "for reduced VRAM usage."
-            )
-
-            self.pipeline.enable_sequential_cpu_offload()
+            self.configure_cuda_pipeline()
 
         elif device == "mps":
 
@@ -843,7 +838,123 @@ class VideoGenerator(
 
         else:
 
+            self.pipeline.to(
+                device
+            )
+
+    def configure_cuda_pipeline(
+        self
+    ):
+
+        allocation_config = (
+            self.video_config.get(
+                "device_allocation",
+                {}
+            )
+        )
+
+        allocation_mode = (
+            allocation_config.get(
+                "mode",
+                "model"
+            )
+        )
+
+        if allocation_mode == "gpu":
+
+            self.log(
+                "Loading model fully onto GPU. "
+                "No CPU offload enabled."
+            )
+
+            self.pipeline.to(
+                "cuda"
+            )
+
+        elif allocation_mode == "sequential":
+
+            self.log(
+                "Enabling sequential CPU offload "
+                "for minimum VRAM usage. "
+                "Note: this is the slowest mode."
+            )
+
             self.pipeline.enable_sequential_cpu_offload()
+
+        elif allocation_mode == "model":
+
+            self.log(
+                "Enabling model-level CPU offload "
+                "for reduced VRAM usage with "
+                "near full-GPU performance."
+            )
+
+            self.pipeline.enable_model_cpu_offload()
+
+        else:
+
+            raise ValueError(
+                "Unsupported device allocation mode: "
+                f"{allocation_mode}. "
+                "Expected 'gpu', 'model', or 'sequential'."
+            )
+
+        if (
+            allocation_config.get(
+                "vae_tiling",
+                False
+            )
+            and
+            hasattr(
+                self.pipeline,
+                "enable_vae_tiling"
+            )
+        ):
+
+            self.log(
+                "Enabling VAE tiling "
+                "for reduced memory usage."
+            )
+
+            self.pipeline.enable_vae_tiling()
+
+        if (
+            allocation_config.get(
+                "vae_slicing",
+                False
+            )
+            and
+            hasattr(
+                self.pipeline,
+                "enable_vae_slicing"
+            )
+        ):
+
+            self.log(
+                "Enabling VAE slicing "
+                "for reduced memory usage."
+            )
+
+            self.pipeline.enable_vae_slicing()
+
+        if (
+            allocation_config.get(
+                "attention_slicing",
+                False
+            )
+            and
+            hasattr(
+                self.pipeline,
+                "enable_attention_slicing"
+            )
+        ):
+
+            self.log(
+                "Enabling attention slicing "
+                "for reduced memory usage."
+            )
+
+            self.pipeline.enable_attention_slicing()
 
     def generate_clip(
         self,

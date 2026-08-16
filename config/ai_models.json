@@ -16,23 +16,29 @@
             "enabled": true,
             "provider": "ltx",
             "model": "diffusers/LTX-2.3-Diffusers",
+            "device_allocation": {
+                "mode": "model",
+                "vae_tiling": true,
+                "vae_slicing": true,
+                "attention_slicing": false
+            },
             "generation_resolution": {
-                "width": 768,
-                "height": 1344
+                "width": 960,
+                "height": 1600
             },
             "generation_fps": 24,
             "steps": {
                 "cpu": 8,
-                "cuda": 30
+                "cuda": 25
             },
-            "guidance_scale": 3.0,
+            "guidance_scale": 3.5,
             "audio": {
                 "enabled": true,
                 "music_enabled": true
             },
-            "audio_guidance_scale": 7.0,
-            "audio_stg_scale": 0.0,
-            "stg_scale": 0.0,
+            "audio_guidance_scale": 5.0,
+            "audio_stg_scale": 1.0,
+            "stg_scale": 1.5,
             "audio_modality_scale": 3.0,
             "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
         }
