@@ -12,9 +12,9 @@ Monki Labs aims to:
 
 * 🤖 Automatically generate video concepts using a local language model
 * 🎬 Generate short-form AI videos from those concepts
-* 🎵 Add music and audio automatically
+* 🎵 Generate video, background music, and sound effects together
 * 📱 Produce vertical 9:16 videos optimized for short-form platforms
-* 📦 Organize generated videos automatically by content category and run
+* 📦 Organize generated content automatically by category and run
 * ☁️ Support GPU-based cloud execution
 * 🔄 Eventually run automatically without requiring a local PC
 * 📅 Support recurring automated video generation and publishing
@@ -33,13 +33,11 @@ Content Configuration
         ↓
 Local LLM
         ↓
-Video Concept Generation
+AI Video Prompt
         ↓
-Wan Video Generation
+LTX-2.3 Video Generation
         ↓
-Video Processing
-        ↓
-Music / Audio
+Video + Background Music + Sound Effects
         ↓
 Final MP4
         ↓
@@ -47,6 +45,13 @@ Organized Output
 ```
 
 The application is **configuration-driven**, allowing content and AI settings to be changed without modifying the core pipeline.
+
+The video generation architecture supports both:
+
+* **Single-prompt generation** for one continuous video
+* **Multiple-prompt generation** for multiple coherent clips that are combined into one final video
+
+This allows the number of generated clips to be changed through configuration without redesigning the pipeline.
 
 ---
 
@@ -56,7 +61,7 @@ The application is **configuration-driven**, allowing content and AI settings to
 
 * 🧠 Ollama
 * 🤖 Qwen 3 8B
-* 🎥 Wan 2.1 T2V 1.3B
+* 🎥 LTX-2.3
 * 🤗 Hugging Face Diffusers
 * 🔥 PyTorch
 
@@ -65,11 +70,6 @@ The application is **configuration-driven**, allowing content and AI settings to
 * 🎬 MoviePy
 * FFmpeg
 * ImageIO
-
-### Audio
-
-* 🎵 Pydub
-* Local audio assets
 
 ### Application
 
@@ -118,7 +118,7 @@ monki-labs/
 ├── install.bat
 ├── install.sh
 ├── run.bat
-├── run.sh
+├── run_linux
 ├── main.py
 └── README.md
 ```
@@ -168,13 +168,6 @@ Once installation is complete:
 .\run.bat
 ```
 
-`run.bat` automatically:
-
-1. Checks that the virtual environment exists
-2. Activates the virtual environment
-3. Runs `main.py`
-4. Reports if Monki Labs exits with an error
-
 You can also run the application manually:
 
 ```powershell
@@ -215,35 +208,19 @@ media/
 └── output/
     └── Viral Brainrot/
         ├── 001/
-        │   └── episode.mp4
+        │   ├── episode.mp4
+        │   └── prompt.txt
         ├── 002/
-        │   └── episode.mp4
+        │   ├── episode.mp4
+        │   └── prompt.txt
         └── 003/
-            └── episode.mp4
+            ├── episode.mp4
+            └── prompt.txt
 ```
 
----
+Each run retains only the **final video** and the **prompt used to generate it**.
 
-## 5. Updating Dependencies
-
-Project dependencies are separated into:
-
-```text
-requirements.txt
-requirements-pytorch.txt
-```
-
-`requirements.txt` contains the general application dependencies.
-
-`requirements-pytorch.txt` contains the PyTorch packages.
-
-If dependencies change, rerun:
-
-```powershell
-.\install.bat
-```
-
-The installer will update the virtual environment with the current dependencies.
+Intermediate generated clips are not retained.
 
 ---
 
@@ -253,16 +230,14 @@ Monki Labs can run on Linux-based GPU environments such as RunPod without changi
 
 The same repository and `main.py` are used locally and on cloud GPU environments.
 
-## 1. Clone the private repository
-
-Authenticate with GitHub and clone the repository:
+## 1. Clone the repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/monki-labs.git
 cd monki-labs
 ```
 
-For a private repository, use a GitHub Personal Access Token with appropriate repository access.
+For a private repository, authenticate with GitHub and clone the repository.
 
 ---
 
@@ -287,14 +262,15 @@ The installer:
 ## 3. Run Monki Labs
 
 ```bash
-bash run.sh
+bash run_linux
 ```
 
-This activates the virtual environment and runs:
+The Linux runner:
 
-```bash
-python main.py
-```
+* Starts Ollama as a CPU-only process
+* Keeps the GPU available for Monki Labs
+* Configures PyTorch CUDA memory handling
+* Runs the main pipeline
 
 No application code changes are required to run the pipeline on Linux.
 
@@ -321,9 +297,13 @@ This allows the pipeline to evolve without repeatedly modifying Python code.
 Configuration covers areas such as:
 
 * Content categories
-* Video output requirements
+* Video duration and output requirements
+* Video generation resolution
+* Video generation FPS
+* Inference steps
+* Guidance settings
 * AI model selection
-* Audio behavior
+* Audio generation behavior
 * YouTube configuration
 * Studio-level settings
 
@@ -333,9 +313,11 @@ The application reads the appropriate configuration at runtime.
 
 # 🎥 Video Generation
 
-The current pipeline generates short-form vertical videos using Wan 2.1.
+Monki Labs currently uses **LTX-2.3** for AI video generation.
 
-Content configuration defines the desired final video characteristics, including:
+The video model generates the visual content and associated audio in the same generation process.
+
+Content configuration controls the final video requirements, including:
 
 * Duration
 * Aspect ratio
@@ -343,28 +325,79 @@ Content configuration defines the desired final video characteristics, including
 * Resolution
 * Video format
 
-The video model's generation settings are derived from the content requirements where appropriate.
+AI model configuration separately controls generation-specific settings such as:
 
-This keeps the desired output specification centralized rather than requiring the same settings to be maintained across multiple configuration files.
+* Generation resolution
+* Generation FPS
+* Inference steps
+* Guidance scale
+* Audio guidance
+* Spatio-temporal guidance
+* Negative prompts
+
+This keeps output requirements and model-specific generation settings configurable without hard-coding them into the application.
 
 ---
 
-# 📦 Output Organization
+# 📝 Prompt Generation
 
-Each execution creates a new output run.
+Video concepts are generated using a local Ollama language model.
 
-Outputs are automatically organized using the configured content category name:
+The prompt generator creates visual concepts designed specifically for AI video generation.
+
+Prompts prioritize:
+
+* Clear physical movement
+* Movement through the environment
+* Environmental interaction
+* Camera movement
+* Visual comedy
+* Escalation
+* Strong visual payoff
+* Clear and concise visual descriptions
+
+The system does not rely on preconfigured characters or character references.
+
+The video model is free to generate the visual subjects based entirely on the generated prompt.
+
+---
+
+# 🎞️ Single or Multiple Prompts
+
+The pipeline supports a configurable number of prompts per episode.
+
+With **one prompt**, the model generates one continuous video.
+
+With **multiple prompts**, each prompt generates a separate video segment and the segments are combined into one final `episode.mp4`.
+
+The architecture intentionally retains this flexibility so the number of prompts can be increased later if longer or more complex videos require multiple generated segments.
+
+Regardless of the number of prompts, the final episode remains a single video file.
+
+---
+
+# 📦 Output Retention
+
+Each generation creates a unique run directory:
 
 ```text
 media/output/
 └── <Category Name>/
-    ├── 001/
-    ├── 002/
-    ├── 003/
-    └── ...
+    └── 001/
+        ├── prompt.txt
+        └── episode.mp4
 ```
 
-This prevents previous generations from being overwritten and keeps individual runs separated.
+The system retains:
+
+* `prompt.txt` — the exact prompt or prompts used for generation
+* `episode.mp4` — the final generated video
+
+Intermediate video clips and temporary generation files are removed after successful processing.
+
+When multiple prompts are used, they are stored together in the same `prompt.txt` file with a consistent structure and separator between prompts.
+
+This keeps each generation self-contained while avoiding unnecessary storage of intermediate files.
 
 ---
 
@@ -372,32 +405,41 @@ This prevents previous generations from being overwritten and keeps individual r
 
 ## ✅ Currently Working
 
-* Local Python pipeline
-* Configuration-driven architecture
-* Local LLM concept generation
+* Configuration-driven pipeline
+* Local LLM prompt generation
 * Ollama integration
-* Wan 2.1 video generation
-* Automatic video duration
-* Automatic model resolution calculation
+* LTX-2.3 video generation
+* Video + background music + sound effects generation
+* Configurable video duration
+* Configurable generation resolution
+* Configurable inference steps
+* Configurable guidance settings
 * Vertical 9:16 output
-* Video processing
-* Music integration
+* Single-prompt generation
+* Multi-prompt / multi-clip architecture
+* Automatic final video assembly
+* Prompt retention
+* Final video retention
 * Automatic output organization
 * Windows installation
 * Linux / GPU installation
 * RunPod-compatible execution
 
-## 🚧 Future Goals
+## 🚧 Current Focus
 
-* 🎥 Higher-quality GPU video generation
-* 🎞️ 30–60 FPS final output
-* ✨ Improved visual quality
-* 🎵 Improved audio generation
+* 🎥 Improving generated video quality
+* 🔍 Testing generation resolution and inference settings
+* 🎬 Improving prompt quality and visual clarity
+* ⚡ Optimizing GPU memory usage
+* ⏱️ Testing longer video durations
+
+## 🔮 Future Goals
+
+* 🎥 Consistently higher-quality video generation
 * 📺 Automated YouTube uploading
 * 📂 Playlist management
 * ⏰ Scheduled generation
 * ☁️ Automated cloud GPU execution
-* 🏃 Kaggle-based GPU execution
 * 🤖 Fully unattended content generation
 * 📅 Recurring automated publishing
 
@@ -418,9 +460,11 @@ Clone / Update Repository
        ↓
 Run Monki Labs
        ↓
-Generate Video
+Generate Prompt
        ↓
-Process Video
+Generate Video + Audio
+       ↓
+Retain Final Video + Prompt
        ↓
 Upload to YouTube
        ↓
@@ -433,18 +477,19 @@ The application is intentionally being developed so the same pipeline can run lo
 
 # 💰 Cost Philosophy
 
-Monki Labs follows a **free-first philosophy**.
+Monki Labs follows a **free-only philosophy**.
 
 The project prioritizes:
 
 * 🆓 Local and open-source AI models
 * 🆓 Free software
 * 🆓 Free development tools
-* 🆓 Free or low-cost infrastructure
-* ☁️ Temporary GPU usage instead of always-on servers
-* 🔑 Avoiding paid AI APIs and unnecessary subscriptions
+* ☁️ Temporary GPU infrastructure when needed
+* 🔑 No paid AI APIs
+* 🔑 No required paid API keys
+* 🔑 No required subscriptions
 
-The goal is to keep the entire content-generation pipeline as close to **$0 operating cost** as realistically possible.
+The goal is to keep the software and AI pipeline free to operate, using temporary GPU infrastructure only when necessary for generation.
 
 ---
 
@@ -455,15 +500,11 @@ Monki Labs is ultimately intended to become an automated content studio:
 ```text
 Idea
  ↓
-AI Concept
+AI Prompt
  ↓
-AI Video
+AI Video + Audio
  ↓
-Audio
- ↓
-Processing
- ↓
-Quality Output
+Final Video
  ↓
 YouTube
  ↓
