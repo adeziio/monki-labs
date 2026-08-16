@@ -607,6 +607,64 @@ class VideoGenerator(
 
         return audio_stg_scale
 
+    def get_stg_blocks(
+        self
+    ):
+
+        if (
+            self.get_stg_scale() == 0
+            and
+            self.get_audio_stg_scale() == 0
+        ):
+
+            return None
+
+        blocks_config = (
+            self.video_config.get(
+                "stg_blocks",
+                {}
+            )
+        )
+
+        blocks = (
+            blocks_config.get(
+                "indices",
+                []
+            )
+        )
+
+        if not blocks:
+
+            self.log(
+                "STG is enabled but no STG block "
+                "indices are configured. "
+                "STG will not be applied."
+            )
+
+            return None
+
+        parsed_blocks = []
+
+        for index in blocks:
+
+            parsed = int(
+                index
+            )
+
+            if parsed < 0:
+
+                raise ValueError(
+                    "STG block indices must "
+                    "not be negative: "
+                    f"{index}"
+                )
+
+            parsed_blocks.append(
+                parsed
+            )
+
+        return parsed_blocks
+
     def build_audio_prompt(
         self
     ):
@@ -1017,6 +1075,10 @@ class VideoGenerator(
             self.get_audio_stg_scale()
         )
 
+        stg_blocks = (
+            self.get_stg_blocks()
+        )
+
         audio_modality_scale = float(
             self.video_config[
                 "audio_modality_scale"
@@ -1124,6 +1186,19 @@ class VideoGenerator(
                 "Spatio-Temporal Guidance: enabled"
             )
 
+        if stg_blocks:
+
+            self.log(
+                "STG applied to blocks: "
+                f"{stg_blocks}"
+            )
+
+        else:
+
+            self.log(
+                "STG block indices: not applied"
+            )
+
         if self.build_audio_prompt():
 
             self.log(
@@ -1150,6 +1225,7 @@ class VideoGenerator(
                 audio_stg_scale=audio_stg_scale,
                 stg_scale=stg_scale,
                 audio_modality_scale=audio_modality_scale,
+                spatio_temporal_guidance_blocks=stg_blocks,
                 output_type="np",
                 return_dict=False
             )
