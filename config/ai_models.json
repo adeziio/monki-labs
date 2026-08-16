@@ -20,11 +20,11 @@
                 "mode": "model",
                 "vae_tiling": true,
                 "vae_slicing": true,
-                "attention_slicing": false
+                "attention_slicing": true
             },
             "generation_resolution": {
-                "width": 960,
-                "height": 1600
+                "width": 768,
+                "height": 1344
             },
             "generation_fps": 24,
             "steps": {
