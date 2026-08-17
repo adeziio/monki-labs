@@ -55,6 +55,64 @@ class PromptGenerator(
             )
         )
 
+    def format_list(
+        self,
+        values,
+        separator=", "
+    ):
+
+        if not isinstance(
+            values,
+            list
+        ):
+
+            return ""
+
+        return separator.join(
+            str(value).strip()
+            for value in values
+            if str(value).strip()
+        )
+
+    def format_bullets(
+        self,
+        values
+    ):
+
+        if not isinstance(
+            values,
+            list
+        ):
+
+            return ""
+
+        return "\n".join(
+            f"- {value}"
+            for value in values
+            if str(value).strip()
+        )
+
+    def format_numbered(
+        self,
+        values
+    ):
+
+        if not isinstance(
+            values,
+            list
+        ):
+
+            return ""
+
+        return "\n".join(
+            f"{index}. {value}"
+            for index, value in enumerate(
+                values,
+                start=1
+            )
+            if str(value).strip()
+        )
+
     def build_prompt(
         self,
         count
@@ -109,10 +167,59 @@ class PromptGenerator(
             )
         )
 
+        creative_priorities = (
+            self.prompt_config.get(
+                "creative_priorities",
+                []
+            )
+        )
+
+        action_guidance = (
+            self.prompt_config.get(
+                "action_guidance",
+                []
+            )
+        )
+
+        reaction_guidance = (
+            self.prompt_config.get(
+                "reaction_guidance",
+                []
+            )
+        )
+
+        environment_guidance = (
+            self.prompt_config.get(
+                "environment_guidance",
+                []
+            )
+        )
+
+        camera_guidance = (
+            self.prompt_config.get(
+                "camera_guidance",
+                []
+            )
+        )
+
+        payoff_types = (
+            self.prompt_config.get(
+                "payoff_types",
+                []
+            )
+        )
+
         requirements = (
             self.prompt_config.get(
                 "requirements",
                 []
+            )
+        )
+
+        prompt_format = (
+            self.prompt_config.get(
+                "prompt_format",
+                {}
             )
         )
 
@@ -144,52 +251,15 @@ class PromptGenerator(
             )
         )
 
-        tone_text = (
-            ", ".join(
-                str(item)
-                for item in tone
-            )
-        )
+        style_parts = [
+            visual_style,
+            motion_style,
+            camera_style
+        ]
 
-        world_text = (
-            ", ".join(
-                str(item)
-                for item in world
-            )
-        )
-
-        protagonist_text = (
-            ", ".join(
-                str(item)
-                for item in protagonists
-            )
-        )
-
-        comedy_type_text = (
-            ", ".join(
-                str(item)
-                for item in comedy_types
-            )
-        )
-
-        rule_text = (
-            "\n".join(
-                f"- {item}"
-                for item in rules
-            )
-        )
-
-        structure_text = (
-            " → ".join(
-                str(item)
-                for item in comedy_structure
-            )
-        )
-
-        requirement_text = (
-            "\n".join(
-                f"- {item}"
-                for item in requirements
+        style_suffix = (
+            self.format_list(
+                style_parts
             )
         )
 
@@ -203,17 +273,49 @@ class PromptGenerator(
             )
         )
 
-        style_parts = [
-            visual_style,
-            motion_style,
-            camera_style
-        ]
+        format_include = (
+            self.format_bullets(
+                prompt_format.get(
+                    "include",
+                    []
+                )
+            )
+        )
 
-        style_suffix = (
-            ", ".join(
-                str(part).strip()
-                for part in style_parts
-                if str(part).strip()
+        format_exclude = (
+            self.format_bullets(
+                prompt_format.get(
+                    "exclude",
+                    []
+                )
+            )
+        )
+
+        paragraph_count = (
+            prompt_format.get(
+                "paragraphs",
+                1
+            )
+        )
+
+        minimum_words = (
+            prompt_format.get(
+                "minimum_words",
+                40
+            )
+        )
+
+        maximum_words = (
+            prompt_format.get(
+                "maximum_words",
+                80
+            )
+        )
+
+        chronological = (
+            prompt_format.get(
+                "chronological",
+                True
             )
         )
 
@@ -222,27 +324,9 @@ Generate exactly {count} independent short-form vertical video concepts.
 
 Each concept will be used directly as a text-to-video generation prompt.
 
-The concepts will be combined into one short-form video, but the individual clips have NO continuity requirement. A character from one concept does not need to appear in another concept.
+There is NO continuity requirement between concepts. Each concept must work completely by itself. A character from one concept does not need to appear in another concept.
 
-The goal is not random chaos.
-
-The goal is CHARACTER-DRIVEN ABSURD COMEDY.
-
-A viewer should immediately understand:
-
-WHO is doing something,
-WHAT they are trying to do,
-WHAT simple problem they encounter,
-HOW they react,
-and WHY the final visual result is funny or surprising.
-
-CREATIVE PRIORITY:
-
-Character → Goal → Problem → Reaction → Escalation → Payoff
-
-Use this structure as the underlying logic of every concept:
-
-{structure_text}
+The creative goal is defined entirely by the configured category below.
 
 GENRE:
 
@@ -250,239 +334,95 @@ GENRE:
 
 TONE:
 
-{tone_text}
+{self.format_list(tone)}
 
 WORLD:
 
-{world_text}
+{self.format_list(world)}
 
-ALLOWED PROTAGONIST TYPES:
+ALLOWED PROTAGONISTS:
 
-{protagonist_text}
+{self.format_list(protagonists)}
 
-The protagonist must be a living being or character-like creature with a visible face.
+COMEDY TYPES:
 
-Inanimate objects can appear in the environment or be interacted with, but they must never be the protagonist or primary acting entity.
-
-POSSIBLE COMEDY TYPES:
-
-{comedy_type_text}
+{self.format_list(comedy_types)}
 
 GENERAL CONTENT RULES:
 
-{rule_text}
+{self.format_bullets(rules)}
 
-PROMPT REQUIREMENTS:
+CREATIVE PRIORITIES:
 
-{requirement_text}
+{self.format_bullets(creative_priorities)}
 
-CLIP VARIETY:
+COMEDY STRUCTURE:
 
-When multiple clips are requested, deliberately vary the type of comedic experience.
+{self.format_list(comedy_structure, " → ")}
 
-Use these configured clip roles when available:
+ACTION GUIDANCE:
 
-{clip_role_text}
+{self.format_bullets(action_guidance)}
 
-Do not force these roles if they would produce weak ideas, but use them as a guide to make the final set feel varied.
+REACTION GUIDANCE:
 
-Do not make all concepts involve running, crashing, falling, or chasing.
+{self.format_bullets(reaction_guidance)}
 
-Mix different types of comedy such as:
+ENVIRONMENT GUIDANCE:
 
-- character behavior
-- facial reaction
-- awkward situations
-- physical challenges
-- misunderstandings
-- absurd goals
-- environmental interaction
-- visual reveals
-- unexpected consequences
+{self.format_bullets(environment_guidance)}
 
-Do not create four versions of the same joke.
+CAMERA GUIDANCE:
 
-RETENTION:
+{self.format_bullets(camera_guidance)}
 
-The first visual moment must already contain something interesting.
-
-Do not begin with a character simply standing, walking normally, or waiting for something to happen.
-
-The opening should immediately communicate the unusual situation, character behavior, or visual contradiction.
-
-Create a curiosity gap naturally.
-
-The viewer should want to know what happens to the character next.
-
-Do not explain the joke to the viewer.
-
-Let the visual situation communicate it.
-
-CHARACTER:
-
-Every concept must have one clear primary protagonist.
-
-The protagonist must have:
-
-- a recognizable physical appearance
-- a visible face
-- a readable emotional state
-- a clear intention or goal
-- physical interaction with the environment
-
-The protagonist should drive the action.
-
-Do not create a passive character while unrelated events happen around them.
-
-COMEDY:
-
-The humor should come primarily from the character's behavior, reaction, goal, mistake, misunderstanding, or situation.
-
-Absurdity should support the premise rather than replace it.
-
-Do not add random explosions, crashes, transformations, creatures, vehicles, or environmental destruction simply to increase intensity.
-
-Every major event should logically follow from the central premise.
-
-ACTION:
-
-Use physical movement when it supports the idea.
-
-Movement may include:
-
-- running
-- jumping
-- sliding
-- climbing
-- grabbing
-- struggling
-- balancing
-- hiding
-- sneaking
-- chasing
-- escaping
-- pushing
-- pulling
-- tumbling
-- flying
-- reacting
-
-Do not force multiple actions into one concept.
-
-One strong physical idea is better than a chain of unrelated actions.
-
-ENVIRONMENT:
-
-Use a simple, recognizable environment that helps communicate the joke.
-
-The environment can create the problem, provide an obstacle, or amplify the character's reaction.
-
-Avoid overly complicated environments that distract from the protagonist.
-
-CAMERA:
-
-Use camera movement only when it improves visual clarity or comedic timing.
-
-Configured camera direction:
+CONFIGURED CAMERA STYLE:
 
 {camera_style}
 
-Examples of useful camera behavior include:
+POSSIBLE PAYOFF TYPES:
 
-- tracking the protagonist
-- following movement
-- pushing toward a reaction
-- revealing the consequence
-- pulling back for a visual reveal
-- remaining relatively stable during facial comedy
+{self.format_bullets(payoff_types)}
 
-Do not add random camera movements.
+PROMPT REQUIREMENTS:
 
-ESCALATION:
+{self.format_bullets(requirements)}
 
-Use one natural escalation.
+CLIP VARIETY:
 
-The situation should become slightly more difficult, surprising, embarrassing, or absurd.
+{clip_role_text}
 
-Do not turn the escalation into a completely different event.
+When multiple concepts are requested, make them meaningfully different.
 
-The escalation should come directly from the original premise.
+Vary the protagonist, situation, goal, environment, comedic mechanism, and type of payoff where appropriate.
 
-PAYOFF:
+Do not generate several versions of the same joke.
 
-End with a clear visual payoff.
+PROMPT FORMAT:
 
-The payoff can be:
+Write each prompt as exactly {paragraph_count} paragraph(s).
 
-- an unexpected result
-- a character reaction
-- a harmless failure
-- an ironic outcome
-- a visual reveal
-- an absurd success
-- an unexpected consequence
+Each prompt should contain approximately {minimum_words}-{maximum_words} words.
 
-The ending should feel like the natural conclusion of the central joke.
+Chronological visual progression: {chronological}.
 
-VISUAL CLARITY:
+The prompt should describe one coherent visual sequence rather than a traditional written story or multiple separate scenes.
 
-Describe only what the video model needs to visualize.
+The prompt should include:
 
-Include:
+{format_include}
 
-- protagonist
-- environment
-- physical behavior
-- facial reaction
-- camera behavior
-- escalation
-- payoff
+The prompt must NOT include:
 
-Use concrete nouns and physical verbs.
-
-Avoid abstract explanations.
-
-Do not explain why something is funny.
-
-Do not require dialogue.
-
-Do not require narration.
-
-Do not require text on screen.
-
-Do not rely on sound to communicate the joke.
-
-PROMPT LENGTH:
-
-Write each prompt as one chronological paragraph of roughly 40-80 words.
-
-Do not mention:
-
-- seconds
-- frames
-- duration
-- clip length
-- timing instructions
-- previous clips
-- future clips
-- continuity
-- configured character names
-
-The prompt should describe one coherent visual sequence.
-
-Do not write a traditional story.
-
-Do not write multiple separate scenes.
-
-Do not overload the prompt with unnecessary choreography.
+{format_exclude}
 
 STYLE:
 
-Every prompt MUST end with the configured visual style:
+Every prompt MUST end with this configured style suffix:
 
 {style_suffix}
 
-IMPORTANT:
+OUTPUT:
 
 Return exactly {count} concepts.
 
@@ -505,23 +445,27 @@ Do not include explanations.
 
 Do not include commentary.
 
-Before returning the JSON, internally verify:
+Before returning the JSON, internally verify every concept against the configured content rules and requirements.
+
+Verify that:
 
 - The requested number of concepts is present.
-- Every concept has a clear protagonist.
+- Every concept has a valid configured protagonist type.
+- Every protagonist is a living being or character-like creature.
 - Every protagonist has a visible face.
 - No inanimate object is the protagonist.
-- Every concept is independent.
+- The protagonist actively drives the action.
 - Every concept has one central comedic premise.
 - Every concept has a clear goal or intention.
-- Every concept has a problem or obstacle.
+- Every concept has one clear problem or obstacle.
 - Every protagonist visibly reacts.
 - Every concept has one natural escalation.
 - Every concept has a visual payoff.
+- The payoff relates directly to the central premise.
 - The concepts are meaningfully varied.
-- The prompts do not require dialogue or narration.
-- The prompts do not depend on sound.
-- The configured visual style appears at the end of every prompt.
+- The prompts are visually coherent.
+- The prompts do not depend on dialogue, narration, sound, or text.
+- The configured style suffix appears at the end of every prompt.
 """
 
     def generate(

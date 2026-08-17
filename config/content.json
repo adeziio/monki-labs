@@ -54,14 +54,16 @@
                 "Do not require narration.",
                 "The visual joke must be understandable without sound.",
                 "The premise must be simple enough to understand immediately.",
-                "The character should have a clear goal, intention, or desire.",
-                "The character should encounter one simple problem or obstacle.",
-                "The character should visibly react to the problem.",
+                "The protagonist must have a clear goal, intention, or desire.",
+                "The protagonist must actively drive the action.",
+                "The protagonist must encounter one clear problem or obstacle.",
+                "The protagonist must visibly react to the problem.",
                 "Use one primary comedic idea per clip.",
                 "Use one natural escalation rather than many unrelated events.",
                 "End with a clear visual payoff.",
                 "Avoid random destruction without a comedic reason.",
                 "Avoid meaningless chaos.",
+                "Avoid spectacle that does not involve the protagonist.",
                 "Avoid long setups.",
                 "Avoid static characters simply watching events happen.",
                 "Avoid long chains of unrelated actions.",
@@ -120,6 +122,59 @@
                     "natural escalation",
                     "visual payoff"
                 ],
+                "creative_priorities": [
+                    "Character behavior is more important than spectacle.",
+                    "The protagonist must drive the action rather than passively observe events.",
+                    "The character's facial expression or body language should communicate the joke.",
+                    "The first visual moment should already contain an unusual or interesting situation.",
+                    "The central premise should be understandable almost immediately.",
+                    "The character should want or attempt something specific.",
+                    "The problem should directly interfere with the character's goal.",
+                    "The escalation should naturally make the original problem worse.",
+                    "The ending should visually resolve the central comedic premise.",
+                    "Absurdity should support the joke rather than replace it.",
+                    "Use recognizable situations with one unexpected twist.",
+                    "Prefer simple premises that are easy for a video model to visualize.",
+                    "Favor memorable characters and situations over random visual spectacle."
+                ],
+                "action_guidance": [
+                    "Use one primary physical action.",
+                    "Movement should involve the protagonist.",
+                    "Use environmental interaction when it naturally follows from the premise.",
+                    "Prefer clear physical verbs such as running, jumping, climbing, grabbing, struggling, balancing, hiding, sneaking, chasing, escaping, pushing, pulling, tumbling, flying, or reacting.",
+                    "Do not chain together many unrelated actions.",
+                    "Do not add random explosions, crashes, transformations, creatures, vehicles, or destruction simply to increase intensity."
+                ],
+                "reaction_guidance": [
+                    "Give the protagonist a readable emotional state.",
+                    "Use visible facial reactions such as confidence, confusion, curiosity, panic, frustration, surprise, embarrassment, determination, relief, or triumph.",
+                    "The reaction should change naturally as the situation develops.",
+                    "Whenever possible, make the character's reaction part of the visual payoff."
+                ],
+                "environment_guidance": [
+                    "Use a simple recognizable environment.",
+                    "The environment should help establish the premise or create the obstacle.",
+                    "Avoid complicated environments that distract from the protagonist.",
+                    "Props should support the central joke."
+                ],
+                "camera_guidance": [
+                    "Use camera movement only when it improves visual clarity or comedic timing.",
+                    "Follow the protagonist when movement is important.",
+                    "Push toward the character when facial reaction is important.",
+                    "Reveal the consequence when the payoff benefits from a wider view.",
+                    "Keep the camera relatively stable when the character's facial reaction is the main joke.",
+                    "Avoid random camera movement."
+                ],
+                "payoff_types": [
+                    "unexpected result",
+                    "dramatic character reaction",
+                    "harmless failure",
+                    "ironic outcome",
+                    "visual reveal",
+                    "absurd success",
+                    "unexpected consequence",
+                    "character realizing what just happened"
+                ],
                 "requirements": [
                     "Generate independent concepts rather than a connected story.",
                     "Give each concept one clear comedic premise.",
@@ -140,7 +195,39 @@
                     "Do not create traditional multi-scene stories.",
                     "Do not require dialogue, narration, or text on screen.",
                     "End every prompt with the configured visual style."
-                ]
+                ],
+                "prompt_format": {
+                    "paragraphs": 1,
+                    "minimum_words": 40,
+                    "maximum_words": 80,
+                    "chronological": true,
+                    "include": [
+                        "protagonist",
+                        "environment",
+                        "goal",
+                        "physical behavior",
+                        "facial reaction",
+                        "problem",
+                        "escalation",
+                        "payoff",
+                        "camera behavior"
+                    ],
+                    "exclude": [
+                        "seconds",
+                        "frames",
+                        "duration",
+                        "clip length",
+                        "timing instructions",
+                        "previous clips",
+                        "future clips",
+                        "continuity",
+                        "configured character names",
+                        "dialogue",
+                        "narration",
+                        "text on screen",
+                        "abstract explanations"
+                    ]
+                }
             }
         }
     }
