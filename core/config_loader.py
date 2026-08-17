@@ -62,11 +62,6 @@ class ConfigLoader:
                     "ai_models.json"
                 ),
 
-            "audio":
-                self.load(
-                    "audio.json"
-                ),
-
             "youtube":
                 self.load(
                     "youtube.json"
