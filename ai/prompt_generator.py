@@ -92,27 +92,6 @@ class PromptGenerator(
             if str(value).strip()
         )
 
-    def format_numbered(
-        self,
-        values
-    ):
-
-        if not isinstance(
-            values,
-            list
-        ):
-
-            return ""
-
-        return "\n".join(
-            f"{index}. {value}"
-            for index, value in enumerate(
-                values,
-                start=1
-            )
-            if str(value).strip()
-        )
-
     def build_prompt(
         self,
         count
@@ -160,9 +139,9 @@ class PromptGenerator(
             )
         )
 
-        comedy_structure = (
+        creative_directions = (
             self.prompt_config.get(
-                "comedy_structure",
+                "creative_directions",
                 []
             )
         )
@@ -174,44 +153,16 @@ class PromptGenerator(
             )
         )
 
-        action_guidance = (
+        viral_questions = (
             self.prompt_config.get(
-                "action_guidance",
+                "viral_questions",
                 []
             )
         )
 
-        reaction_guidance = (
+        diversity_rules = (
             self.prompt_config.get(
-                "reaction_guidance",
-                []
-            )
-        )
-
-        environment_guidance = (
-            self.prompt_config.get(
-                "environment_guidance",
-                []
-            )
-        )
-
-        camera_guidance = (
-            self.prompt_config.get(
-                "camera_guidance",
-                []
-            )
-        )
-
-        payoff_types = (
-            self.prompt_config.get(
-                "payoff_types",
-                []
-            )
-        )
-
-        requirements = (
-            self.prompt_config.get(
-                "requirements",
+                "diversity_rules",
                 []
             )
         )
@@ -220,13 +171,6 @@ class PromptGenerator(
             self.prompt_config.get(
                 "prompt_format",
                 {}
-            )
-        )
-
-        clip_roles = (
-            self.generation_config.get(
-                "clip_roles",
-                []
             )
         )
 
@@ -263,17 +207,7 @@ class PromptGenerator(
             )
         )
 
-        clip_role_text = (
-            "\n".join(
-                f"- Clip {index}: {role}"
-                for index, role in enumerate(
-                    clip_roles,
-                    start=1
-                )
-            )
-        )
-
-        format_include = (
+        include_text = (
             self.format_bullets(
                 prompt_format.get(
                     "include",
@@ -282,7 +216,7 @@ class PromptGenerator(
             )
         )
 
-        format_exclude = (
+        exclude_text = (
             self.format_bullets(
                 prompt_format.get(
                     "exclude",
@@ -301,171 +235,198 @@ class PromptGenerator(
         minimum_words = (
             prompt_format.get(
                 "minimum_words",
-                40
+                25
             )
         )
 
         maximum_words = (
             prompt_format.get(
                 "maximum_words",
-                80
-            )
-        )
-
-        chronological = (
-            prompt_format.get(
-                "chronological",
-                True
+                45
             )
         )
 
         return f"""
-Generate exactly {count} independent short-form vertical video concepts.
+Generate exactly {count} original short-form video concepts.
 
-Each concept will be used directly as a text-to-video generation prompt.
+The goal is to create visually strong ideas that make someone stop scrolling.
 
-There is NO continuity requirement between concepts. Each concept must work completely by itself. A character from one concept does not need to appear in another concept.
+Think like a creative visual content creator, not a screenplay writer.
 
-The creative goal is defined entirely by the configured category below.
+CORE CREATIVE PRINCIPLE
+
+Design ONE strong visual premise.
+
+The premise should be understandable almost immediately and become more interesting through one surprising visual development.
+
+Do not write a miniature story.
+
+Do not describe a chain of events just because the prompt needs to be longer.
+
+A powerful visual contradiction, unusual situation, strange behavior, clever reveal, or unexpected outcome is better than several ordinary actions.
+
+Prefer:
+
+- one memorable visual premise
+- one main character
+- one recognizable environment
+- one clear visual development
+- one strong final image when appropriate
+
+Avoid:
+
+- long sequences of actions
+- step-by-step storytelling
+- multiple unrelated events
+- generic slapstick
+- random chaos
+- arbitrary endings
+- unnecessary movement
+
+The viewer should be able to understand the basic joke or visual curiosity without dialogue, narration, or text.
+
+CREATIVE DIRECTION
+
+Start with the unusual visual idea rather than a normal setup.
+
+Look for:
+
+- visual contradictions
+- unexpected scale
+- strange behavior treated seriously
+- familiar situations with one absurd twist
+- impossible reflections or appearances
+- unexpected character abilities
+- characters misunderstanding what they see
+- surprising visual consequences
+- ironic visual outcomes
+- unusual interactions between character and environment
+
+The character should actively create or reveal the interesting situation.
+
+Do not force a goal, obstacle, escalation, reaction, or traditional payoff.
+
+If the strongest idea is simply a strange visual situation with one excellent reveal, use that.
+
+CHARACTER
+
+When a character is present:
+
+- make the character visually distinctive
+- give it readable body language
+- make its behavior meaningful
+- keep the character central to the visual idea
+
+Do not make the character perform several minor actions.
+
+Choose the fewest actions necessary to communicate the idea.
+
+VARIETY
+
+Every concept must explore different creative territory.
+
+Vary:
+
+- protagonist
+- environment
+- visual premise
+- scale
+- behavior
+- comedic mechanism
+- type of surprise
+- ending
+
+Do not simply change the animal while keeping the same joke.
+
+Do not repeatedly use mirrors, vacuums, falling, chasing, panic, or similar mechanisms.
+
+CATEGORY
 
 GENRE:
-
 {genre}
 
 TONE:
-
 {self.format_list(tone)}
 
 WORLD:
-
 {self.format_list(world)}
 
-ALLOWED PROTAGONISTS:
-
+POSSIBLE PROTAGONISTS:
 {self.format_list(protagonists)}
 
-COMEDY TYPES:
-
+POSSIBLE CREATIVE DIRECTIONS:
 {self.format_list(comedy_types)}
 
-GENERAL CONTENT RULES:
-
+CATEGORY RULES:
 {self.format_bullets(rules)}
 
-CREATIVE PRIORITIES:
+CREATIVE DIRECTIONS:
+{self.format_bullets(creative_directions)}
 
+CREATIVE PRIORITIES:
 {self.format_bullets(creative_priorities)}
 
-COMEDY STRUCTURE:
+VIRAL QUESTIONS:
+{self.format_bullets(viral_questions)}
 
-{self.format_list(comedy_structure, " → ")}
+DIVERSITY:
+{self.format_bullets(diversity_rules)}
 
-ACTION GUIDANCE:
-
-{self.format_bullets(action_guidance)}
-
-REACTION GUIDANCE:
-
-{self.format_bullets(reaction_guidance)}
-
-ENVIRONMENT GUIDANCE:
-
-{self.format_bullets(environment_guidance)}
-
-CAMERA GUIDANCE:
-
-{self.format_bullets(camera_guidance)}
-
-CONFIGURED CAMERA STYLE:
-
-{camera_style}
-
-POSSIBLE PAYOFF TYPES:
-
-{self.format_bullets(payoff_types)}
-
-PROMPT REQUIREMENTS:
-
-{self.format_bullets(requirements)}
-
-CLIP VARIETY:
-
-{clip_role_text}
-
-When multiple concepts are requested, make them meaningfully different.
-
-Vary the protagonist, situation, goal, environment, comedic mechanism, and type of payoff where appropriate.
-
-Do not generate several versions of the same joke.
-
-PROMPT FORMAT:
+PROMPT FORMAT
 
 Write each prompt as exactly {paragraph_count} paragraph(s).
 
-Each prompt should contain approximately {minimum_words}-{maximum_words} words.
+Write approximately {minimum_words}-{maximum_words} words.
 
-Chronological visual progression: {chronological}.
+Include:
 
-The prompt should describe one coherent visual sequence rather than a traditional written story or multiple separate scenes.
+{include_text}
 
-The prompt should include:
+Avoid:
 
-{format_include}
+{exclude_text}
 
-The prompt must NOT include:
+The prompt should describe the visual premise naturally.
 
-{format_exclude}
+Do not pad the prompt with extra actions.
 
-STYLE:
+Do not include:
 
-Every prompt MUST end with this configured style suffix:
+- dialogue
+- narration
+- text on screen
+- timing or duration instructions
+- previous or future clips
+- continuity references
+- abstract explanations
+- instructions to the video model
+- unnecessary choreography
+
+STYLE
+
+End each prompt with:
 
 {style_suffix}
 
-OUTPUT:
+OUTPUT
 
 Return exactly {count} concepts.
 
-Every concept must use exactly this structure:
+Use exactly this JSON structure:
 
-{{
-    "title": "Short descriptive title",
-    "prompt": "Complete text-to-video prompt"
-}}
-
-The title must be short and directly describe the visual premise.
+[
+    {{
+        "title": "Short memorable title",
+        "prompt": "Complete visual generation prompt"
+    }}
+]
 
 Return ONLY the JSON array.
 
-Do not include markdown.
-
-Do not include a code block.
-
-Do not include explanations.
-
-Do not include commentary.
-
-Before returning the JSON, internally verify every concept against the configured content rules and requirements.
-
-Verify that:
-
-- The requested number of concepts is present.
-- Every concept has a valid configured protagonist type.
-- Every protagonist is a living being or character-like creature.
-- Every protagonist has a visible face.
-- No inanimate object is the protagonist.
-- The protagonist actively drives the action.
-- Every concept has one central comedic premise.
-- Every concept has a clear goal or intention.
-- Every concept has one clear problem or obstacle.
-- Every protagonist visibly reacts.
-- Every concept has one natural escalation.
-- Every concept has a visual payoff.
-- The payoff relates directly to the central premise.
-- The concepts are meaningfully varied.
-- The prompts are visually coherent.
-- The prompts do not depend on dialogue, narration, sound, or text.
-- The configured style suffix appears at the end of every prompt.
+No markdown.
+No code block.
+No explanation.
+No commentary.
 """
 
     def generate(
@@ -522,6 +483,8 @@ Verify that:
 
             return []
 
+        data = None
+
         try:
 
             data = json.loads(
@@ -534,7 +497,8 @@ Verify that:
         ):
 
             self.log(
-                "Prompt generator returned invalid JSON."
+                "Prompt generator returned non-direct JSON. "
+                "Attempting JSON array extraction."
             )
 
             data = (
@@ -549,10 +513,15 @@ Verify that:
         ):
 
             self.log(
-                "Prompt generator did not return a list."
+                "Prompt generator did not return a JSON list."
             )
 
             return []
+
+        requested_count = max(
+            int(count),
+            1
+        )
 
         prompts = []
 
@@ -579,7 +548,20 @@ Verify that:
                 )
             ).strip()
 
-            if not title or not prompt:
+            if not title:
+
+                self.log(
+                    "Skipping generated concept with no title."
+                )
+
+                continue
+
+            if not prompt:
+
+                self.log(
+                    f"Skipping '{title}' because "
+                    "the prompt is empty."
+                )
 
                 continue
 
@@ -593,15 +575,17 @@ Verify that:
         if not prompts:
 
             self.log(
-                "Prompt generator returned no valid prompts."
+                "Prompt generator parsed zero usable prompts."
             )
 
             return []
 
-        requested_count = max(
-            int(count),
-            1
-        )
+        if len(prompts) < requested_count:
+
+            self.log(
+                f"Model returned {len(prompts)} usable prompts "
+                f"out of {requested_count} requested."
+            )
 
         if len(prompts) > requested_count:
 
@@ -669,55 +653,92 @@ Verify that:
             "["
         )
 
-        end = response.rfind(
-            "]"
-        )
-
-        if (
-            start == -1
-            or
-            end == -1
-            or
-            end <= start
-        ):
+        if start == -1:
 
             return []
 
-        candidate = (
-            response[
-                start:end + 1
-            ]
-        )
+        depth = 0
+        in_string = False
+        escaped = False
 
-        try:
-
-            return json.loads(
-                candidate
-            )
-
-        except (
-            json.JSONDecodeError,
-            TypeError
+        for index in range(
+            start,
+            len(response)
         ):
 
-            repaired = (
-                self.repair_json_array(
-                    candidate
-                )
+            character = (
+                response[index]
             )
 
-            try:
+            if escaped:
 
-                return json.loads(
-                    repaired
-                )
+                escaped = False
 
-            except (
-                json.JSONDecodeError,
-                TypeError
-            ):
+                continue
 
-                return []
+            if character == "\\" and in_string:
+
+                escaped = True
+
+                continue
+
+            if character == '"':
+
+                in_string = not in_string
+
+                continue
+
+            if in_string:
+
+                continue
+
+            if character == "[":
+
+                depth += 1
+
+            elif character == "]":
+
+                depth -= 1
+
+                if depth == 0:
+
+                    candidate = (
+                        response[
+                            start:index + 1
+                        ]
+                    )
+
+                    try:
+
+                        return json.loads(
+                            candidate
+                        )
+
+                    except (
+                        json.JSONDecodeError,
+                        TypeError
+                    ):
+
+                        repaired = (
+                            self.repair_json_array(
+                                candidate
+                            )
+                        )
+
+                        try:
+
+                            return json.loads(
+                                repaired
+                            )
+
+                        except (
+                            json.JSONDecodeError,
+                            TypeError
+                        ):
+
+                            return []
+
+        return []
 
     def repair_json_array(
         self,

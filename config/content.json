@@ -26,49 +26,33 @@
                 "monsters"
             ],
             "comedy_types": [
-                "animal behaving like a person",
-                "character attempting an absurd task",
-                "overconfident character facing a simple problem",
-                "character misunderstanding a situation",
-                "character trying to accomplish something ridiculous",
-                "character versus an ordinary environment",
-                "character protecting something unimportant as if it were extremely valuable",
-                "character attempting something clearly beyond its ability",
-                "character hiding something ridiculous",
+                "animal behaving seriously like a person",
+                "character attempting an absurdly specific task",
+                "overconfident character discovering a simple problem",
+                "character misunderstanding something obvious",
+                "character taking something trivial extremely seriously",
+                "character trying to impress someone",
                 "character competing against an unexpected opponent",
-                "character reacting dramatically to an ordinary problem",
-                "character caught in an unexpectedly embarrassing situation",
-                "tiny character dealing with something enormous",
+                "character protecting something unimportant as if it were precious",
+                "character secretly doing something ridiculous",
+                "character attempting something beyond its ability",
+                "character reacting dramatically to an ordinary situation",
+                "character caught in an embarrassing moment",
+                "tiny character facing something enormous",
                 "large character struggling with something tiny",
-                "ordinary situation becoming visually absurd"
+                "character discovering an unexpected visual consequence",
+                "ordinary situation with one absurd twist"
             ],
             "rules": [
                 "The protagonist must be a living being or character-like creature.",
-                "The protagonist must have a visible face and readable emotional reaction.",
-                "Inanimate objects may appear only as props, obstacles, environments, or consequences.",
-                "Never make an inanimate object the protagonist or primary acting entity.",
-                "Every clip must work completely independently.",
-                "Do not create continuity between clips.",
-                "Do not require the same character to appear in multiple clips.",
-                "Do not require dialogue.",
-                "Do not require narration.",
-                "The visual joke must be understandable without sound.",
-                "The premise must be simple enough to understand immediately.",
-                "The protagonist must have a clear goal, intention, or desire.",
-                "The protagonist must actively drive the action.",
-                "The protagonist must encounter one clear problem or obstacle.",
-                "The protagonist must visibly react to the problem.",
-                "Use one primary comedic idea per clip.",
-                "Use one natural escalation rather than many unrelated events.",
-                "End with a clear visual payoff.",
-                "Avoid random destruction without a comedic reason.",
-                "Avoid meaningless chaos.",
-                "Avoid spectacle that does not involve the protagonist.",
-                "Avoid long setups.",
-                "Avoid static characters simply watching events happen.",
-                "Avoid long chains of unrelated actions.",
-                "Prioritize character behavior and facial reactions over spectacle.",
-                "Prioritize curiosity and visual clarity over complexity."
+                "The protagonist must have a clear visible face and readable body language.",
+                "The protagonist must actively drive the important action.",
+                "Inanimate objects are props, obstacles, environmental elements, or consequences only.",
+                "The visual premise should be understandable almost immediately.",
+                "Use one central creative idea per concept.",
+                "Avoid meaningless chaos and random destruction.",
+                "Avoid unnecessary chains of actions.",
+                "The concept must work without dialogue, narration, or text."
             ],
             "video": {
                 "duration_seconds": 6,
@@ -88,7 +72,6 @@
                     "mood": [
                         "funny",
                         "playful",
-                        "chaotic",
                         "absurd"
                     ],
                     "instruments": [
@@ -104,113 +87,45 @@
                 "clip_count": 1,
                 "visual_style": "stylized 3D animation",
                 "motion_style": "expressive physical comedy",
-                "camera_style": "clear cinematic movement that follows the character and supports the joke",
-                "continuity": "none",
-                "clip_roles": [
-                    "immediate absurd premise",
-                    "strong character reaction",
-                    "physical challenge or escalating problem",
-                    "surprising comedic payoff"
-                ]
+                "camera_style": "clear cinematic camera movement that keeps the protagonist and joke visually readable",
+                "continuity": "none"
             },
             "prompt_generation": {
-                "comedy_structure": [
-                    "character",
-                    "goal",
-                    "simple problem",
-                    "visible reaction",
-                    "natural escalation",
-                    "visual payoff"
+                "creative_directions": [
+                    "Prefer one strong visual premise over a complicated sequence.",
+                    "Use recognizable situations with one absurd or unexpected twist.",
+                    "Favor character behavior and visual irony over generic slapstick.",
+                    "Use surprise, absurdity, cleverness, emotion, or physical comedy when appropriate."
                 ],
                 "creative_priorities": [
                     "Character behavior is more important than spectacle.",
-                    "The protagonist must drive the action rather than passively observe events.",
-                    "The character's facial expression or body language should communicate the joke.",
-                    "The first visual moment should already contain an unusual or interesting situation.",
-                    "The central premise should be understandable almost immediately.",
-                    "The character should want or attempt something specific.",
-                    "The problem should directly interfere with the character's goal.",
-                    "The escalation should naturally make the original problem worse.",
-                    "The ending should visually resolve the central comedic premise.",
-                    "Absurdity should support the joke rather than replace it.",
-                    "Use recognizable situations with one unexpected twist.",
-                    "Prefer simple premises that are easy for a video model to visualize.",
-                    "Favor memorable characters and situations over random visual spectacle."
+                    "The protagonist should cause the important events.",
+                    "The unusual situation should be visible immediately.",
+                    "Prefer simple ideas that are easy for a video model to understand.",
+                    "Prefer memorable behavior over generic chaos."
                 ],
-                "action_guidance": [
-                    "Use one primary physical action.",
-                    "Movement should involve the protagonist.",
-                    "Use environmental interaction when it naturally follows from the premise.",
-                    "Prefer clear physical verbs such as running, jumping, climbing, grabbing, struggling, balancing, hiding, sneaking, chasing, escaping, pushing, pulling, tumbling, flying, or reacting.",
-                    "Do not chain together many unrelated actions.",
-                    "Do not add random explosions, crashes, transformations, creatures, vehicles, or destruction simply to increase intensity."
+                "viral_questions": [
+                    "Would someone stop scrolling to see what happens?",
+                    "Is the visual idea immediately understandable?",
+                    "Is there something unexpected or memorable about it?",
+                    "Would the idea still work without dialogue or narration?"
                 ],
-                "reaction_guidance": [
-                    "Give the protagonist a readable emotional state.",
-                    "Use visible facial reactions such as confidence, confusion, curiosity, panic, frustration, surprise, embarrassment, determination, relief, or triumph.",
-                    "The reaction should change naturally as the situation develops.",
-                    "Whenever possible, make the character's reaction part of the visual payoff."
-                ],
-                "environment_guidance": [
-                    "Use a simple recognizable environment.",
-                    "The environment should help establish the premise or create the obstacle.",
-                    "Avoid complicated environments that distract from the protagonist.",
-                    "Props should support the central joke."
-                ],
-                "camera_guidance": [
-                    "Use camera movement only when it improves visual clarity or comedic timing.",
-                    "Follow the protagonist when movement is important.",
-                    "Push toward the character when facial reaction is important.",
-                    "Reveal the consequence when the payoff benefits from a wider view.",
-                    "Keep the camera relatively stable when the character's facial reaction is the main joke.",
-                    "Avoid random camera movement."
-                ],
-                "payoff_types": [
-                    "unexpected result",
-                    "dramatic character reaction",
-                    "harmless failure",
-                    "ironic outcome",
-                    "visual reveal",
-                    "absurd success",
-                    "unexpected consequence",
-                    "character realizing what just happened"
-                ],
-                "requirements": [
-                    "Generate independent concepts rather than a connected story.",
-                    "Give each concept one clear comedic premise.",
-                    "Choose a protagonist from the configured protagonist types.",
-                    "Make the protagonist visually expressive and emotionally readable.",
-                    "Make the premise understandable from the first visual moment.",
-                    "Create immediate curiosity without a slow introduction.",
-                    "Give the protagonist a simple visible goal or intention.",
-                    "Introduce one clear obstacle or problem.",
-                    "Use character behavior and reaction as the main source of comedy.",
-                    "Use physical movement and environmental interaction when appropriate.",
-                    "Include one natural escalation.",
-                    "End with a satisfying visual payoff.",
-                    "Keep the action simple enough for text-to-video generation.",
-                    "Use variety across the requested clips.",
-                    "Do not repeat the same type of protagonist, premise, or comedic mechanism unnecessarily.",
-                    "Do not make objects the protagonist.",
-                    "Do not create traditional multi-scene stories.",
-                    "Do not require dialogue, narration, or text on screen.",
-                    "End every prompt with the configured visual style."
+                "diversity_rules": [
+                    "Vary the protagonist, environment, situation, visual premise, and comedic mechanism.",
+                    "Do not repeat the same joke with a different character.",
+                    "Avoid repeatedly using the same objects, locations, or actions."
                 ],
                 "prompt_format": {
                     "paragraphs": 1,
-                    "minimum_words": 40,
-                    "maximum_words": 80,
-                    "chronological": true,
+                    "minimum_words": 25,
+                    "maximum_words": 45,
                     "include": [
                         "protagonist",
                         "environment",
-                        "goal",
-                        "physical behavior",
-                        "facial reaction",
-                        "problem",
-                        "escalation",
-                        "payoff",
-                        "camera behavior"
+                        "central visual idea",
+                        "important physical behavior",
+                        "visible reaction when useful",
+                        "ending or visual payoff when appropriate"
                     ],
                     "exclude": [
                         "seconds",
@@ -225,7 +140,9 @@
                         "dialogue",
                         "narration",
                         "text on screen",
-                        "abstract explanations"
+                        "abstract explanations",
+                        "unnecessary choreography",
+                        "random destruction"
                     ]
                 }
             }
