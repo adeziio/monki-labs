@@ -50,6 +50,11 @@
                 "The visual premise should be understandable almost immediately.",
                 "Use one central visual idea per concept.",
                 "Keep the physical action simple and coherent.",
+                "The protagonist should directly interact with the important object or character.",
+                "Prefer one primary interaction over multiple simultaneous interactions.",
+                "Use a simple cause-and-effect chain.",
+                "Avoid concepts that depend on multiple independent subjects performing separate actions.",
+                "Avoid complicated object reveals or transformations.",
                 "Comedy should come primarily from character behavior or an understandable visual contradiction.",
                 "Avoid meaningless chaos, random destruction, and unnecessary spectacle.",
                 "The concept must work without dialogue, narration, or text.",
@@ -104,9 +109,11 @@
                     "Visual clarity is more important than descriptive complexity.",
                     "Describe what the viewer should see rather than explaining the joke.",
                     "Make important character appearance and body language visually clear.",
-                    "Make spatial relationships explicit when they matter to the action.",
+                    "Make spatial relationships explicit when they matter.",
                     "Use color unless the concept specifically calls for monochrome.",
                     "Keep the number of important actions low enough for a short video.",
+                    "Prefer direct physical interaction between the protagonist and the important subject.",
+                    "Prefer one clear cause-and-effect chain.",
                     "Give the concept a memorable visual ending."
                 ],
                 "visual_requirements": [
@@ -117,7 +124,9 @@
                     "Prefer concrete physical behavior over abstract descriptions.",
                     "Do not describe a joke or explain why something is funny.",
                     "Do not assume the video model will infer important spatial relationships.",
-                    "Do not default to black-and-white or monochrome."
+                    "Do not default to black-and-white or monochrome.",
+                    "Make the protagonist physically participate in the central interaction.",
+                    "Avoid important objects that only move, open, reveal, or transform without direct interaction."
                 ],
                 "diversity_guidance": [
                     "Vary protagonists, environments, visual premises, behavior, scale, and comedic mechanisms.",
@@ -138,7 +147,6 @@
                         "clear spatial relationships when relevant",
                         "visible reaction or consequence",
                         "visual payoff",
-                        "camera behavior only when useful",
                         "configured visual and motion style"
                     ],
                     "exclude": [
@@ -158,7 +166,10 @@
                         "abstract explanations",
                         "unnecessary choreography",
                         "random destruction",
-                        "generic cinematic filler"
+                        "generic cinematic filler",
+                        "multiple competing visual subjects",
+                        "complicated object interactions",
+                        "unrelated simultaneous actions"
                     ]
                 }
             }

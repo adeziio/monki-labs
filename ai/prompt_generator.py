@@ -188,13 +188,6 @@ class PromptGenerator(
             )
         )
 
-        camera_style = (
-            self.generation_config.get(
-                "camera_style",
-                ""
-            )
-        )
-
         style_parts = [
             visual_style,
             motion_style
@@ -245,36 +238,19 @@ class PromptGenerator(
             )
         )
 
-        camera_instruction = ""
-
-        if camera_style:
-
-            camera_instruction = f"""
-CAMERA
-
-Use this configured camera style only when it helps communicate the action:
-
-{camera_style}
-
-Do not describe camera movement unless it improves clarity.
-"""
-
         return f"""
 Generate exactly {count} original short-form vertical video concepts.
 
 CREATIVE GOAL
 
-Create visually strong ideas that make someone want to keep watching.
+Create one strong visual comedy idea that can be understood immediately.
 
-Think like a creative short-form video creator.
+The concept must be:
 
-The concept should be:
-
-- immediately interesting
 - visually clear
+- funny, surprising, strange, or absurd
 - memorable
-- simple enough to generate reliably
-- surprising, funny, strange, satisfying, emotional, or otherwise compelling
+- simple enough for a video generation model to represent reliably
 - understandable without dialogue or narration
 
 Do not write a screenplay.
@@ -283,7 +259,7 @@ Do not force a traditional story structure.
 
 Do not add actions simply to make the prompt longer.
 
-One excellent visual idea is better than a complicated sequence.
+One strong visual idea is better than a complicated sequence.
 
 CATEGORY
 
@@ -317,40 +293,51 @@ VISUAL REQUIREMENTS
 
 VISUAL CLARITY
 
-Describe what the viewer should actually see.
+Describe exactly what the viewer should see.
 
 When a character is important:
 
-- make its appearance visually clear
-- give it a visible face and readable eyes when appropriate
-- make important body language obvious
-- make the character actively cause the important events
+- give it a clear visible face
+- give it readable eyes when appropriate
+- make its body language obvious
+- clearly state which direction it faces when orientation matters
+- make the protagonist physically participate in the central action
 
-When spatial relationships matter, describe them explicitly.
+When an object is important:
 
-For example, prefer:
+- clearly state where it is
+- clearly state what the protagonist does with or to it
+- make the physical interaction obvious
 
-- facing the mirror
-- looking directly at the object
-- standing beside the door
-- holding the object in both hands
-- sitting inside the bathtub
+Prefer direct physical interaction.
 
-instead of vague descriptions such as:
+Good:
+- the cat grabs the object
+- the dog pushes the box
+- the character pulls the rope
+- the animal climbs onto the chair
 
-- near the mirror
-- around the object
-- in front of the door
+Avoid situations where an important object simply moves, opens, transforms, or reveals something while the protagonist does not meaningfully interact with it.
 
-Make important relationships visually unambiguous.
+Keep the concept centered on ONE primary interaction.
 
-Use color when appropriate. Do not default to black-and-white or monochrome unless the concept specifically requires it.
+Use a simple physical chain:
+
+setup → protagonist action → visible consequence
+
+Do not depend on multiple independent characters performing separate actions at the same time.
+
+Avoid complicated interactions involving several important objects.
+
+Avoid fragile visual logic that requires the model to understand hidden relationships.
 
 Do not explain the joke.
 
-Show the visual situation that creates the joke.
+Show the situation that creates the joke.
 
-Keep the number of important actions low enough that the video model can represent them clearly.
+Use color unless the concept specifically requires monochrome.
+
+Keep the physical action simple enough to remain readable throughout a short clip.
 
 VARIETY
 
@@ -363,14 +350,20 @@ Vary:
 - visual premise
 - behavior
 - scale
-- situation
-- emotional tone
 - comedic mechanism
+- emotional reaction
 - outcome
 
-Do not simply replace one character with another while keeping the same idea.
+Do not repeatedly use the same:
 
-Do not repeatedly use the same locations, props, actions, or joke structures.
+- locations
+- props
+- visual premises
+- actions
+- joke structures
+- endings
+
+{self.format_bullets(diversity_guidance)}
 
 PROMPT FORMAT
 
@@ -411,9 +404,7 @@ End each prompt naturally with:
 
 {style_suffix}
 
-Do not add a generic cinematic sentence after the configured style.
-
-{camera_instruction}
+Do not add generic cinematic filler.
 
 OUTPUT
 
@@ -446,7 +437,12 @@ Before returning the concepts, silently replace any idea that:
 - is generic
 - is difficult to understand visually
 - requires dialogue or narration
-- contains too many unrelated actions
+- contains too many important actions
+- contains multiple competing visual subjects
+- depends on several objects behaving correctly at once
+- requires hidden visual logic
+- requires a character to react to something it never physically interacts with
+- relies on complicated object reveals
 - relies on random destruction
 - copies another concept
 - has weak visual curiosity
@@ -457,12 +453,14 @@ Before returning the concepts, silently replace any idea that:
 Prefer ideas with:
 
 - strong first-frame curiosity
-- one clear visual premise
-- clear character behavior
-- explicit spatial relationships when needed
-- a memorable visual development
+- one protagonist
+- one central interaction
+- one clear physical goal
+- one simple cause-and-effect chain
+- clear spatial relationships
+- obvious character behavior
+- a visible reaction
 - a strong final visual moment
-- simple, coherent physical action
 
 Return exactly {count} concepts.
 """
