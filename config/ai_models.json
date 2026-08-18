@@ -23,13 +23,13 @@
                 "attention_slicing": false
             },
             "generation_resolution": {
-                "width": 768,
-                "height": 1344
+                "width": 896,
+                "height": 1600
             },
             "generation_fps": 24,
             "steps": {
                 "cpu": 8,
-                "cuda": 25
+                "cuda": 20
             },
             "stg_blocks": {
                 "indices": [
@@ -43,7 +43,7 @@
             },
             "audio_guidance_scale": 5.0,
             "audio_stg_scale": 0.0,
-            "stg_scale": 1.5,
+            "stg_scale": 1.0,
             "audio_modality_scale": 3.0,
             "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
         }
