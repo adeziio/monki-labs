@@ -23,8 +23,8 @@
                 "attention_slicing": false
             },
             "generation_resolution": {
-                "width": 768,
-                "height": 1344
+                "width": 896,
+                "height": 1600
             },
             "generation_fps": 24,
             "steps": {

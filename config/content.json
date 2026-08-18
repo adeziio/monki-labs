@@ -43,16 +43,18 @@
                 "character discovering an unexpected visual consequence",
                 "ordinary situation with one absurd twist"
             ],
-            "rules": [
+            "prompt_guidance": [
                 "The protagonist must be a living being or character-like creature.",
-                "The protagonist must have a clear visible face and readable body language.",
-                "The protagonist must actively drive the important action.",
-                "Inanimate objects are props, obstacles, environmental elements, or consequences only.",
+                "The protagonist must have a visible face and readable body language.",
+                "The protagonist must actively drive the important events.",
                 "The visual premise should be understandable almost immediately.",
-                "Use one central creative idea per concept.",
-                "Avoid meaningless chaos and random destruction.",
-                "Avoid unnecessary chains of actions.",
-                "The concept must work without dialogue, narration, or text."
+                "Use one central visual idea per concept.",
+                "Keep the physical action simple and coherent.",
+                "Comedy should come primarily from character behavior or an understandable visual contradiction.",
+                "Avoid meaningless chaos, random destruction, and unnecessary spectacle.",
+                "The concept must work without dialogue, narration, or text.",
+                "Do not make ordinary objects behave like living characters.",
+                "Do not turn the concept into a multi-scene story."
             ],
             "video": {
                 "duration_seconds": 8,
@@ -85,47 +87,59 @@
             },
             "generation": {
                 "clip_count": 1,
-                "visual_style": "stylized 3D animation",
+                "visual_style": "colorful stylized 3D animation",
                 "motion_style": "expressive physical comedy",
-                "camera_style": "clear cinematic camera movement that keeps the protagonist and joke visually readable",
+                "camera_style": "clear framing that keeps the protagonist and important visual action readable",
                 "continuity": "none"
             },
             "prompt_generation": {
                 "creative_directions": [
-                    "Prefer one strong visual premise over a complicated sequence.",
-                    "Use recognizable situations with one absurd or unexpected twist.",
-                    "Favor character behavior and visual irony over generic slapstick.",
-                    "Use surprise, absurdity, cleverness, emotion, or physical comedy when appropriate."
+                    "Start with an unusual visual situation that is immediately understandable.",
+                    "Prefer one memorable absurd twist over several unrelated events.",
+                    "Let the protagonist's behavior create the important visual change.",
+                    "Use recognizable environments with an unexpected visual premise.",
+                    "Prefer surprising visual consequences over generic slapstick."
                 ],
                 "creative_priorities": [
-                    "Character behavior is more important than spectacle.",
-                    "The protagonist should cause the important events.",
-                    "The unusual situation should be visible immediately.",
-                    "Prefer simple ideas that are easy for a video model to understand.",
-                    "Prefer memorable behavior over generic chaos."
+                    "Visual clarity is more important than descriptive complexity.",
+                    "Describe what the viewer should see rather than explaining the joke.",
+                    "Make important character appearance and body language visually clear.",
+                    "Make spatial relationships explicit when they matter to the action.",
+                    "Use color unless the concept specifically calls for monochrome.",
+                    "Keep the number of important actions low enough for a short video.",
+                    "Give the concept a memorable visual ending."
                 ],
-                "viral_questions": [
-                    "Would someone stop scrolling to see what happens?",
-                    "Is the visual idea immediately understandable?",
-                    "Is there something unexpected or memorable about it?",
-                    "Would the idea still work without dialogue or narration?"
+                "visual_requirements": [
+                    "Use clear, concrete visual descriptions.",
+                    "Give important characters a visible face and readable eyes when appropriate.",
+                    "Explicitly describe which direction an important character is facing when orientation matters.",
+                    "Explicitly describe important relationships between characters, objects, and environments.",
+                    "Prefer concrete physical behavior over abstract descriptions.",
+                    "Do not describe a joke or explain why something is funny.",
+                    "Do not assume the video model will infer important spatial relationships.",
+                    "Do not default to black-and-white or monochrome."
                 ],
-                "diversity_rules": [
-                    "Vary the protagonist, environment, situation, visual premise, and comedic mechanism.",
-                    "Do not repeat the same joke with a different character.",
-                    "Avoid repeatedly using the same objects, locations, or actions."
+                "diversity_guidance": [
+                    "Vary protagonists, environments, visual premises, behavior, scale, and comedic mechanisms.",
+                    "Do not simply replace one character with another while keeping the same idea.",
+                    "Avoid repeatedly using the same props, locations, actions, or endings."
                 ],
                 "prompt_format": {
                     "paragraphs": 1,
-                    "minimum_words": 25,
-                    "maximum_words": 45,
+                    "minimum_words": 30,
+                    "maximum_words": 55,
+                    "chronological": true,
                     "include": [
                         "protagonist",
                         "environment",
-                        "central visual idea",
-                        "important physical behavior",
-                        "visible reaction when useful",
-                        "ending or visual payoff when appropriate"
+                        "important visual appearance",
+                        "goal or intention when useful",
+                        "main physical behavior",
+                        "clear spatial relationships when relevant",
+                        "visible reaction or consequence",
+                        "visual payoff",
+                        "camera behavior only when useful",
+                        "configured visual and motion style"
                     ],
                     "exclude": [
                         "seconds",
@@ -140,9 +154,11 @@
                         "dialogue",
                         "narration",
                         "text on screen",
+                        "sound-dependent jokes",
                         "abstract explanations",
                         "unnecessary choreography",
-                        "random destruction"
+                        "random destruction",
+                        "generic cinematic filler"
                     ]
                 }
             }
