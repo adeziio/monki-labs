@@ -36,15 +36,16 @@
                     28
                 ]
             },
-            "guidance_scale": 3.5,
+            "guidance_scale": 3.0,
+            "audio_guidance_scale": 7.0,
+            "stg_scale": 1.0,
+            "audio_stg_scale": 1.0,
+            "modality_scale": 3.0,
+            "audio_modality_scale": 3.0,
             "audio": {
                 "enabled": true,
                 "music_enabled": true
             },
-            "audio_guidance_scale": 5.0,
-            "audio_stg_scale": 0.0,
-            "stg_scale": 2.0,
-            "audio_modality_scale": 3.0,
             "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
         }
     }

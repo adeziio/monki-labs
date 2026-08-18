@@ -556,6 +556,25 @@ class VideoGenerator(
 
         return guidance_scale
 
+    def get_modality_scale(
+        self
+    ):
+
+        modality_scale = float(
+            self.video_config[
+                "modality_scale"
+            ]
+        )
+
+        if modality_scale < 0:
+
+            raise ValueError(
+                "LTX modality scale "
+                "must not be negative."
+            )
+
+        return modality_scale
+
     def get_audio_guidance_scale(
         self
     ):
@@ -1077,6 +1096,10 @@ class VideoGenerator(
             self.get_guidance_scale()
         )
 
+        modality_scale = (
+            self.get_modality_scale()
+        )
+
         audio_guidance_scale = (
             self.get_audio_guidance_scale()
         )
@@ -1170,6 +1193,11 @@ class VideoGenerator(
         )
 
         self.log(
+            f"Modality guidance scale: "
+            f"{modality_scale:g}"
+        )
+
+        self.log(
             f"Audio guidance scale: "
             f"{audio_guidance_scale:g}"
         )
@@ -1235,6 +1263,7 @@ class VideoGenerator(
                 frame_rate=model_fps,
                 num_inference_steps=steps,
                 guidance_scale=guidance_scale,
+                modality_scale=modality_scale,
                 audio_guidance_scale=audio_guidance_scale,
                 audio_stg_scale=audio_stg_scale,
                 stg_scale=stg_scale,
@@ -1386,7 +1415,7 @@ class VideoGenerator(
             )
 
         prompt_path.write_text(
-            "\n\n"
+            "\n"
             +
             (
                 "\n\n"
