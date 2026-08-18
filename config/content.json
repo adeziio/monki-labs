@@ -55,7 +55,7 @@
                 "The concept must work without dialogue, narration, or text."
             ],
             "video": {
-                "duration_seconds": 6,
+                "duration_seconds": 8,
                 "aspect_ratio": "9:16",
                 "fps": 30,
                 "format": "mp4",
