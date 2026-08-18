@@ -57,7 +57,7 @@
                 "Do not turn the concept into a multi-scene story."
             ],
             "video": {
-                "duration_seconds": 10,
+                "duration_seconds": 8,
                 "aspect_ratio": "9:16",
                 "fps": 30,
                 "format": "mp4",
