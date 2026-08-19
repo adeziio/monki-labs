@@ -3535,10 +3535,30 @@
             }
 
 
+            /*
+             * A stage is considered complete when its status
+             * transitions to "complete", or as a safety net when
+             * its progress reaches 100%.
+             *
+             * Prompt completion refresh:
+             * the new title/prompt becomes visible immediately.
+             *
+             * Video completion refresh:
+             * the newly generated MP4 becomes visible immediately.
+             */
+
             const promptCompleted =
                 hasStageCompleted(
                     previousStatus.prompt_status,
                     currentStatus.prompt_status
+                ) ||
+                (
+                    normalizeProgress(
+                        currentStatus.prompt_progress
+                    ) >= 100 &&
+                    normalizeProgress(
+                        previousStatus.prompt_progress
+                    ) < 100
                 );
 
 
@@ -3546,16 +3566,16 @@
                 hasStageCompleted(
                     previousStatus.video_status,
                     currentStatus.video_status
+                ) ||
+                (
+                    normalizeProgress(
+                        currentStatus.video_progress
+                    ) >= 100 &&
+                    normalizeProgress(
+                        previousStatus.video_progress
+                    ) < 100
                 );
 
-
-            /*
-             * Prompt completion refresh:
-             * the new title/prompt becomes visible immediately.
-             *
-             * Video completion refresh:
-             * the newly generated MP4 becomes visible immediately.
-             */
 
             if (
                 promptCompleted ||
@@ -3950,7 +3970,11 @@
                     value || ""
                 )
                     .trim()
-                    .toLowerCase();
+                    .toLowerCase()
+                    .replace(
+                        /\.+$/,
+                        ""
+                    );
 
 
             if (
