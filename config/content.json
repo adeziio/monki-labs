@@ -3,63 +3,37 @@
     "categories": {
         "viral_brainrot": {
             "name": "Viral Brainrot",
-            "genre": "character-driven absurd visual comedy",
+            "genre": "short-form visual comedy",
             "tone": [
                 "funny",
                 "surprising",
-                "playful",
                 "absurd",
+                "playful",
                 "unpredictable"
             ],
             "world": [
-                "ordinary everyday environments",
-                "familiar public places",
-                "homes and workplaces",
-                "outdoor environments",
-                "simple surreal situations"
+                "any setting"
             ],
             "protagonists": [
-                "animals",
-                "humans",
-                "humanoid creatures",
-                "fictional creatures",
-                "monsters"
+                "any character or creature"
             ],
             "comedy_types": [
-                "animal behaving seriously like a person",
-                "character attempting an absurdly specific task",
-                "overconfident character discovering a simple problem",
-                "character misunderstanding something obvious",
-                "character taking something trivial extremely seriously",
-                "character trying to impress someone",
-                "character competing against an unexpected opponent",
-                "character protecting something unimportant as if it were precious",
-                "character secretly doing something ridiculous",
-                "character attempting something beyond its ability",
-                "character reacting dramatically to an ordinary situation",
-                "character caught in an embarrassing moment",
-                "tiny character facing something enormous",
-                "large character struggling with something tiny",
-                "character discovering an unexpected visual consequence",
-                "ordinary situation with one absurd twist"
+                "absurd behavior",
+                "unexpected physical consequence",
+                "visual surprise",
+                "physical comedy",
+                "strange situations",
+                "unexpected reactions",
+                "impossible events",
+                "ordinary situations with an absurd twist"
             ],
             "prompt_guidance": [
-                "The protagonist must be a living being or character-like creature.",
-                "The protagonist must have a visible face and readable body language.",
-                "The protagonist must actively drive the important events.",
-                "The visual premise should be understandable almost immediately.",
-                "Use one central visual idea per concept.",
-                "Keep the physical action simple and coherent.",
-                "The protagonist should directly interact with the important object or character.",
-                "Prefer one primary interaction over multiple simultaneous interactions.",
-                "Use a simple cause-and-effect chain.",
-                "Avoid concepts that depend on multiple independent subjects performing separate actions.",
-                "Avoid complicated object reveals or transformations.",
-                "Comedy should come primarily from character behavior or an understandable visual contradiction.",
-                "Avoid meaningless chaos, random destruction, and unnecessary spectacle.",
-                "The concept must work without dialogue, narration, or text.",
-                "Do not make ordinary objects behave like living characters.",
-                "Do not turn the concept into a multi-scene story."
+                "Create one simple visual event.",
+                "Let the AI freely choose the subject, setting, and comedic idea.",
+                "The concept must be immediately understandable.",
+                "Keep the physical action simple.",
+                "Use only as many characters and objects as the idea naturally needs.",
+                "End with a clear visual consequence."
             ],
             "video": {
                 "duration_seconds": 8,
@@ -92,84 +66,60 @@
             },
             "generation": {
                 "clip_count": 1,
-                "visual_style": "colorful stylized 3D animation",
-                "motion_style": "expressive physical comedy",
-                "camera_style": "clear framing that keeps the protagonist and important visual action readable",
+                "visual_style": "",
+                "motion_style": "",
+                "camera_style": "",
                 "continuity": "none"
             },
             "prompt_generation": {
+                "instructions": [
+                    "Generate one simple visual event suitable for an 8-second video.",
+                    "Use a clear subject and one main physical action.",
+                    "Use a simple immediate consequence.",
+                    "Do not create a miniature story."
+                ],
                 "creative_directions": [
-                    "Start with an unusual visual situation that is immediately understandable.",
-                    "Prefer one memorable absurd twist over several unrelated events.",
-                    "Let the protagonist's behavior create the important visual change.",
-                    "Use recognizable environments with an unexpected visual premise.",
-                    "Prefer surprising visual consequences over generic slapstick."
+                    "Be creative with subjects, settings, scale, realism, surrealism, and humor.",
+                    "One character is fine when the idea works with one character.",
+                    "Multiple characters are fine when they make the visual idea stronger.",
+                    "Use realistic, stylized, surreal, cute, strange, or unexpected concepts.",
+                    "Prefer an unusual visual premise over generic comedy."
                 ],
                 "creative_priorities": [
-                    "Visual clarity is more important than descriptive complexity.",
-                    "Describe what the viewer should see rather than explaining the joke.",
-                    "Make important character appearance and body language visually clear.",
-                    "Make spatial relationships explicit when they matter.",
-                    "Use color unless the concept specifically calls for monochrome.",
-                    "Keep the number of important actions low enough for a short video.",
-                    "Prefer direct physical interaction between the protagonist and the important subject.",
-                    "Prefer one clear cause-and-effect chain.",
-                    "Give the concept a memorable visual ending."
-                ],
-                "visual_requirements": [
-                    "Use clear, concrete visual descriptions.",
-                    "Give important characters a visible face and readable eyes when appropriate.",
-                    "Explicitly describe which direction an important character is facing when orientation matters.",
-                    "Explicitly describe important relationships between characters, objects, and environments.",
-                    "Prefer concrete physical behavior over abstract descriptions.",
-                    "Do not describe a joke or explain why something is funny.",
-                    "Do not assume the video model will infer important spatial relationships.",
-                    "Do not default to black-and-white or monochrome.",
-                    "Make the protagonist physically participate in the central interaction.",
-                    "Avoid important objects that only move, open, reveal, or transform without direct interaction."
+                    "Clarity",
+                    "Simplicity",
+                    "Visual interest",
+                    "Immediate payoff",
+                    "Variety"
                 ],
                 "diversity_guidance": [
-                    "Vary protagonists, environments, visual premises, behavior, scale, and comedic mechanisms.",
-                    "Do not simply replace one character with another while keeping the same idea.",
-                    "Avoid repeatedly using the same props, locations, actions, or endings."
+                    "Avoid repeating the same subject.",
+                    "Avoid repeating the same setting.",
+                    "Avoid repeating the same action.",
+                    "Avoid repeating the same joke structure."
                 ],
                 "prompt_format": {
                     "paragraphs": 1,
-                    "minimum_words": 30,
-                    "maximum_words": 55,
+                    "minimum_words": 15,
+                    "maximum_words": 24,
                     "chronological": true,
                     "include": [
-                        "protagonist",
-                        "environment",
-                        "important visual appearance",
-                        "goal or intention when useful",
-                        "main physical behavior",
-                        "clear spatial relationships when relevant",
-                        "visible reaction or consequence",
-                        "visual payoff",
-                        "configured visual and motion style"
+                        "subject",
+                        "main action",
+                        "immediate visual consequence"
                     ],
                     "exclude": [
+                        "duration",
                         "seconds",
                         "frames",
-                        "duration",
-                        "clip length",
                         "timing instructions",
-                        "previous clips",
-                        "future clips",
-                        "continuity",
-                        "configured character names",
                         "dialogue",
                         "narration",
-                        "text on screen",
-                        "sound-dependent jokes",
-                        "abstract explanations",
-                        "unnecessary choreography",
-                        "random destruction",
-                        "generic cinematic filler",
-                        "multiple competing visual subjects",
-                        "complicated object interactions",
-                        "unrelated simultaneous actions"
+                        "backstory",
+                        "multiple separate events",
+                        "long action sequences",
+                        "explanations",
+                        "generic filler"
                     ]
                 }
             }

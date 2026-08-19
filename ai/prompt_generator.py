@@ -23,14 +23,10 @@ class PromptGenerator(
             config
         )
 
-        content_config = (
-            config["content"]
-        )
+        content_config = config["content"]
 
         active_category = (
-            content_config[
-                "active_category"
-            ]
+            content_config["active_category"]
         )
 
         self.category_config = (
@@ -48,32 +44,6 @@ class PromptGenerator(
             )
         )
 
-        self.generation_config = (
-            self.category_config.get(
-                "generation",
-                {}
-            )
-        )
-
-    def format_list(
-        self,
-        values,
-        separator=", "
-    ):
-
-        if not isinstance(
-            values,
-            list
-        ):
-
-            return ""
-
-        return separator.join(
-            str(value).strip()
-            for value in values
-            if str(value).strip()
-        )
-
     def format_bullets(
         self,
         values
@@ -87,7 +57,7 @@ class PromptGenerator(
             return ""
 
         return "\n".join(
-            f"- {value}"
+            f"- {str(value).strip()}"
             for value in values
             if str(value).strip()
         )
@@ -97,44 +67,9 @@ class PromptGenerator(
         count
     ):
 
-        genre = (
-            self.category_config.get(
-                "genre",
-                ""
-            )
-        )
-
-        tone = (
-            self.category_config.get(
-                "tone",
-                []
-            )
-        )
-
-        world = (
-            self.category_config.get(
-                "world",
-                []
-            )
-        )
-
-        protagonists = (
-            self.category_config.get(
-                "protagonists",
-                []
-            )
-        )
-
-        comedy_types = (
-            self.category_config.get(
-                "comedy_types",
-                []
-            )
-        )
-
-        category_guidance = (
-            self.category_config.get(
-                "prompt_guidance",
+        instructions = (
+            self.prompt_config.get(
+                "instructions",
                 []
             )
         )
@@ -146,21 +81,14 @@ class PromptGenerator(
             )
         )
 
-        creative_priorities = (
+        priorities = (
             self.prompt_config.get(
                 "creative_priorities",
                 []
             )
         )
 
-        visual_requirements = (
-            self.prompt_config.get(
-                "visual_requirements",
-                []
-            )
-        )
-
-        diversity_guidance = (
+        diversity = (
             self.prompt_config.get(
                 "diversity_guidance",
                 []
@@ -174,237 +102,55 @@ class PromptGenerator(
             )
         )
 
-        visual_style = (
-            self.generation_config.get(
-                "visual_style",
-                ""
-            )
-        )
-
-        motion_style = (
-            self.generation_config.get(
-                "motion_style",
-                ""
-            )
-        )
-
-        style_parts = [
-            visual_style,
-            motion_style
-        ]
-
-        style_suffix = (
-            self.format_list(
-                style_parts
-            )
-        )
-
-        format_include = (
-            self.format_bullets(
-                prompt_format.get(
-                    "include",
-                    []
-                )
-            )
-        )
-
-        format_exclude = (
-            self.format_bullets(
-                prompt_format.get(
-                    "exclude",
-                    []
-                )
-            )
-        )
-
-        paragraph_count = (
-            prompt_format.get(
-                "paragraphs",
-                1
-            )
-        )
-
         minimum_words = (
             prompt_format.get(
                 "minimum_words",
-                30
+                15
             )
         )
 
         maximum_words = (
             prompt_format.get(
                 "maximum_words",
-                55
+                24
             )
         )
 
         return f"""
-Generate exactly {count} original short-form vertical video concepts.
+Generate exactly {count} original video concepts.
 
-CREATIVE GOAL
+RULES
+{self.format_bullets(instructions)}
 
-Create one strong visual comedy idea that can be understood immediately.
-
-The concept must be:
-
-- visually clear
-- funny, surprising, strange, or absurd
-- memorable
-- simple enough for a video generation model to represent reliably
-- understandable without dialogue or narration
-
-Do not write a screenplay.
-
-Do not force a traditional story structure.
-
-Do not add actions simply to make the prompt longer.
-
-One strong visual idea is better than a complicated sequence.
-
-CATEGORY
-
-GENRE:
-{genre}
-
-TONE:
-{self.format_list(tone)}
-
-WORLD:
-{self.format_list(world)}
-
-POSSIBLE PROTAGONISTS:
-{self.format_list(protagonists)}
-
-POSSIBLE CREATIVE DIRECTIONS:
-{self.format_list(comedy_types)}
-
-CATEGORY GUIDANCE:
-{self.format_bullets(category_guidance)}
-
-CREATIVE DIRECTIONS:
+CREATIVE FREEDOM
 {self.format_bullets(creative_directions)}
 
-CREATIVE PRIORITIES:
-{self.format_bullets(creative_priorities)}
-
-VISUAL REQUIREMENTS
-
-{self.format_bullets(visual_requirements)}
-
-VISUAL CLARITY
-
-Describe exactly what the viewer should see.
-
-When a character is important:
-
-- give it a clear visible face
-- give it readable eyes when appropriate
-- make its body language obvious
-- clearly state which direction it faces when orientation matters
-- make the protagonist physically participate in the central action
-
-When an object is important:
-
-- clearly state where it is
-- clearly state what the protagonist does with or to it
-- make the physical interaction obvious
-
-Prefer direct physical interaction.
-
-Good:
-- the cat grabs the object
-- the dog pushes the box
-- the character pulls the rope
-- the animal climbs onto the chair
-
-Avoid situations where an important object simply moves, opens, transforms, or reveals something while the protagonist does not meaningfully interact with it.
-
-Keep the concept centered on ONE primary interaction.
-
-Use a simple physical chain:
-
-setup → protagonist action → visible consequence
-
-Do not depend on multiple independent characters performing separate actions at the same time.
-
-Avoid complicated interactions involving several important objects.
-
-Avoid fragile visual logic that requires the model to understand hidden relationships.
-
-Do not explain the joke.
-
-Show the situation that creates the joke.
-
-Use color unless the concept specifically requires monochrome.
-
-Keep the physical action simple enough to remain readable throughout a short clip.
+PRIORITIES
+{self.format_bullets(priorities)}
 
 VARIETY
+{self.format_bullets(diversity)}
 
-Make every concept substantially different.
+PROMPT LENGTH
 
-Vary:
+Write each prompt in approximately {minimum_words}-{maximum_words} words.
 
-- protagonist
-- environment
-- visual premise
-- behavior
-- scale
-- comedic mechanism
-- emotional reaction
-- outcome
+Each prompt must describe ONE simple visual event suitable for an 8-second video.
 
-Do not repeatedly use the same:
+Use:
+subject + action + immediate visual result
 
-- locations
-- props
-- visual premises
-- actions
-- joke structures
-- endings
+Keep the action concrete and easy to visualize.
 
-{self.format_bullets(diversity_guidance)}
+Do not create a miniature story.
 
-PROMPT FORMAT
+Do not stack several actions together.
 
-Write each prompt as exactly {paragraph_count} paragraph(s).
+Do not add details just to make the prompt longer.
 
-Aim for approximately {minimum_words}-{maximum_words} words.
+Do not mention duration, seconds, frames, dialogue, narration, previous clips, future clips, or instructions to the video model.
 
-Include useful visual information such as:
-
-{format_include}
-
-Avoid:
-
-{format_exclude}
-
-Do not mention:
-
-- seconds
-- frames
-- duration
-- clip length
-- timing instructions
-- previous clips
-- future clips
-- continuity
-- configured character names
-- dialogue
-- narration
-- text on screen
-- abstract explanations
-- instructions to the video model
-- explanations of why the idea is funny
-- unnecessary camera directions
-
-STYLE
-
-End each prompt naturally with:
-
-{style_suffix}
-
-Do not add generic cinematic filler.
+Let the concept determine the number of characters and objects.
 
 OUTPUT
 
@@ -415,54 +161,15 @@ Use exactly this JSON structure:
 [
     {{
         "title": "Short memorable title",
-        "prompt": "Complete visual generation prompt"
+        "prompt": "Short visual generation prompt"
     }}
 ]
 
-Titles should be short, memorable, and directly connected to the visual idea.
-
-Do not make every title follow the same naming pattern.
-
 Return ONLY the JSON array.
-
 No markdown.
 No code block.
 No explanation.
 No commentary.
-
-FINAL CHECK
-
-Before returning the concepts, silently replace any idea that:
-
-- is generic
-- is difficult to understand visually
-- requires dialogue or narration
-- contains too many important actions
-- contains multiple competing visual subjects
-- depends on several objects behaving correctly at once
-- requires hidden visual logic
-- requires a character to react to something it never physically interacts with
-- relies on complicated object reveals
-- relies on random destruction
-- copies another concept
-- has weak visual curiosity
-- depends on hidden backstory
-- would be difficult for a video model to represent
-- explains the joke instead of showing it
-
-Prefer ideas with:
-
-- strong first-frame curiosity
-- one protagonist
-- one central interaction
-- one clear physical goal
-- one simple cause-and-effect chain
-- clear spatial relationships
-- obvious character behavior
-- a visible reaction
-- a strong final visual moment
-
-Return exactly {count} concepts.
 """
 
     def generate(
@@ -474,16 +181,12 @@ Return exactly {count} concepts.
             f"Generating {count} video prompts"
         )
 
-        prompt = (
-            self.build_prompt(
-                count
-            )
+        prompt = self.build_prompt(
+            count
         )
 
-        response = (
-            self.llm.generate(
-                prompt
-            )
+        response = self.llm.generate(
+            prompt
         )
 
         return self.parse_response(
@@ -652,11 +355,9 @@ Return exactly {count} concepts.
 
             return False
 
-        if not prompt.strip():
-
-            return False
-
-        return True
+        return bool(
+            prompt.strip()
+        )
 
     def clean_response(
         self,
@@ -720,26 +421,21 @@ Return exactly {count} concepts.
             len(response)
         ):
 
-            character = (
-                response[index]
-            )
+            character = response[index]
 
             if escaped:
 
                 escaped = False
-
                 continue
 
             if character == "\\" and in_string:
 
                 escaped = True
-
                 continue
 
             if character == '"':
 
                 in_string = not in_string
-
                 continue
 
             if in_string:
@@ -756,11 +452,9 @@ Return exactly {count} concepts.
 
                 if depth == 0:
 
-                    candidate = (
-                        response[
-                            start:index + 1
-                        ]
-                    )
+                    candidate = response[
+                        start:index + 1
+                    ]
 
                     try:
 
@@ -805,18 +499,14 @@ Return exactly {count} concepts.
 
         repaired = value.strip()
 
-        repaired = (
-            repaired.replace(
-                "\\,",
-                ","
-            )
+        repaired = repaired.replace(
+            "\\,",
+            ","
         )
 
-        repaired = (
-            repaired.replace(
-                "\\/",
-                "/"
-            )
+        repaired = repaired.replace(
+            "\\/",
+            "/"
         )
 
         repaired = re.sub(
