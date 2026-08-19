@@ -10,353 +10,1514 @@
     <title>Monki Labs</title>
 
     <style>
-        * {
-            box-sizing: border-box;
+        :root {
+
+            --bg:
+                #08090c;
+
+            --bg-soft:
+                #0d0f14;
+
+            --panel:
+                rgba(20, 23, 30, 0.82);
+
+            --panel-strong:
+                rgba(24, 28, 36, 0.94);
+
+            --border:
+                rgba(255, 255, 255, 0.08);
+
+            --border-hover:
+                rgba(255, 255, 255, 0.16);
+
+            --text:
+                #f5f7fa;
+
+            --muted:
+                #8d95a3;
+
+            --muted-light:
+                #b8bec8;
+
+            --accent:
+                #9cff57;
+
+            --accent-soft:
+                rgba(156, 255, 87, 0.12);
+
+            --accent-glow:
+                rgba(156, 255, 87, 0.25);
+
+            --purple:
+                #9d7cff;
+
+            --purple-soft:
+                rgba(157, 124, 255, 0.12);
+
+            --danger:
+                #ff6464;
+
+            --shadow:
+                0 20px 60px rgba(0, 0, 0, 0.35);
+
+            --radius:
+                18px;
+
         }
 
+
+        * {
+
+            box-sizing:
+                border-box;
+
+        }
+
+
+        html {
+
+            scroll-behavior:
+                smooth;
+
+        }
+
+
         body {
-            margin: 0;
-            background: #111;
-            color: #eee;
+
+            margin:
+                0;
+
+            min-height:
+                100vh;
+
+            background:
+                radial-gradient(circle at 15% 5%,
+                    rgba(156, 255, 87, 0.07),
+                    transparent 28%),
+                radial-gradient(circle at 85% 10%,
+                    rgba(157, 124, 255, 0.08),
+                    transparent 30%),
+                linear-gradient(180deg,
+                    #08090c 0%,
+                    #0b0d11 45%,
+                    #08090c 100%);
+
+            color:
+                var(--text);
+
             font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
                 Arial,
                 Helvetica,
                 sans-serif;
+
         }
+
+
+        body::before {
+
+            content:
+                "";
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            pointer-events:
+                none;
+
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.012) 1px,
+                    transparent 1px),
+                linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.012) 1px,
+                    transparent 1px);
+
+            background-size:
+                40px 40px;
+
+            mask-image:
+                linear-gradient(to bottom,
+                    black,
+                    transparent 75%);
+
+        }
+
 
         .container {
-            width: min(1400px, 94%);
-            margin: 0 auto;
-            padding: 32px 0 60px;
+
+            width:
+                min(1500px, 94%);
+
+            margin:
+                0 auto;
+
+            padding:
+                34px 0 70px;
+
+            position:
+                relative;
+
+            z-index:
+                1;
+
         }
 
-        h1 {
-            margin: 0;
-            font-size: 32px;
+
+        /* --------------------------------------------------
+           HERO
+        -------------------------------------------------- */
+
+        .hero {
+
+            position:
+                relative;
+
+            overflow:
+                hidden;
+
+            padding:
+                34px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                26px;
+
+            background:
+                linear-gradient(135deg,
+                    rgba(24, 29, 36, 0.95),
+                    rgba(13, 15, 20, 0.92));
+
+            box-shadow:
+                var(--shadow);
+
         }
+
+
+        .hero::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            width:
+                320px;
+
+            height:
+                320px;
+
+            right:
+                -120px;
+
+            top:
+                -180px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--accent);
+
+            filter:
+                blur(120px);
+
+            opacity:
+                0.08;
+
+        }
+
+
+        .hero::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            width:
+                260px;
+
+            height:
+                260px;
+
+            left:
+                -150px;
+
+            bottom:
+                -190px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--purple);
+
+            filter:
+                blur(120px);
+
+            opacity:
+                0.08;
+
+        }
+
+
+        .hero-content {
+
+            position:
+                relative;
+
+            z-index:
+                2;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                30px;
+
+        }
+
+
+        .brand {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                20px;
+
+        }
+
+
+        .monkey-logo {
+
+            width:
+                96px;
+
+            height:
+                96px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid rgba(156, 255, 87, 0.18);
+
+            border-radius:
+                22px;
+
+            background:
+                linear-gradient(145deg,
+                    rgba(156, 255, 87, 0.10),
+                    rgba(157, 124, 255, 0.08));
+
+            box-shadow:
+                0 0 40px rgba(156, 255, 87, 0.08);
+
+            overflow:
+                hidden;
+
+        }
+
+
+        .monkey-logo span {
+
+            font-size:
+                48px;
+
+            filter:
+                drop-shadow(0 5px 12px rgba(0, 0, 0, 0.5));
+
+        }
+
+
+        .brand h1 {
+
+            margin:
+                0;
+
+            font-size:
+                clamp(30px, 4vw, 46px);
+
+            line-height:
+                1;
+
+            letter-spacing:
+                -1.8px;
+
+            font-weight:
+                900;
+
+        }
+
+
+        .brand h1 span {
+
+            color:
+                var(--accent);
+
+        }
+
 
         .subtitle {
-            margin-top: 8px;
-            color: #888;
+
+            margin-top:
+                10px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                14px;
+
+            letter-spacing:
+                0.4px;
+
         }
+
+
+        .hero-status {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+            padding:
+                10px 14px;
+
+            border:
+                1px solid rgba(156, 255, 87, 0.16);
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(156, 255, 87, 0.06);
+
+            color:
+                #c8ffab;
+
+            font-size:
+                12px;
+
+            font-weight:
+                700;
+
+            white-space:
+                nowrap;
+
+        }
+
+
+        .status-dot {
+
+            width:
+                7px;
+
+            height:
+                7px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--accent);
+
+            box-shadow:
+                0 0 12px var(--accent);
+
+            animation:
+                pulse 2s infinite;
+
+        }
+
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+
+                opacity:
+                    1;
+
+                transform:
+                    scale(1);
+
+            }
+
+            50% {
+
+                opacity:
+                    0.5;
+
+                transform:
+                    scale(0.75);
+
+            }
+
+        }
+
+
+        /* --------------------------------------------------
+           TOP BAR
+        -------------------------------------------------- */
 
         .topbar {
-            margin-top: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
+
+            margin-top:
+                28px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                18px;
+
+            flex-wrap:
+                wrap;
+
         }
 
-        .topbar h2 {
-            margin: 0;
-            font-size: 21px;
+
+        .section-heading {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+
         }
+
+
+        .section-heading h2 {
+
+            margin:
+                0;
+
+            font-size:
+                22px;
+
+            letter-spacing:
+                -0.4px;
+
+        }
+
+
+        .episode-count {
+
+            min-width:
+                28px;
+
+            height:
+                28px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            padding:
+                0 9px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(255, 255, 255, 0.04);
+
+            color:
+                var(--muted-light);
+
+            font-size:
+                12px;
+
+            font-weight:
+                800;
+
+        }
+
+
+        /* --------------------------------------------------
+           BUTTONS
+        -------------------------------------------------- */
 
         button {
-            border: 0;
-            border-radius: 8px;
-            padding: 11px 16px;
-            background: #fff;
-            color: #111;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius:
+                11px;
+
+            padding:
+                11px 17px;
+
+            background:
+                linear-gradient(180deg,
+                    #ffffff,
+                    #dfe4e8);
+
+            color:
+                #0b0d10;
+
+            font-size:
+                13px;
+
+            font-weight:
+                800;
+
+            cursor:
+                pointer;
+
+            transition:
+                transform 0.18s ease,
+                box-shadow 0.18s ease,
+                opacity 0.18s ease;
+
         }
+
 
         button:hover {
-            opacity: 0.88;
+
+            opacity:
+                1;
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 8px 24px rgba(255, 255, 255, 0.10);
+
         }
+
+
+        button:active {
+
+            transform:
+                translateY(0);
+
+        }
+
 
         button:disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
+
+            opacity:
+                0.35;
+
+            cursor:
+                not-allowed;
+
+            transform:
+                none;
+
+            box-shadow:
+                none;
+
         }
+
+
+        .primary-button {
+
+            background:
+                linear-gradient(135deg,
+                    #c7ff9d,
+                    #8fe957);
+
+            border-color:
+                rgba(156, 255, 87, 0.3);
+
+            box-shadow:
+                0 8px 28px rgba(156, 255, 87, 0.10);
+
+        }
+
 
         .secondary {
-            background: #292929;
-            color: #eee;
+
+            background:
+                rgba(255, 255, 255, 0.05);
+
+            border-color:
+                var(--border);
+
+            color:
+                #ddd;
+
         }
 
-        .episodes {
-            margin-top: 18px;
 
-            display: grid;
+        /* --------------------------------------------------
+           EPISODE GRID
+        -------------------------------------------------- */
+
+        .episodes {
+
+            margin-top:
+                18px;
+
+            display:
+                grid;
 
             grid-template-columns:
                 repeat(auto-fit,
-                    minmax(240px, 1fr));
+                    minmax(270px,
+                        1fr));
 
-            gap: 16px;
+            gap:
+                16px;
 
-            align-items: start;
         }
+
 
         .episode-card {
-            min-width: 0;
-            padding: 18px;
 
-            background: #1b1b1b;
+            position:
+                relative;
+
+            min-width:
+                0;
+
+            padding:
+                18px;
+
+            background:
+                linear-gradient(145deg,
+                    rgba(24, 27, 34, 0.92),
+                    rgba(15, 17, 22, 0.92));
 
             border:
-                1px solid #2b2b2b;
+                1px solid var(--border);
 
-            border-radius: 14px;
+            border-radius:
+                var(--radius);
+
+            box-shadow:
+                0 12px 35px rgba(0, 0, 0, 0.18);
+
+            transition:
+                transform 0.22s ease,
+                border-color 0.22s ease,
+                box-shadow 0.22s ease;
+
         }
+
+
+        .episode-card:hover {
+
+            transform:
+                translateY(-4px);
+
+            border-color:
+                var(--border-hover);
+
+            box-shadow:
+                0 18px 42px rgba(0, 0, 0, 0.28);
+
+        }
+
+
+        .episode-card::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                0;
+
+            top:
+                18px;
+
+            bottom:
+                18px;
+
+            width:
+                2px;
+
+            border-radius:
+                4px;
+
+            background:
+                linear-gradient(180deg,
+                    var(--accent),
+                    transparent);
+
+            opacity:
+                0.45;
+
+        }
+
 
         .episode-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
 
-            gap: 10px;
+            display:
+                flex;
 
-            flex-wrap: wrap;
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                10px;
+
         }
+
 
         .episode-number {
-            font-size: 21px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
 
-        .episode-category {
-            color: #777;
-            font-size: 11px;
+            display:
+                inline-flex;
 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+            align-items:
+                center;
 
-        .episode-content {
-            margin-top: 16px;
+            justify-content:
+                center;
 
-            display: flex;
-            flex-direction: column;
+            min-width:
+                52px;
 
-            gap: 16px;
-        }
+            height:
+                32px;
 
-        .label {
-            color: #777;
-
-            font-size: 10px;
-            font-weight: 700;
-
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-        }
-
-        .title {
-            margin-top: 7px;
-
-            font-size: 17px;
-            font-weight: 700;
-
-            line-height: 1.3;
-        }
-
-        .prompt {
-            margin-top: 9px;
-
-            color: #bbb;
-
-            line-height: 1.5;
-            font-size: 13px;
-        }
-
-        .prompt-empty {
-            margin-top: 8px;
-            color: #666;
-        }
-
-        .video-panel {
-            min-width: 0;
-
-            padding-top: 14px;
-
-            border-top:
-                1px solid #292929;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .video-panel .label {
-            align-self: flex-start;
-        }
-
-        .video-status {
-            align-self: flex-start;
-
-            margin-top: 7px;
-
-            color: #888;
-            font-size: 12px;
-        }
-
-        video {
-            width: min(100%,
-                    220px);
-
-            aspect-ratio: 9 / 16;
-
-            margin-top: 10px;
-
-            border-radius: 10px;
-
-            background: #000;
-
-            display: block;
-
-            object-fit: contain;
-        }
-
-        .actions {
-            margin-top: 12px;
-
-            display: flex;
-
-            gap: 9px;
-
-            flex-wrap: wrap;
-
-            justify-content: center;
-        }
-
-        .progress-section {
-            margin-top: 28px;
-
-            padding: 18px;
-
-            background: #1b1b1b;
+            padding:
+                0 10px;
 
             border:
-                1px solid #2b2b2b;
+                1px solid rgba(156, 255, 87, 0.16);
 
-            border-radius: 14px;
+            border-radius:
+                9px;
+
+            background:
+                var(--accent-soft);
+
+            color:
+                #caffb1;
+
+            font-size:
+                13px;
+
+            font-weight:
+                900;
+
+            letter-spacing:
+                0.5px;
+
         }
+
+
+        .episode-category {
+
+            overflow:
+                hidden;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+
+            color:
+                #6f7783;
+
+            font-size:
+                11px;
+
+            font-weight:
+                700;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.8px;
+
+        }
+
+
+        .episode-content {
+
+            margin-top:
+                16px;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            min-width:
+                0;
+
+        }
+
+
+        .label {
+
+            color:
+                #656d79;
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                1px;
+
+        }
+
+
+        .title {
+
+            margin-top:
+                7px;
+
+            font-size:
+                17px;
+
+            line-height:
+                1.3;
+
+            font-weight:
+                800;
+
+            color:
+                #f3f4f6;
+
+        }
+
+
+        .prompt {
+
+            margin-top:
+                9px;
+
+            color:
+                #9da5b1;
+
+            line-height:
+                1.55;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .prompt-empty {
+
+            margin-top:
+                9px;
+
+            color:
+                #555d68;
+
+            font-size:
+                13px;
+
+        }
+
+
+        /* --------------------------------------------------
+           VIDEO
+        -------------------------------------------------- */
+
+        .video-panel {
+
+            min-width:
+                0;
+
+            margin-top:
+                18px;
+
+            padding-top:
+                16px;
+
+            border-top:
+                1px solid rgba(255, 255, 255, 0.06);
+
+        }
+
+
+        .video-status {
+
+            margin-top:
+                6px;
+
+            color:
+                #727b87;
+
+            font-size:
+                11px;
+
+        }
+
+
+        video {
+
+            width:
+                100%;
+
+            aspect-ratio:
+                9 / 16;
+
+            object-fit:
+                contain;
+
+            margin-top:
+                11px;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius:
+                13px;
+
+            background:
+                #030303;
+
+            display:
+                block;
+
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.35);
+
+        }
+
+
+        .actions {
+
+            margin-top:
+                12px;
+
+            display:
+                flex;
+
+            gap:
+                8px;
+
+            flex-wrap:
+                wrap;
+
+        }
+
+
+        .actions button {
+
+            flex:
+                1;
+
+            min-width:
+                0;
+
+        }
+
+
+        /* --------------------------------------------------
+           PROGRESS
+        -------------------------------------------------- */
+
+        .progress-section {
+
+            margin-top:
+                28px;
+
+            padding:
+                18px 20px;
+
+            background:
+                rgba(19, 22, 28, 0.72);
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                15px;
+
+            backdrop-filter:
+                blur(12px);
+
+        }
+
 
         .progress-title {
-            font-size: 15px;
-            font-weight: 700;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            font-size:
+                13px;
+
+            font-weight:
+                800;
+
+            color:
+                #d9dde3;
+
         }
+
+
+        .progress-title::before {
+
+            content:
+                "⚙️";
+
+            font-size:
+                14px;
+
+        }
+
 
         .progress-wrapper {
-            display: none;
-            margin-top: 14px;
+
+            display:
+                none;
+
+            margin-top:
+                14px;
+
         }
+
 
         .progress-wrapper.active {
-            display: block;
+
+            display:
+                block;
+
         }
+
 
         .progress-bar {
-            width: 100%;
-            height: 14px;
 
-            overflow: hidden;
+            width:
+                100%;
 
-            background: #2a2a2a;
+            height:
+                10px;
 
-            border-radius: 20px;
+            overflow:
+                hidden;
+
+            background:
+                #20242b;
+
+            border-radius:
+                999px;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.04);
+
         }
 
-        .progress-fill {
-            width: 0%;
-            height: 100%;
 
-            background: #fff;
+        .progress-fill {
+
+            width:
+                0%;
+
+            height:
+                100%;
+
+            background:
+                linear-gradient(90deg,
+                    var(--purple),
+                    var(--accent));
+
+            box-shadow:
+                0 0 18px rgba(156, 255, 87, 0.35);
 
             transition:
                 width 0.25s ease;
+
         }
+
 
         .progress-text {
-            display: flex;
 
-            justify-content: space-between;
+            display:
+                flex;
 
-            gap: 12px;
+            justify-content:
+                space-between;
 
-            margin-top: 8px;
+            gap:
+                12px;
 
-            color: #aaa;
+            margin-top:
+                8px;
 
-            font-size: 13px;
+            color:
+                #8f97a3;
+
+            font-size:
+                12px;
+
         }
+
 
         .error {
-            margin-top: 14px;
 
-            padding: 12px;
+            margin-top:
+                14px;
 
-            background: #351717;
+            padding:
+                12px 14px;
+
+            background:
+                rgba(255, 70, 70, 0.08);
 
             border:
-                1px solid #632222;
+                1px solid rgba(255, 70, 70, 0.20);
 
-            border-radius: 8px;
+            border-radius:
+                10px;
 
-            color: #ff9d9d;
+            color:
+                #ff9d9d;
 
-            display: none;
+            display:
+                none;
+
+            font-size:
+                13px;
+
         }
+
 
         .empty {
-            margin-top: 18px;
 
-            padding: 24px;
+            grid-column:
+                1 / -1;
 
-            background: #171717;
+            padding:
+                45px 24px;
+
+            background:
+                rgba(18, 20, 25, 0.72);
 
             border:
-                1px solid #242424;
+                1px dashed rgba(255, 255, 255, 0.09);
 
-            border-radius: 12px;
+            border-radius:
+                16px;
 
-            color: #666;
+            color:
+                #626a76;
 
-            text-align: center;
+            text-align:
+                center;
 
-            grid-column: 1 / -1;
+            font-size:
+                13px;
+
         }
 
-        .generating {
-            color: #aaa;
+
+        /* --------------------------------------------------
+           FOOTER
+        -------------------------------------------------- */
+
+        .footer {
+
+            margin-top:
+                34px;
+
+            padding:
+                18px;
+
+            text-align:
+                center;
+
+            color:
+                #4e5661;
+
+            font-size:
+                11px;
+
+            letter-spacing:
+                0.6px;
+
+        }
+
+
+        .footer span {
+
+            color:
+                #707987;
+
+        }
+
+
+        /* --------------------------------------------------
+           RESPONSIVE
+        -------------------------------------------------- */
+
+        @media (max-width: 760px) {
+
+            .container {
+
+                width:
+                    min(94%, 600px);
+
+                padding-top:
+                    20px;
+
+            }
+
+
+            .hero {
+
+                padding:
+                    24px;
+
+                border-radius:
+                    20px;
+
+            }
+
+
+            .hero-content {
+
+                align-items:
+                    flex-start;
+
+                flex-direction:
+                    column;
+
+            }
+
+
+            .hero-status {
+
+                align-self:
+                    flex-start;
+
+            }
+
+
+            .monkey-logo {
+
+                width:
+                    72px;
+
+                height:
+                    72px;
+
+            }
+
+
+            .monkey-logo span {
+
+                font-size:
+                    36px;
+
+            }
+
+
+            .episodes {
+
+                grid-template-columns:
+                    repeat(auto-fit,
+                        minmax(220px,
+                            1fr));
+
+            }
+
+        }
+
+
+        @media (max-width: 420px) {
+
+            .episodes {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .brand {
+
+                gap:
+                    14px;
+
+            }
+
+
+            .brand h1 {
+
+                font-size:
+                    30px;
+
+            }
+
+
+            .topbar {
+
+                align-items:
+                    stretch;
+
+            }
+
+
+            .topbar button {
+
+                width:
+                    100%;
+
+            }
+
         }
     </style>
 
 </head>
 
+
 <body>
 
     <div class="container">
 
-        <h1>MONKI LABS</h1>
+        <!-- HERO -->
 
-        <div class="subtitle">
-            AI Video Studio
-        </div>
+        <header class="hero">
+
+            <div class="hero-content">
+
+                <div class="brand">
+
+                    <div class="monkey-logo">
+
+                        <span>
+                            🐒
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            MONKI <span>LABS</span>
+                        </h1>
+
+                        <div class="subtitle">
+                            AI Video Studio · Create. Generate. Repeat.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hero-status">
+
+                    <div class="status-dot"></div>
+
+                    SYSTEM ONLINE
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- EPISODES -->
 
         <div class="topbar">
 
-            <h2>Episodes</h2>
+            <div class="section-heading">
 
-            <button id="createEpisodeButton" onclick="createEpisode()">
-                + Create New Episode
+                <h2>
+                    Episodes
+                </h2>
+
+                <div id="episodeCount" class="episode-count">
+                    0
+                </div>
+
+            </div>
+
+
+            <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
+                ＋ Create New Episode
             </button>
 
         </div>
+
+
+        <!-- PROGRESS -->
 
         <div class="progress-section">
 
             <div class="progress-title">
                 Generation Progress
             </div>
+
 
             <div id="progressWrapper" class="progress-wrapper">
 
@@ -365,6 +1526,7 @@
                     <div id="progressFill" class="progress-fill"></div>
 
                 </div>
+
 
                 <div class="progress-text">
 
@@ -380,9 +1542,13 @@
 
             </div>
 
+
             <div id="error" class="error"></div>
 
         </div>
+
+
+        <!-- EPISODE CARDS -->
 
         <div id="episodes" class="episodes">
 
@@ -392,7 +1558,18 @@
 
         </div>
 
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+
+            🐒 <span>MONKI LABS</span>
+            · AI VIDEO STUDIO
+
+        </div>
+
     </div>
+
 
     <script>
 
@@ -404,13 +1581,16 @@
             options = {}
         ) {
 
-            const response = await fetch(
-                url,
-                options
-            );
+            const response =
+                await fetch(
+                    url,
+                    options
+                );
+
 
             const data =
                 await response.json();
+
 
             if (!response.ok) {
 
@@ -420,6 +1600,7 @@
                 );
 
             }
+
 
             return data;
 
@@ -433,9 +1614,11 @@
                     "createEpisodeButton"
                 );
 
+
             button.disabled = true;
 
             clearError();
+
 
             try {
 
@@ -446,6 +1629,7 @@
                     }
                 );
 
+
                 startStatusPolling();
 
             } catch (error) {
@@ -453,6 +1637,7 @@
                 showError(
                     error.message
                 );
+
 
                 button.disabled = false;
 
@@ -466,6 +1651,7 @@
         ) {
 
             clearError();
+
 
             try {
 
@@ -486,8 +1672,10 @@
                                         episodeId
                                 }
                             )
+
                     }
                 );
+
 
                 startStatusPolling();
 
@@ -509,9 +1697,11 @@
                     "progressWrapper"
                 );
 
+
             wrapper.classList.add(
                 "active"
             );
+
 
             if (statusTimer) {
 
@@ -521,11 +1711,13 @@
 
             }
 
+
             statusTimer =
                 setInterval(
                     updateStatus,
                     500
                 );
+
 
             updateStatus();
 
@@ -541,32 +1733,39 @@
                         "/api/status"
                     );
 
+
                 const fill =
                     document.getElementById(
                         "progressFill"
                     );
+
 
                 const percent =
                     document.getElementById(
                         "progressPercent"
                     );
 
+
                 const message =
                     document.getElementById(
                         "progressMessage"
                     );
 
+
                 fill.style.width =
                     status.progress +
                     "%";
+
 
                 percent.textContent =
                     status.progress +
                     "%";
 
+
                 message.textContent =
                     status.message ||
                     "Working...";
+
 
                 if (status.error) {
 
@@ -576,19 +1775,23 @@
 
                 }
 
+
                 if (!status.running) {
 
                     clearInterval(
                         statusTimer
                     );
 
+
                     statusTimer = null;
+
 
                     document
                         .getElementById(
                             "createEpisodeButton"
                         )
                         .disabled = false;
+
 
                     loadEpisodes();
 
@@ -612,6 +1815,7 @@
                     "episodes"
                 );
 
+
             try {
 
                 const episodes =
@@ -619,16 +1823,26 @@
                         "/api/episodes"
                     );
 
+
+                document
+                    .getElementById(
+                        "episodeCount"
+                    )
+                    .textContent =
+                    episodes.length;
+
+
                 if (!episodes.length) {
 
                     container.innerHTML =
                         '<div class="empty">' +
-                        'No episodes yet.' +
+                        '🐒 No episodes yet. Create your first one!' +
                         '</div>';
 
                     return;
 
                 }
+
 
                 container.innerHTML =
                     episodes
@@ -636,6 +1850,7 @@
                             renderEpisode
                         )
                         .join("");
+
 
             } catch (error) {
 
@@ -660,10 +1875,12 @@
                     episode.number
                 );
 
+
             const category =
                 escapeHtml(
                     episode.category
                 );
+
 
             const title =
                 escapeHtml(
@@ -671,12 +1888,15 @@
                     "Prompt not available"
                 );
 
+
             const prompt =
                 escapeHtml(
                     episode.prompt
                 );
 
+
             let videoHtml = "";
+
 
             if (
                 episode.video_exists &&
@@ -691,7 +1911,9 @@
                         )
                         .join("/");
 
+
                 videoHtml = `
+
                     <div class="label">
                         Video
                     </div>
@@ -717,11 +1939,13 @@
                         </button>
 
                     </div>
+
                 `;
 
             } else {
 
                 videoHtml = `
+
                     <div class="label">
                         Video
                     </div>
@@ -733,6 +1957,7 @@
                     <div class="actions">
 
                         <button
+                            class="primary-button"
                             onclick="generateVideo(
                                 '${escapeJs(
                     episode.path
@@ -743,24 +1968,33 @@
                         </button>
 
                     </div>
+
                 `;
 
             }
 
+
             return `
+
                 <div class="episode-card">
 
                     <div class="episode-header">
 
                         <div class="episode-number">
-                            ${number}
+
+                            #${number}
+
                         </div>
 
+
                         <div class="episode-category">
+
                             ${category}
+
                         </div>
 
                     </div>
+
 
                     <div class="episode-content">
 
@@ -770,26 +2004,32 @@
                                 Prompt
                             </div>
 
+
                             ${episode.prompt_exists
                     ?
                     `
-                                        <div class="title">
-                                            ${title}
-                                        </div>
 
-                                        <div class="prompt">
-                                            ${prompt}
-                                        </div>
-                                    `
+                                    <div class="title">
+                                        ${title}
+                                    </div>
+
+                                    <div class="prompt">
+                                        ${prompt}
+                                    </div>
+
+                                `
                     :
                     `
-                                        <div class="prompt-empty">
-                                            Prompt not available.
-                                        </div>
-                                    `
+
+                                    <div class="prompt-empty">
+                                        Prompt not available.
+                                    </div>
+
+                                `
                 }
 
                         </div>
+
 
                         <div class="video-panel">
 
@@ -800,6 +2040,7 @@
                     </div>
 
                 </div>
+
             `;
 
         }
@@ -814,8 +2055,10 @@
                     "error"
                 );
 
+
             element.textContent =
                 message;
+
 
             element.style.display =
                 "block";
@@ -830,8 +2073,10 @@
                     "error"
                 );
 
+
             element.textContent =
                 "";
+
 
             element.style.display =
                 "none";
