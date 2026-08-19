@@ -3149,7 +3149,7 @@
                         "/api/episode",
                         {
                             method:
-                            "POST"
+                                "POST"
                         }
                     );
 
@@ -3993,7 +3993,10 @@
             if (
                 status === "failed" ||
                 status === "failure" ||
-                status === "error"
+                status === "error" ||
+                status === "crashed" ||
+                status === "terminated" ||
+                status === "killed"
             ) {
 
                 return "failed";
@@ -4581,7 +4584,7 @@
         }
 
 
-function computeOptimisticEpisode() {
+        function computeOptimisticEpisode() {
 
             /*
              * Predicts the id/number of the next episode so the UI

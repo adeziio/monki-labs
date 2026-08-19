@@ -1049,6 +1049,22 @@ def run_job(
                     progress_queue
                 )
 
+                # Refresh local stage according to the shared job state so
+                # failures or crashes are attributed to the correct stage
+                try:
+                    state = get_job_state()
+                    if job_type == "episode":
+                        # If prompt is complete, next stage is video
+                        if int(state.get("prompt_progress", 0)) >= 100:
+                            stage = "video"
+                        else:
+                            stage = "prompt"
+                    else:
+                        stage = "video"
+                except Exception:
+                    # If any problem reading state occurs, leave stage unchanged
+                    pass
+
             process.join(
                 timeout=5
             )
@@ -1056,6 +1072,20 @@ def run_job(
             drain_progress_queue(
                 progress_queue
             )
+
+            # Refresh local stage according to the shared job state so
+            # failures or crashes are attributed to the correct stage
+            try:
+                state = get_job_state()
+                if job_type == "episode":
+                    if int(state.get("prompt_progress", 0)) >= 100:
+                        stage = "video"
+                    else:
+                        stage = "prompt"
+                else:
+                    stage = "video"
+            except Exception:
+                pass
 
             while True:
 
