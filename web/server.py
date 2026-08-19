@@ -8,10 +8,9 @@ from urllib.parse import (
     unquote
 )
 import json
+import multiprocessing
 import threading
 import traceback
-
-from core.pipeline import MonkiPipeline
 
 
 HOST = "0.0.0.0"
@@ -39,28 +38,66 @@ INDEX_FILE = (
 )
 
 
-pipeline = MonkiPipeline()
-
 job_lock = threading.Lock()
+
+job_state_lock = threading.Lock()
 
 job_state = {
     "running": False,
     "type": None,
+
+    "active_stage": None,
+
+    "prompt_progress": 0,
+    "prompt_status": "Waiting.",
+    "prompt_message": "Waiting.",
+
+    "video_progress": 0,
+    "video_status": "Waiting.",
+    "video_message": "Waiting.",
+
     "progress": 0,
     "message": "Ready.",
+
     "error": None,
     "result": None
 }
 
 
-def set_progress(
+def update_job_state(
+    **updates
+):
+
+    with job_state_lock:
+
+        job_state.update(
+            updates
+        )
+
+
+def get_job_state():
+
+    with job_state_lock:
+
+        return dict(
+            job_state
+        )
+
+
+def set_stage_progress(
+    stage,
     percent,
     message
 ):
 
-    job_state[
-        "progress"
-    ] = int(
+    if stage not in (
+        "prompt",
+        "video"
+    ):
+
+        return
+
+    percent = int(
         max(
             0,
             min(
@@ -70,16 +107,277 @@ def set_progress(
         )
     )
 
-    job_state[
-        "message"
-    ] = str(
+    message = str(
         message
     )
 
+    if stage == "prompt":
 
-pipeline.set_progress_callback(
-    set_progress
-)
+        update_job_state(
+            prompt_progress=percent,
+            prompt_message=message,
+            prompt_status=(
+                "Complete."
+                if percent >= 100
+                else "Running."
+            ),
+            active_stage=(
+                "video"
+                if percent >= 100
+                else "prompt"
+            ),
+            progress=(
+                percent
+                if percent < 100
+                else 0
+            ),
+            message=message
+        )
+
+        return
+
+    if stage == "video":
+
+        update_job_state(
+            video_progress=percent,
+            video_message=message,
+            video_status=(
+                "Complete."
+                if percent >= 100
+                else "Running."
+            ),
+            active_stage=(
+                None
+                if percent >= 100
+                else "video"
+            ),
+            progress=percent,
+            message=message
+        )
+
+        return
+
+
+def set_stage_failed(
+    stage,
+    message
+):
+
+    message = str(
+        message
+    )
+
+    if stage == "prompt":
+
+        update_job_state(
+            prompt_status="Failed.",
+            prompt_message=message,
+            active_stage=None,
+            message="Prompt generation failed."
+        )
+
+        return
+
+    if stage == "video":
+
+        update_job_state(
+            video_status="Failed.",
+            video_message=message,
+            active_stage=None,
+            message="Video generation failed."
+        )
+
+        return
+
+
+def set_stage_crashed(
+    stage,
+    message
+):
+
+    message = str(
+        message
+    )
+
+    if stage == "prompt":
+
+        update_job_state(
+            prompt_status="Crashed.",
+            prompt_message=message,
+            active_stage=None,
+            message="Prompt generation crashed."
+        )
+
+        return
+
+    if stage == "video":
+
+        update_job_state(
+            video_status="Crashed.",
+            video_message=message,
+            active_stage=None,
+            message="Video generation crashed."
+        )
+
+        return
+
+
+def child_set_progress(
+    progress_queue,
+    stage,
+    percent,
+    message
+):
+
+    if stage not in (
+        "prompt",
+        "video"
+    ):
+
+        return
+
+    percent = int(
+        max(
+            0,
+            min(
+                100,
+                percent
+            )
+        )
+    )
+
+    try:
+
+        progress_queue.put(
+            {
+                "type": "progress",
+                "stage": stage,
+                "percent": percent,
+                "message": str(
+                    message
+                )
+            }
+        )
+
+    except Exception:
+
+        pass
+
+
+def child_run_job(
+    job_type,
+    episode_id,
+    prompt_item,
+    progress_queue,
+    result_queue
+):
+
+    """
+    Runs the actual MonkiPipeline work inside a child process.
+
+    The web server itself never loads the AI pipeline.
+
+    This protects the HTTP server from native crashes caused by
+    PyTorch, Diffusers, LTX, FFmpeg, or other native dependencies.
+    """
+
+    initial_stage = (
+        "prompt"
+        if job_type == "episode"
+        else "video"
+    )
+
+    try:
+
+        from core.pipeline import MonkiPipeline
+
+        pipeline = MonkiPipeline()
+
+        def progress_callback(
+            percent,
+            message,
+            stage=None
+        ):
+
+            actual_stage = (
+                stage
+                if stage in (
+                    "prompt",
+                    "video"
+                )
+                else initial_stage
+            )
+
+            child_set_progress(
+                progress_queue,
+                actual_stage,
+                percent,
+                message
+            )
+
+        pipeline.set_progress_callback(
+            progress_callback
+        )
+
+        if job_type == "episode":
+
+            result = (
+                pipeline.create_episode()
+            )
+
+        elif job_type == "video":
+
+            result = (
+                pipeline.generate_video_from_prompt(
+                    prompt_item,
+                    episode_id
+                )
+            )
+
+        else:
+
+            raise ValueError(
+                f"Unsupported job type: {job_type}"
+            )
+
+        result_queue.put(
+            {
+                "type": "success",
+                "result": result
+            }
+        )
+
+    except BaseException as error:
+
+        error_text = str(
+            error
+        ).strip()
+
+        if not error_text:
+
+            error_text = (
+                error.__class__.__name__
+            )
+
+        traceback_text = (
+            traceback.format_exc()
+        )
+
+        try:
+
+            result_queue.put(
+                {
+                    "type": "error",
+                    "error": error_text,
+                    "traceback": traceback_text
+                }
+            )
+
+        except Exception:
+
+            pass
+
+        raise
 
 
 def parse_prompt_file(
@@ -411,9 +709,122 @@ def get_episode_prompt(
     return prompts[0]
 
 
+def drain_progress_queue(
+    progress_queue
+):
+
+    """
+    Consume all currently available progress messages.
+
+    The child process sends progress here.
+    The parent process owns the actual web-server job state.
+    """
+
+    while True:
+
+        try:
+
+            message = (
+                progress_queue.get_nowait()
+            )
+
+        except Exception:
+
+            break
+
+        if not isinstance(
+            message,
+            dict
+        ):
+
+            continue
+
+        if (
+            message.get(
+                "type"
+            )
+            !=
+            "progress"
+        ):
+
+            continue
+
+        stage = (
+            message.get(
+                "stage"
+            )
+        )
+
+        set_stage_progress(
+            stage,
+            message.get(
+                "percent",
+                0
+            ),
+            message.get(
+                "message",
+                ""
+            )
+        )
+
+
+def initialize_job_state(
+    job_type
+):
+
+    if job_type == "episode":
+
+        update_job_state(
+            running=True,
+            type="episode",
+            active_stage="prompt",
+
+            prompt_progress=0,
+            prompt_status="Running.",
+            prompt_message="Starting prompt generation.",
+
+            video_progress=0,
+            video_status="Waiting.",
+            video_message="Waiting for prompt generation.",
+
+            progress=0,
+            message="Starting prompt generation.",
+
+            error=None,
+            result=None
+        )
+
+        return
+
+    if job_type == "video":
+
+        update_job_state(
+            running=True,
+            type="video",
+            active_stage="video",
+
+            prompt_progress=100,
+            prompt_status="Complete.",
+            prompt_message="Prompt already generated.",
+
+            video_progress=0,
+            video_status="Running.",
+            video_message="Starting video generation.",
+
+            progress=0,
+            message="Starting video generation.",
+
+            error=None,
+            result=None
+        )
+
+        return
+
+
 def run_job(
     job_type,
-    function
+    episode_id=None,
+    prompt_item=None
 ):
 
     if not job_lock.acquire(
@@ -422,73 +833,404 @@ def run_job(
 
         return False
 
-    job_state[
-        "running"
-    ] = True
-
-    job_state[
-        "type"
-    ] = job_type
-
-    job_state[
-        "progress"
-    ] = 0
-
-    job_state[
-        "message"
-    ] = "Starting..."
-
-    job_state[
-        "error"
-    ] = None
-
-    job_state[
-        "result"
-    ] = None
+    initialize_job_state(
+        job_type
+    )
 
     def worker():
 
+        multiprocessing_context = None
+        progress_queue = None
+        result_queue = None
+        process = None
+
+        received_result = None
+        received_error = None
+
+        stage = (
+            "prompt"
+            if job_type == "episode"
+            else "video"
+        )
+
         try:
 
-            result = function()
+            multiprocessing_context = (
+                multiprocessing.get_context(
+                    "spawn"
+                )
+            )
 
-            job_state[
-                "result"
-            ] = result
+            progress_queue = (
+                multiprocessing_context.Queue()
+            )
 
-            job_state[
-                "progress"
-            ] = 100
+            result_queue = (
+                multiprocessing_context.Queue()
+            )
 
-            job_state[
-                "message"
-            ] = "Complete."
+            process = (
+                multiprocessing_context.Process(
+                    target=child_run_job,
+                    args=(
+                        job_type,
+                        episode_id,
+                        prompt_item,
+                        progress_queue,
+                        result_queue
+                    ),
+                    daemon=False
+                )
+            )
+
+            print()
+            print(
+                "[JOB] Starting isolated "
+                f"{job_type} generation process."
+            )
+
+            process.start()
+
+            while process.is_alive():
+
+                try:
+
+                    message = (
+                        result_queue.get(
+                            timeout=0.25
+                        )
+                    )
+
+                    if not isinstance(
+                        message,
+                        dict
+                    ):
+
+                        continue
+
+                    message_type = (
+                        message.get(
+                            "type"
+                        )
+                    )
+
+                    if message_type == "success":
+
+                        received_result = (
+                            message.get(
+                                "result"
+                            )
+                        )
+
+                    elif message_type == "error":
+
+                        received_error = (
+                            message
+                        )
+
+                except Exception:
+
+                    pass
+
+                drain_progress_queue(
+                    progress_queue
+                )
+
+            process.join(
+                timeout=5
+            )
+
+            drain_progress_queue(
+                progress_queue
+            )
+
+            while True:
+
+                try:
+
+                    message = (
+                        result_queue.get_nowait()
+                    )
+
+                except Exception:
+
+                    break
+
+                if not isinstance(
+                    message,
+                    dict
+                ):
+
+                    continue
+
+                message_type = (
+                    message.get(
+                        "type"
+                    )
+                )
+
+                if message_type == "success":
+
+                    received_result = (
+                        message.get(
+                            "result"
+                        )
+                    )
+
+                elif message_type == "error":
+
+                    received_error = (
+                        message
+                    )
+
+            exit_code = (
+                process.exitcode
+            )
+
+            if (
+                received_error
+                is not None
+            ):
+
+                error_text = str(
+                    received_error.get(
+                        "error",
+                        "Generation failed."
+                    )
+                )
+
+                traceback_text = (
+                    received_error.get(
+                        "traceback",
+                        ""
+                    )
+                )
+
+                print()
+                print(
+                    "[JOB] =================================="
+                )
+                print(
+                    "[JOB] Generation failed."
+                )
+                print(
+                    f"[JOB] {error_text}"
+                )
+
+                if traceback_text:
+
+                    print(
+                        traceback_text
+                    )
+
+                print(
+                    "[JOB] The web server is still running."
+                )
+                print(
+                    "[JOB] =================================="
+                )
+
+                set_stage_failed(
+                    stage,
+                    error_text
+                )
+
+                update_job_state(
+                    error=error_text,
+                    message=(
+                        "Prompt generation failed."
+                        if stage == "prompt"
+                        else
+                        "Video generation failed."
+                    )
+                )
+
+            elif (
+                exit_code == 0
+                and
+                received_result is not None
+            ):
+
+                if stage == "prompt":
+
+                    set_stage_progress(
+                        "prompt",
+                        100,
+                        "Prompt generation complete."
+                    )
+
+                else:
+
+                    set_stage_progress(
+                        "video",
+                        100,
+                        "Video generation complete."
+                    )
+
+                update_job_state(
+                    result=received_result,
+                    progress=100,
+                    message=(
+                        "Prompt generation complete."
+                        if stage == "prompt"
+                        else
+                        "Video generation complete."
+                    )
+                )
+
+                print(
+                    "[JOB] Generation completed successfully."
+                )
+
+            elif exit_code != 0:
+
+                error_message = (
+                    "Generation process terminated "
+                    "unexpectedly."
+                )
+
+                if exit_code is not None:
+
+                    error_message += (
+                        f" Exit code: {exit_code}"
+                    )
+
+                print()
+                print(
+                    "[JOB] =================================="
+                )
+                print(
+                    "[JOB] GENERATION PROCESS CRASHED"
+                )
+                print(
+                    f"[JOB] {error_message}"
+                )
+                print(
+                    "[JOB] The web server is still running."
+                )
+                print(
+                    "[JOB] The job lock will be released."
+                )
+                print(
+                    "[JOB] Another generation can be started."
+                )
+                print(
+                    "[JOB] =================================="
+                )
+
+                set_stage_crashed(
+                    stage,
+                    error_message
+                )
+
+                update_job_state(
+                    error=error_message,
+                    message=(
+                        "Prompt generation crashed."
+                        if stage == "prompt"
+                        else
+                        "Video generation crashed."
+                    )
+                )
+
+            else:
+
+                error_message = (
+                    "Generation process ended "
+                    "without returning a result."
+                )
+
+                print(
+                    f"[JOB] {error_message}"
+                )
+
+                set_stage_failed(
+                    stage,
+                    error_message
+                )
+
+                update_job_state(
+                    error=error_message,
+                    message=(
+                        "Prompt generation failed."
+                        if stage == "prompt"
+                        else
+                        "Video generation failed."
+                    )
+                )
 
         except Exception as error:
 
             traceback.print_exc()
 
-            job_state[
-                "error"
-            ] = str(
+            error_message = str(
                 error
             )
 
-            job_state[
-                "message"
-            ] = "Failed."
+            set_stage_failed(
+                stage,
+                error_message
+            )
+
+            update_job_state(
+                error=error_message,
+                message=(
+                    "Prompt generation failed."
+                    if stage == "prompt"
+                    else
+                    "Video generation failed."
+                )
+            )
 
         finally:
 
-            job_state[
-                "running"
-            ] = False
+            if process is not None:
 
-            job_state[
-                "type"
-            ] = None
+                try:
+
+                    if process.is_alive():
+
+                        process.terminate()
+
+                        process.join(
+                            timeout=5
+                        )
+
+                except Exception:
+
+                    pass
+
+            if progress_queue is not None:
+
+                try:
+
+                    progress_queue.close()
+
+                except Exception:
+
+                    pass
+
+            if result_queue is not None:
+
+                try:
+
+                    result_queue.close()
+
+                except Exception:
+
+                    pass
+
+            update_job_state(
+                running=False,
+                type=None,
+                active_stage=None
+            )
 
             job_lock.release()
+
+            print(
+                "[JOB] Job lock released."
+            )
 
     thread = threading.Thread(
         target=worker,
@@ -590,7 +1332,7 @@ class RequestHandler(
         if path == "/api/status":
 
             self.send_json(
-                job_state
+                get_job_state()
             )
 
             return
@@ -673,9 +1415,7 @@ class RequestHandler(
         if parsed.path == "/api/episode":
 
             started = run_job(
-                "episode",
-                lambda:
-                    pipeline.create_episode()
+                "episode"
             )
 
             if not started:
@@ -738,11 +1478,8 @@ class RequestHandler(
 
             started = run_job(
                 "video",
-                lambda:
-                    pipeline.generate_video_from_prompt(
-                        prompt_item,
-                        episode_id
-                    )
+                episode_id=episode_id,
+                prompt_item=prompt_item
             )
 
             if not started:
@@ -1146,6 +1883,8 @@ class RequestHandler(
 
 
 def main():
+
+    multiprocessing.freeze_support()
 
     server = ThreadingHTTPServer(
         (

@@ -66,6 +66,9 @@
             --danger:
                 #ff6464;
 
+            --warning:
+                #ffca6b;
+
             --shadow:
                 0 24px 80px rgba(0, 0, 0, 0.38);
 
@@ -975,7 +978,7 @@
 
 
         /* ==================================================
-           PROGRESS
+           GENERATION PROGRESS
         ================================================== */
 
         .progress-section {
@@ -987,7 +990,7 @@
                 18px;
 
             padding:
-                17px 19px;
+                18px 19px 19px;
 
             overflow:
                 hidden;
@@ -1022,7 +1025,7 @@
                 0;
 
             width:
-                140px;
+                180px;
 
             height:
                 1px;
@@ -1078,7 +1081,7 @@
                 none;
 
             margin-top:
-                13px;
+                15px;
 
         }
 
@@ -1091,13 +1094,239 @@
         }
 
 
-        .progress-bar {
+        .stage-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(2,
+                    minmax(0,
+                        1fr));
+
+            gap:
+                12px;
+
+        }
+
+
+        .stage-card {
+
+            position:
+                relative;
+
+            min-width:
+                0;
+
+            padding:
+                14px;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.065);
+
+            border-radius:
+                13px;
+
+            background:
+                rgba(255, 255, 255, 0.025);
+
+            transition:
+                border-color 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+
+        }
+
+
+        .stage-card.active {
+
+            border-color:
+                rgba(164, 255, 99, 0.25);
+
+            background:
+                rgba(164, 255, 99, 0.035);
+
+            box-shadow:
+                inset 0 0 25px rgba(164, 255, 99, 0.025);
+
+        }
+
+
+        .stage-card.complete {
+
+            border-color:
+                rgba(164, 255, 99, 0.18);
+
+        }
+
+
+        .stage-card.failed {
+
+            border-color:
+                rgba(255, 100, 100, 0.25);
+
+            background:
+                rgba(255, 70, 70, 0.035);
+
+        }
+
+
+        .stage-header {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                10px;
+
+        }
+
+
+        .stage-name {
+
+            color:
+                #e0e4e9;
+
+            font-size:
+                11px;
+
+            font-weight:
+                900;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.85px;
+
+        }
+
+
+        .stage-status {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                5px;
+
+            color:
+                #68717d;
+
+            font-size:
+                9px;
+
+            font-weight:
+                900;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.65px;
+
+        }
+
+
+        .stage-status-dot {
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            flex:
+                0 0 auto;
+
+            border-radius:
+                50%;
+
+            background:
+                #59616c;
+
+        }
+
+
+        .stage-card.active .stage-status {
+
+            color:
+                #caffb1;
+
+        }
+
+
+        .stage-card.active .stage-status-dot {
+
+            background:
+                var(--accent);
+
+            box-shadow:
+                0 0 10px rgba(164, 255, 99, 0.75);
+
+            animation:
+                pulse 1.4s infinite;
+
+        }
+
+
+        .stage-card.complete .stage-status {
+
+            color:
+                #bdfc9a;
+
+        }
+
+
+        .stage-card.complete .stage-status-dot {
+
+            background:
+                var(--accent);
+
+            box-shadow:
+                0 0 8px rgba(164, 255, 99, 0.45);
+
+        }
+
+
+        .stage-card.failed .stage-status {
+
+            color:
+                #ff9d9d;
+
+        }
+
+
+        .stage-card.failed .stage-status-dot {
+
+            background:
+                var(--danger);
+
+            box-shadow:
+                0 0 8px rgba(255, 100, 100, 0.45);
+
+        }
+
+
+        .stage-bar {
 
             width:
                 100%;
 
             height:
-                9px;
+                8px;
+
+            margin-top:
+                12px;
 
             overflow:
                 hidden;
@@ -1114,7 +1343,7 @@
         }
 
 
-        .progress-fill {
+        .stage-fill {
 
             width:
                 0%;
@@ -1131,7 +1360,7 @@
                     var(--accent));
 
             box-shadow:
-                0 0 20px rgba(164, 255, 99, 0.35);
+                0 0 16px rgba(164, 255, 99, 0.25);
 
             transition:
                 width 0.25s ease;
@@ -1139,10 +1368,96 @@
         }
 
 
-        .progress-text {
+        .stage-card.complete .stage-fill {
+
+            background:
+                linear-gradient(90deg,
+                    #78d74d,
+                    var(--accent));
+
+        }
+
+
+        .stage-card.failed .stage-fill {
+
+            background:
+                linear-gradient(90deg,
+                    #c74e4e,
+                    var(--danger));
+
+            box-shadow:
+                none;
+
+        }
+
+
+        .stage-footer {
 
             display:
                 flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                10px;
+
+            margin-top:
+                8px;
+
+        }
+
+
+        .stage-message {
+
+            min-width:
+                0;
+
+            overflow:
+                hidden;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+
+            color:
+                #7d8692;
+
+            font-size:
+                10px;
+
+        }
+
+
+        .stage-percent {
+
+            flex:
+                0 0 auto;
+
+            color:
+                #aab2bd;
+
+            font-size:
+                10px;
+
+            font-weight:
+                900;
+
+        }
+
+
+        .progress-summary {
+
+            display:
+                flex;
+
+            align-items:
+                center;
 
             justify-content:
                 space-between;
@@ -1151,13 +1466,24 @@
                 12px;
 
             margin-top:
-                8px;
+                12px;
 
             color:
-                #858d99;
+                #626b76;
 
             font-size:
-                11px;
+                10px;
+
+        }
+
+
+        .progress-summary strong {
+
+            color:
+                #9ea6b1;
+
+            font-weight:
+                800;
 
         }
 
@@ -1228,6 +1554,12 @@
             padding:
                 17px;
 
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
             border:
                 1px solid var(--border);
 
@@ -1246,7 +1578,8 @@
             transition:
                 transform 0.25s ease,
                 border-color 0.25s ease,
-                box-shadow 0.25s ease;
+                box-shadow 0.25s ease,
+                background 0.25s ease;
 
         }
 
@@ -1346,6 +1679,53 @@
 
             opacity:
                 1;
+
+        }
+
+
+        .episode-card.active {
+
+            border-color:
+                rgba(164, 255, 99, 0.25);
+
+            background:
+                linear-gradient(145deg,
+                    rgba(28, 39, 28, 0.94),
+                    rgba(13, 20, 16, 0.96));
+
+            box-shadow:
+                inset 0 0 25px rgba(164, 255, 99, 0.025),
+                0 0 28px rgba(164, 255, 99, 0.07);
+
+        }
+
+
+        .episode-card.active::before {
+
+            opacity:
+                1;
+
+        }
+
+
+        .episode-card.active::after {
+
+            opacity:
+                0.55;
+
+        }
+
+
+        .episode-card.active .episode-number {
+
+            border-color:
+                rgba(164, 255, 99, 0.28);
+
+            background:
+                rgba(164, 255, 99, 0.13);
+
+            color:
+                #caffb1;
 
         }
 
@@ -1468,6 +1848,9 @@
 
             min-width:
                 0;
+
+            flex:
+                1;
 
         }
 
@@ -1702,10 +2085,27 @@
         }
 
 
-        .actions {
+        /* ==================================================
+           EPISODE ACTIONS
+           Always anchored at the bottom of the card.
+        ================================================== */
+
+        .episode-actions {
+
+            position:
+                relative;
+
+            z-index:
+                2;
 
             margin-top:
-                11px;
+                17px;
+
+            padding-top:
+                15px;
+
+            border-top:
+                1px solid rgba(255, 255, 255, 0.055);
 
             display:
                 flex;
@@ -1719,7 +2119,7 @@
         }
 
 
-        .actions button {
+        .episode-actions button {
 
             flex:
                 1;
@@ -1857,6 +2257,14 @@
 
                 align-items:
                     flex-start;
+
+            }
+
+
+            .stage-grid {
+
+                grid-template-columns:
+                    1fr;
 
             }
 
@@ -2080,11 +2488,7 @@
             </div>
 
 
-            <button
-                id="createEpisodeButton"
-                class="primary-button"
-                onclick="createEpisode()"
-            >
+            <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
                 ＋ Create New Episode
             </button>
 
@@ -2092,7 +2496,7 @@
 
 
         <!-- ==================================================
-             PROGRESS
+             GENERATION PROGRESS
         ================================================== -->
 
         <div class="progress-section">
@@ -2104,26 +2508,115 @@
 
             <div id="progressWrapper" class="progress-wrapper">
 
-                <div class="progress-bar">
+                <div class="stage-grid">
 
-                    <div
-                        id="progressFill"
-                        class="progress-fill"
-                    ></div>
+
+                    <!-- PROMPT STAGE -->
+
+                    <div id="promptStage" class="stage-card">
+
+                        <div class="stage-header">
+
+                            <div class="stage-name">
+                                Prompt Generation
+                            </div>
+
+
+                            <div id="promptStageStatus" class="stage-status">
+
+                                <span class="stage-status-dot"></span>
+
+                                <span>
+                                    Waiting
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stage-bar">
+
+                            <div id="promptProgressFill" class="stage-fill"></div>
+
+                        </div>
+
+
+                        <div class="stage-footer">
+
+                            <div id="promptProgressMessage" class="stage-message">
+                                Waiting to start.
+                            </div>
+
+
+                            <div id="promptProgressPercent" class="stage-percent">
+                                0%
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- VIDEO STAGE -->
+
+                    <div id="videoStage" class="stage-card">
+
+                        <div class="stage-header">
+
+                            <div class="stage-name">
+                                Video Generation
+                            </div>
+
+
+                            <div id="videoStageStatus" class="stage-status">
+
+                                <span class="stage-status-dot"></span>
+
+                                <span>
+                                    Waiting
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stage-bar">
+
+                            <div id="videoProgressFill" class="stage-fill"></div>
+
+                        </div>
+
+
+                        <div class="stage-footer">
+
+                            <div id="videoProgressMessage" class="stage-message">
+                                Waiting to start.
+                            </div>
+
+
+                            <div id="videoProgressPercent" class="stage-percent">
+                                0%
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
 
-                <div class="progress-text">
+                <div class="progress-summary">
 
-                    <span id="progressMessage">
+                    <span id="progressSummary">
                         Ready.
                     </span>
 
 
-                    <span id="progressPercent">
-                        0%
-                    </span>
+                    <strong id="activeStageLabel">
+                        Idle
+                    </strong>
 
                 </div>
 
@@ -2169,9 +2662,24 @@
 
     <script>
 
-        let statusTimer = null;
+        let statusTimer =
+            null;
 
-        let jobRunning = false;
+
+        let jobRunning =
+            false;
+
+
+        let lastStatus =
+            null;
+
+
+        let activeEpisodeId =
+            null;
+
+
+        let highlightLatestEpisode =
+            false;
 
 
         async function api(
@@ -2243,6 +2751,121 @@
         }
 
 
+        function setActiveEpisode(
+            episodeId
+        ) {
+
+            activeEpisodeId =
+                episodeId
+                    ? String(
+                        episodeId
+                    )
+                    : null;
+
+
+            highlightEpisodeCards();
+
+        }
+
+
+        function clearActiveEpisode() {
+
+            activeEpisodeId =
+                null;
+
+            highlightLatestEpisode =
+                false;
+
+            highlightEpisodeCards();
+
+        }
+
+
+        function highlightEpisodeCards() {
+
+            document
+                .querySelectorAll(
+                    ".episode-card"
+                )
+                .forEach(
+                    card => {
+
+                        card.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+            if (
+                activeEpisodeId
+            ) {
+
+                const matchingCard =
+                    document.querySelector(
+                        `.episode-card[data-episode-id="${escapeCssSelector(
+                            activeEpisodeId
+                        )}"]`
+                    );
+
+
+                if (
+                    matchingCard
+                ) {
+
+                    matchingCard.classList.add(
+                        "active"
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            if (
+                highlightLatestEpisode
+            ) {
+
+                const cards =
+                    document.querySelectorAll(
+                        ".episode-card"
+                    );
+
+
+                if (
+                    cards.length
+                ) {
+
+                    cards[
+                        cards.length - 1
+                    ].classList.add(
+                        "active"
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        function escapeCssSelector(
+            value
+        ) {
+
+            return String(
+                value
+            ).replace(
+                /["\\]/g,
+                "\\$&"
+            );
+
+        }
+
+
         async function createEpisode() {
 
             if (jobRunning) {
@@ -2258,20 +2881,72 @@
                 );
 
 
-            button.disabled = true;
+            button.disabled =
+                true;
+
 
             clearError();
 
 
             try {
 
-                await api(
-                    "/api/episode",
-                    {
-                        method:
-                            "POST"
-                    }
-                );
+                const response =
+                    await api(
+                        "/api/episode",
+                        {
+                            method:
+                                "POST"
+                        }
+                    );
+
+
+                highlightLatestEpisode =
+                    true;
+
+
+                let newEpisodeId =
+                    null;
+
+
+                if (
+                    response &&
+                    response.episode
+                ) {
+
+                    newEpisodeId =
+                        response.episode.path ||
+                        response.episode.id ||
+                        response.episode.episode_id;
+
+                } else if (
+                    response
+                ) {
+
+                    newEpisodeId =
+                        response.path ||
+                        response.id ||
+                        response.episode_id;
+
+                }
+
+
+                if (
+                    newEpisodeId
+                ) {
+
+                    setActiveEpisode(
+                        newEpisodeId
+                    );
+
+                }
+
+
+                /*
+                 * Refresh immediately so the newly created
+                 * episode card appears before generation finishes.
+                 */
+
+                await loadEpisodes();
 
 
                 setGenerationButtonsDisabled(
@@ -2279,9 +2954,31 @@
                 );
 
 
+                /*
+                 * Re-apply the active highlight after the
+                 * newly rendered cards are inserted.
+                 */
+
+                if (
+                    newEpisodeId
+                ) {
+
+                    setActiveEpisode(
+                        newEpisodeId
+                    );
+
+                } else {
+
+                    highlightEpisodeCards();
+
+                }
+
+
                 startStatusPolling();
 
             } catch (error) {
+
+                clearActiveEpisode();
 
                 setGenerationButtonsDisabled(
                     false
@@ -2312,6 +3009,15 @@
 
 
             try {
+
+                setActiveEpisode(
+                    episodeId
+                );
+
+
+                highlightLatestEpisode =
+                    false;
+
 
                 setGenerationButtonsDisabled(
                     true
@@ -2344,6 +3050,8 @@
                 startStatusPolling();
 
             } catch (error) {
+
+                clearActiveEpisode();
 
                 setGenerationButtonsDisabled(
                     false
@@ -2408,7 +3116,21 @@
                     );
 
 
+                const previousStatus =
+                    lastStatus;
+
+
+                lastStatus =
+                    status;
+
+
                 applyStatus(
+                    status
+                );
+
+
+                await refreshAfterStageCompletion(
+                    previousStatus,
                     status
                 );
 
@@ -2418,7 +3140,6 @@
                     setGenerationButtonsDisabled(
                         true
                     );
-
 
                     return;
 
@@ -2432,9 +3153,21 @@
                     );
 
 
-                    statusTimer = null;
+                    statusTimer =
+                        null;
 
                 }
+
+
+                /*
+                 * Always perform one final refresh when the
+                 * generation job reports that it has stopped.
+                 * This guarantees the latest prompt/video state
+                 * is visible even if the completion transition
+                 * happened between polling intervals.
+                 */
+
+                await loadEpisodes();
 
 
                 setGenerationButtonsDisabled(
@@ -2442,7 +3175,25 @@
                 );
 
 
-                await loadEpisodes();
+                /*
+                 * Keep the completed episode highlighted
+                 * until the final refresh has rendered it.
+                 */
+
+                if (
+                    activeEpisodeId
+                ) {
+
+                    highlightEpisodeCards();
+
+                } else if (
+                    highlightLatestEpisode
+                ) {
+
+                    highlightEpisodeCards();
+
+                }
+
 
             } catch (error) {
 
@@ -2451,6 +3202,80 @@
                 );
 
             }
+
+        }
+
+
+        async function refreshAfterStageCompletion(
+            previousStatus,
+            currentStatus
+        ) {
+
+            if (
+                !previousStatus ||
+                !currentStatus
+            ) {
+
+                return;
+
+            }
+
+
+            const promptCompleted =
+                hasStageCompleted(
+                    previousStatus.prompt_status,
+                    currentStatus.prompt_status
+                );
+
+
+            const videoCompleted =
+                hasStageCompleted(
+                    previousStatus.video_status,
+                    currentStatus.video_status
+                );
+
+
+            /*
+             * Prompt completion refresh:
+             * the new title/prompt becomes visible immediately.
+             *
+             * Video completion refresh:
+             * the newly generated MP4 becomes visible immediately.
+             */
+
+            if (
+                promptCompleted ||
+                videoCompleted
+            ) {
+
+                await loadEpisodes();
+
+            }
+
+        }
+
+
+        function hasStageCompleted(
+            previousStatus,
+            currentStatus
+        ) {
+
+            const previous =
+                normalizeStageStatus(
+                    previousStatus
+                );
+
+
+            const current =
+                normalizeStageStatus(
+                    currentStatus
+                );
+
+
+            return (
+                current === "complete" &&
+                previous !== "complete"
+            );
 
         }
 
@@ -2465,22 +3290,50 @@
                 );
 
 
-            const fill =
-                document.getElementById(
-                    "progressFill"
+            const activeStage =
+                normalizeActiveStage(
+                    status.active_stage
                 );
 
 
-            const percent =
-                document.getElementById(
-                    "progressPercent"
-                );
+            updateStageCard(
+                "prompt",
+                status.prompt_progress,
+                status.prompt_status,
+                status.prompt_message,
+                activeStage
+            );
 
 
-            const message =
-                document.getElementById(
-                    "progressMessage"
+            updateStageCard(
+                "video",
+                status.video_progress,
+                status.video_status,
+                status.video_message,
+                activeStage
+            );
+
+
+            /*
+             * Backward compatibility with the older
+             * single-progress status response.
+             *
+             * If the server does not yet provide the
+             * stage-specific fields, the legacy progress
+             * is represented on the currently active stage.
+             */
+
+            if (
+                status.prompt_progress === undefined &&
+                status.video_progress === undefined
+            ) {
+
+                applyLegacyProgress(
+                    status,
+                    activeStage
                 );
+
+            }
 
 
             const progress =
@@ -2489,23 +3342,19 @@
                 );
 
 
-            fill.style.width =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        progress
-                    )
-                ) +
-                "%";
+            const summary =
+                document.getElementById(
+                    "progressSummary"
+                );
 
 
-            percent.textContent =
-                progress +
-                "%";
+            const activeLabel =
+                document.getElementById(
+                    "activeStageLabel"
+                );
 
 
-            message.textContent =
+            summary.textContent =
                 status.message ||
                 (
                     status.running
@@ -2514,9 +3363,17 @@
                 );
 
 
+            activeLabel.textContent =
+                getActiveStageLabel(
+                    activeStage,
+                    status.running
+                );
+
+
             if (
                 status.running ||
-                progress > 0
+                progress > 0 ||
+                hasStageActivity(status)
             ) {
 
                 wrapper.classList.add(
@@ -2537,6 +3394,447 @@
         }
 
 
+        function updateStageCard(
+            stage,
+            progressValue,
+            statusValue,
+            messageValue,
+            activeStage
+        ) {
+
+            const prefix =
+                stage === "prompt"
+                    ? "prompt"
+                    : "video";
+
+
+            const card =
+                document.getElementById(
+                    prefix + "Stage"
+                );
+
+
+            const fill =
+                document.getElementById(
+                    prefix + "ProgressFill"
+                );
+
+
+            const percent =
+                document.getElementById(
+                    prefix + "ProgressPercent"
+                );
+
+
+            const message =
+                document.getElementById(
+                    prefix + "ProgressMessage"
+                );
+
+
+            const statusElement =
+                document.getElementById(
+                    prefix + "StageStatus"
+                );
+
+
+            const normalizedStatus =
+                normalizeStageStatus(
+                    statusValue
+                );
+
+
+            const progress =
+                normalizeProgress(
+                    progressValue
+                );
+
+
+            fill.style.width =
+                progress +
+                "%";
+
+
+            percent.textContent =
+                progress +
+                "%";
+
+
+            message.textContent =
+                messageValue ||
+                getDefaultStageMessage(
+                    normalizedStatus,
+                    stage
+                );
+
+
+            card.classList.remove(
+                "active",
+                "complete",
+                "failed"
+            );
+
+
+            if (
+                normalizedStatus === "complete"
+            ) {
+
+                card.classList.add(
+                    "complete"
+                );
+
+            } else if (
+                normalizedStatus === "failed"
+            ) {
+
+                card.classList.add(
+                    "failed"
+                );
+
+            } else if (
+                activeStage === stage
+                ||
+                normalizedStatus === "running"
+            ) {
+
+                card.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            const statusLabel =
+                getStageStatusLabel(
+                    normalizedStatus
+                );
+
+
+            statusElement.innerHTML =
+                `
+                    <span class="stage-status-dot"></span>
+                    <span>
+                        ${escapeHtml(
+                    statusLabel
+                )}
+                    </span>
+                `;
+
+        }
+
+
+        function applyLegacyProgress(
+            status,
+            activeStage
+        ) {
+
+            const progress =
+                normalizeProgress(
+                    status.progress
+                );
+
+
+            const message =
+                status.message ||
+                (
+                    status.running
+                        ? "Working..."
+                        : "Ready."
+                );
+
+
+            const targetStage =
+                activeStage === "video"
+                    ? "video"
+                    : "prompt";
+
+
+            const otherStage =
+                targetStage === "video"
+                    ? "prompt"
+                    : "video";
+
+
+            updateStageCard(
+                targetStage,
+                progress,
+                status.running
+                    ? "running"
+                    : (
+                        progress >= 100
+                            ? "complete"
+                            : "waiting"
+                    ),
+                message,
+                activeStage
+            );
+
+
+            if (
+                progress >= 100 &&
+                !status.running
+            ) {
+
+                updateStageCard(
+                    otherStage,
+                    0,
+                    "waiting",
+                    "Waiting to start.",
+                    activeStage
+                );
+
+            }
+
+        }
+
+
+        function normalizeActiveStage(
+            value
+        ) {
+
+            const stage =
+                String(
+                    value || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                stage === "prompt" ||
+                stage === "prompt_generation" ||
+                stage === "story" ||
+                stage === "story_generation"
+            ) {
+
+                return "prompt";
+
+            }
+
+
+            if (
+                stage === "video" ||
+                stage === "video_generation"
+            ) {
+
+                return "video";
+
+            }
+
+
+            return null;
+
+        }
+
+
+        function normalizeStageStatus(
+            value
+        ) {
+
+            const status =
+                String(
+                    value || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                status === "complete" ||
+                status === "completed" ||
+                status === "success" ||
+                status === "successful" ||
+                status === "done"
+            ) {
+
+                return "complete";
+
+            }
+
+
+            if (
+                status === "failed" ||
+                status === "failure" ||
+                status === "error"
+            ) {
+
+                return "failed";
+
+            }
+
+
+            if (
+                status === "running" ||
+                status === "active" ||
+                status === "working" ||
+                status === "generating"
+            ) {
+
+                return "running";
+
+            }
+
+
+            return "waiting";
+
+        }
+
+
+        function normalizeProgress(
+            value
+        ) {
+
+            const number =
+                Number(
+                    value
+                );
+
+
+            if (
+                !Number.isFinite(
+                    number
+                )
+            ) {
+
+                return 0;
+
+            }
+
+
+            return Math.max(
+                0,
+                Math.min(
+                    100,
+                    Math.round(
+                        number
+                    )
+                )
+            );
+
+        }
+
+
+        function getStageStatusLabel(
+            status
+        ) {
+
+            if (
+                status === "complete"
+            ) {
+
+                return "Complete";
+
+            }
+
+
+            if (
+                status === "failed"
+            ) {
+
+                return "Failed";
+
+            }
+
+
+            if (
+                status === "running"
+            ) {
+
+                return "Generating";
+
+            }
+
+
+            return "Waiting";
+
+        }
+
+
+        function getDefaultStageMessage(
+            status,
+            stage
+        ) {
+
+            if (
+                status === "complete"
+            ) {
+
+                return "Generation complete.";
+
+            }
+
+
+            if (
+                status === "failed"
+            ) {
+
+                return "Generation failed.";
+
+            }
+
+
+            if (
+                status === "running"
+            ) {
+
+                return (
+                    stage === "prompt"
+                        ? "Generating prompt..."
+                        : "Generating video..."
+                );
+
+            }
+
+
+            return "Waiting to start.";
+
+        }
+
+
+        function getActiveStageLabel(
+            activeStage,
+            running
+        ) {
+
+            if (
+                activeStage === "prompt"
+            ) {
+
+                return "Prompt Generation";
+
+            }
+
+
+            if (
+                activeStage === "video"
+            ) {
+
+                return "Video Generation";
+
+            }
+
+
+            return running
+                ? "Generating"
+                : "Idle";
+
+        }
+
+
+        function hasStageActivity(
+            status
+        ) {
+
+            return (
+                status.prompt_progress !== undefined ||
+                status.video_progress !== undefined ||
+                status.prompt_status !== undefined ||
+                status.video_status !== undefined
+            );
+
+        }
+
+
         async function restoreStatus() {
 
             try {
@@ -2545,6 +3843,10 @@
                     await api(
                         "/api/status"
                     );
+
+
+                lastStatus =
+                    status;
 
 
                 applyStatus(
@@ -2629,6 +3931,8 @@
                 );
 
 
+                highlightEpisodeCards();
+
             } catch (error) {
 
                 container.innerHTML =
@@ -2672,7 +3976,18 @@
                 );
 
 
-            let videoHtml = "";
+            const episodeId =
+                escapeHtml(
+                    episode.path
+                );
+
+
+            let videoHtml =
+                "";
+
+
+            let actionHtml =
+                "";
 
 
             if (
@@ -2716,8 +4031,12 @@
                         src="/media/${mediaPath}"
                     ></video>
 
+                `;
 
-                    <div class="actions">
+
+                actionHtml = `
+
+                    <div class="episode-actions">
 
                         <button
                             class="secondary"
@@ -2747,8 +4066,12 @@
                         No video generated yet.
                     </div>
 
+                `;
 
-                    <div class="actions">
+
+                actionHtml = `
+
+                    <div class="episode-actions">
 
                         <button
                             class="primary-button generate-video-button"
@@ -2771,7 +4094,10 @@
 
             return `
 
-                <article class="episode-card">
+                <article
+                    class="episode-card"
+                    data-episode-id="${episodeId}"
+                >
 
                     <div class="episode-header">
 
@@ -2796,10 +4122,9 @@
                             </div>
 
 
-                            ${
-                                episode.prompt_exists
-                                    ?
-                                    `
+                            ${episode.prompt_exists
+                    ?
+                    `
 
                                         <div class="title">
                                             ${title}
@@ -2811,15 +4136,15 @@
                                         </div>
 
                                     `
-                                    :
-                                    `
+                    :
+                    `
 
                                         <div class="prompt-empty">
                                             Prompt not available.
                                         </div>
 
                                     `
-                            }
+                }
 
                         </div>
 
@@ -2831,6 +4156,9 @@
                         </div>
 
                     </div>
+
+
+                    ${actionHtml}
 
                 </article>
 

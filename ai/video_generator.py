@@ -127,7 +127,8 @@ class VideoGenerator(
     def update_progress(
         self,
         percent,
-        message=""
+        message="",
+        stage=None
     ):
 
         percent = max(
@@ -144,8 +145,22 @@ class VideoGenerator(
 
                 self.progress_callback(
                     percent,
-                    str(message)
+                    str(message),
+                    stage
                 )
+
+            except TypeError:
+
+                try:
+
+                    self.progress_callback(
+                        percent,
+                        str(message)
+                    )
+
+                except Exception:
+
+                    pass
 
             except Exception:
 
@@ -995,7 +1010,8 @@ class VideoGenerator(
 
         self.update_progress(
             5,
-            "Loading video model..."
+            "Loading video model...",
+            stage="video"
         )
 
         device = (
@@ -1068,7 +1084,8 @@ class VideoGenerator(
 
         self.update_progress(
             12,
-            "Video model loaded."
+            "Video model loaded.",
+            stage="video"
         )
 
     def configure_cuda_pipeline(
@@ -1198,7 +1215,8 @@ class VideoGenerator(
 
         self.update_progress(
             5,
-            "Generating prompt..."
+            "Generating prompt...",
+            stage="prompt"
         )
 
         prompts = (
@@ -1223,7 +1241,8 @@ class VideoGenerator(
 
         self.update_progress(
             100,
-            "Prompt created."
+            "Prompt created.",
+            stage="prompt"
         )
 
         return {
@@ -1451,7 +1470,8 @@ class VideoGenerator(
 
         self.update_progress(
             15,
-            "Starting video generation..."
+            "Starting video generation...",
+            stage="video"
         )
 
         def generation_callback(
@@ -1483,7 +1503,8 @@ class VideoGenerator(
             self.update_progress(
                 progress,
                 f"Generating video... "
-                f"{step + 1}/{steps}"
+                f"{step + 1}/{steps}",
+                stage="video"
             )
 
             return callback_kwargs
@@ -1512,7 +1533,8 @@ class VideoGenerator(
 
         self.update_progress(
             88,
-            "Encoding video..."
+            "Encoding video...",
+            stage="video"
         )
 
         output_path = Path(
@@ -1552,7 +1574,8 @@ class VideoGenerator(
 
         self.update_progress(
             92,
-            "Video encoded."
+            "Video encoded.",
+            stage="video"
         )
 
         return str(
@@ -1762,7 +1785,8 @@ class VideoGenerator(
 
         self.update_progress(
             1,
-            "Preparing video generation..."
+            "Preparing video generation...",
+            stage="video"
         )
 
         self.use_existing_run(
@@ -1799,7 +1823,8 @@ class VideoGenerator(
 
             self.update_progress(
                 93,
-                "Releasing video model..."
+                "Releasing video model...",
+                stage="video"
             )
 
             del self.pipeline
@@ -1844,7 +1869,8 @@ class VideoGenerator(
 
                 self.update_progress(
                     95,
-                    "Finalizing episode..."
+                    "Finalizing episode...",
+                    stage="video"
                 )
 
                 final_video.write_videofile(
@@ -1882,7 +1908,8 @@ class VideoGenerator(
 
             self.update_progress(
                 100,
-                "Video generation complete."
+                "Video generation complete.",
+                stage="video"
             )
 
             return {
@@ -1930,7 +1957,8 @@ class VideoGenerator(
 
         self.update_progress(
             1,
-            "Generating prompts..."
+            "Generating prompts...",
+            stage="prompt"
         )
 
         prompts = (
@@ -1958,6 +1986,12 @@ class VideoGenerator(
 
         self.write_prompt_file(
             prompts
+        )
+
+        self.update_progress(
+            100,
+            "Prompt file created.",
+            stage="prompt"
         )
 
         self.load_pipeline()
@@ -2059,6 +2093,12 @@ class VideoGenerator(
                     self.get_output_fps()
                 )
 
+                self.update_progress(
+                    95,
+                    "Finalizing episode...",
+                    stage="video"
+                )
+
                 final_video.write_videofile(
                     str(output_path),
                     fps=output_fps,
@@ -2093,7 +2133,8 @@ class VideoGenerator(
 
             self.update_progress(
                 100,
-                "Episode generation complete."
+                "Episode generation complete.",
+                stage="video"
             )
 
             return {
