@@ -119,7 +119,7 @@ set "OLLAMA_NUM_GPU="
 set "OLLAMA_VULKAN="
 set "OLLAMA_NO_CLOUD="
 
-python main.py
+python -m web.server
 
 set "EXIT_CODE=%errorlevel%"
 

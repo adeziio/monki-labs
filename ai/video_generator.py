@@ -101,6 +101,8 @@ class VideoGenerator(
 
         self.pipeline = None
 
+        self.progress_callback = None
+
         self.output_root = Path(
             "media/output"
         )
@@ -111,13 +113,43 @@ class VideoGenerator(
             self.get_category_directory_name()
         )
 
-        self.run_directory = (
-            self.create_run_directory()
+        self.run_directory = None
+
+        self.clip_output_directory = None
+
+    def set_progress_callback(
+        self,
+        callback
+    ):
+
+        self.progress_callback = callback
+
+    def update_progress(
+        self,
+        percent,
+        message=""
+    ):
+
+        percent = max(
+            0,
+            min(
+                100,
+                int(percent)
+            )
         )
 
-        self.clip_output_directory = (
-            self.run_directory
-        )
+        if self.progress_callback is not None:
+
+            try:
+
+                self.progress_callback(
+                    percent,
+                    str(message)
+                )
+
+            except Exception:
+
+                pass
 
     def get_category_directory_name(
         self
@@ -215,6 +247,20 @@ class VideoGenerator(
         )
 
         return run_directory
+
+    def start_new_run(
+        self
+    ):
+
+        self.run_directory = (
+            self.create_run_directory()
+        )
+
+        self.clip_output_directory = (
+            self.run_directory
+        )
+
+        return self.run_directory
 
     def get_device(
         self
@@ -858,6 +904,11 @@ class VideoGenerator(
 
             return
 
+        self.update_progress(
+            5,
+            "Loading video model..."
+        )
+
         device = (
             self.get_device()
         )
@@ -925,6 +976,11 @@ class VideoGenerator(
             self.pipeline.to(
                 device
             )
+
+        self.update_progress(
+            12,
+            "Video model loaded."
+        )
 
     def configure_cuda_pipeline(
         self
@@ -1046,6 +1102,57 @@ class VideoGenerator(
             )
 
             self.pipeline.enable_attention_slicing()
+
+    def create_prompt(
+        self
+    ):
+
+        self.update_progress(
+            5,
+            "Generating prompt..."
+        )
+
+        prompts = (
+            self.prompt_generator.generate(
+                1
+            )
+        )
+
+        if not prompts:
+
+            raise RuntimeError(
+                "No video prompt was generated."
+            )
+
+        prompt_item = prompts[0]
+
+        self.start_new_run()
+
+        self.write_prompt_file(
+            [prompt_item]
+        )
+
+        self.update_progress(
+            100,
+            "Prompt created."
+        )
+
+        return {
+            "run_directory": str(
+                self.run_directory
+            ),
+            "prompt_file": str(
+                self.run_directory
+                /
+                "prompt.txt"
+            ),
+            "title": prompt_item[
+                "title"
+            ],
+            "prompt": prompt_item[
+                "prompt"
+            ]
+        }
 
     def generate_clip(
         self,
@@ -1253,6 +1360,45 @@ class VideoGenerator(
                 "LTX background music: disabled"
             )
 
+        self.update_progress(
+            15,
+            "Starting video generation..."
+        )
+
+        def generation_callback(
+            pipeline,
+            step,
+            timestep,
+            callback_kwargs
+        ):
+
+            progress = (
+                15
+                +
+                (
+                    (
+                        step
+                        +
+                        1
+                    )
+                    /
+                    max(
+                        steps,
+                        1
+                    )
+                )
+                *
+                70
+            )
+
+            self.update_progress(
+                progress,
+                f"Generating video... "
+                f"{step + 1}/{steps}"
+            )
+
+            return callback_kwargs
+
         video, audio = (
             self.pipeline(
                 prompt=ltx_prompt,
@@ -1269,9 +1415,15 @@ class VideoGenerator(
                 stg_scale=stg_scale,
                 audio_modality_scale=audio_modality_scale,
                 spatio_temporal_guidance_blocks=stg_blocks,
+                callback_on_step_end=generation_callback,
                 output_type="np",
                 return_dict=False
             )
+        )
+
+        self.update_progress(
+            88,
+            "Encoding video..."
         )
 
         output_path = Path(
@@ -1305,7 +1457,14 @@ class VideoGenerator(
 
         gc.collect()
 
-        torch.cuda.empty_cache()
+        if torch.cuda.is_available():
+
+            torch.cuda.empty_cache()
+
+        self.update_progress(
+            92,
+            "Video encoded."
+        )
 
         return str(
             output_path
@@ -1362,6 +1521,12 @@ class VideoGenerator(
         self,
         prompts
     ):
+
+        if self.run_directory is None:
+
+            raise RuntimeError(
+                "No active run directory."
+            )
 
         prompt_path = (
             self.run_directory
@@ -1471,6 +1636,188 @@ class VideoGenerator(
                     f"clip {path.name}: {error}"
                 )
 
+    def generate_from_prompt(
+        self,
+        prompt_item
+    ):
+
+        if not isinstance(
+            prompt_item,
+            dict
+        ):
+
+            raise ValueError(
+                "Prompt item must be a dictionary."
+            )
+
+        title = str(
+            prompt_item.get(
+                "title",
+                ""
+            )
+        ).strip()
+
+        prompt = str(
+            prompt_item.get(
+                "prompt",
+                ""
+            )
+        ).strip()
+
+        if not prompt:
+
+            raise ValueError(
+                "Selected prompt is empty."
+            )
+
+        self.update_progress(
+            1,
+            "Preparing video generation..."
+        )
+
+        self.start_new_run()
+
+        self.write_prompt_file(
+            [
+                {
+                    "title": title or "Untitled",
+                    "prompt": prompt
+                }
+            ]
+        )
+
+        self.load_pipeline()
+
+        clip_paths = []
+
+        try:
+
+            output_path = (
+                self.clip_output_directory
+                /
+                "_clip_001.mp4"
+            )
+
+            clip_path = (
+                self.generate_clip(
+                    prompt,
+                    output_path
+                )
+            )
+
+            clip_paths.append(
+                clip_path
+            )
+
+            self.update_progress(
+                93,
+                "Releasing video model..."
+            )
+
+            del self.pipeline
+
+            self.pipeline = None
+
+            gc.collect()
+
+            if torch.cuda.is_available():
+
+                torch.cuda.empty_cache()
+
+            final_video, clips = (
+                self.combine_clips(
+                    clip_paths
+                )
+            )
+
+            try:
+
+                output_format = (
+                    self.get_output_format()
+                )
+
+                if output_format.lower() != "mp4":
+
+                    raise ValueError(
+                        "The current LTX video "
+                        "export pipeline requires "
+                        "MP4 output."
+                    )
+
+                output_path = (
+                    self.run_directory
+                    /
+                    f"episode.{output_format}"
+                )
+
+                output_fps = (
+                    self.get_output_fps()
+                )
+
+                self.update_progress(
+                    95,
+                    "Finalizing episode..."
+                )
+
+                final_video.write_videofile(
+                    str(output_path),
+                    fps=output_fps,
+                    codec="libx264",
+                    audio_codec="aac",
+                    temp_audiofile=(
+                        str(
+                            self.run_directory
+                            /
+                            "_temp_audio.m4a"
+                        )
+                    ),
+                    remove_temp=True,
+                    logger=None
+                )
+
+            finally:
+
+                for clip in clips:
+
+                    clip.close()
+
+                final_video.close()
+
+            self.cleanup_intermediate_clips(
+                clip_paths
+            )
+
+            self.log(
+                f"Final audio-video created: "
+                f"{output_path}"
+            )
+
+            self.update_progress(
+                100,
+                "Video generation complete."
+            )
+
+            return {
+                "output": str(
+                    output_path
+                ),
+                "prompt_file": str(
+                    self.run_directory
+                    /
+                    "prompt.txt"
+                ),
+                "title": title,
+                "prompt": prompt
+            }
+
+        except Exception:
+
+            self.cleanup_intermediate_clips(
+                clip_paths
+            )
+
+            raise
+
     def generate(
         self
     ):
@@ -1493,6 +1840,11 @@ class VideoGenerator(
                 "must be greater than zero."
             )
 
+        self.update_progress(
+            1,
+            "Generating prompts..."
+        )
+
         prompts = (
             self.prompt_generator
             .generate(
@@ -1513,6 +1865,8 @@ class VideoGenerator(
                 f"Requested {clip_count} prompts "
                 f"but received {len(prompts)} usable prompts."
             )
+
+        self.start_new_run()
 
         self.write_prompt_file(
             prompts
@@ -1561,7 +1915,9 @@ class VideoGenerator(
 
                 gc.collect()
 
-                torch.cuda.empty_cache()
+                if torch.cuda.is_available():
+
+                    torch.cuda.empty_cache()
 
             self.log(
                 "All clips generated. "
@@ -1575,7 +1931,9 @@ class VideoGenerator(
 
             gc.collect()
 
-            torch.cuda.empty_cache()
+            if torch.cuda.is_available():
+
+                torch.cuda.empty_cache()
 
             if not clip_paths:
 
@@ -1643,6 +2001,11 @@ class VideoGenerator(
             self.log(
                 f"Final audio-video created: "
                 f"{output_path}"
+            )
+
+            self.update_progress(
+                100,
+                "Episode generation complete."
             )
 
             return {

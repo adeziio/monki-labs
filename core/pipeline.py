@@ -38,6 +38,34 @@ class MonkiPipeline:
             )
         )
 
+    def set_progress_callback(
+        self,
+        callback
+    ):
+
+        self.video.set_progress_callback(
+            callback
+        )
+
+    def create_prompt(
+        self
+    ):
+
+        return (
+            self.video.create_prompt()
+        )
+
+    def generate_video_from_prompt(
+        self,
+        prompt_item
+    ):
+
+        return (
+            self.video.generate_from_prompt(
+                prompt_item
+            )
+        )
+
     def create_episode(
         self
     ):

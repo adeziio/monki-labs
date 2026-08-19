@@ -145,7 +145,7 @@ echo "PyTorch CUDA memory configuration:"
 echo "PYTORCH_CUDA_ALLOC_CONF=$PYTORCH_CUDA_ALLOC_CONF"
 echo ""
 
-python main.py
+python -m web.server
 
 EXIT_CODE=$?
 

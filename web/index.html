@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Monki Labs</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #111;
+            color: #eee;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+        .container {
+            width: min(1100px, 94%);
+            margin: 0 auto;
+            padding: 32px 0 60px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            color: #888;
+        }
+
+        .topbar {
+            margin-top: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 16px;
+            background: #fff;
+            color: #111;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.88;
+        }
+
+        button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .secondary {
+            background: #292929;
+            color: #eee;
+        }
+
+        .episodes {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .episode-card {
+            padding: 20px;
+            background: #1b1b1b;
+            border: 1px solid #2b2b2b;
+            border-radius: 14px;
+        }
+
+        .episode-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .episode-number {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .episode-category {
+            color: #777;
+            font-size: 12px;
+        }
+
+        .episode-content {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr) 280px;
+            gap: 22px;
+        }
+
+        .label {
+            color: #777;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .title {
+            margin-top: 7px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .prompt {
+            margin-top: 9px;
+            color: #bbb;
+            line-height: 1.5;
+        }
+
+        .prompt-empty {
+            margin-top: 8px;
+            color: #666;
+        }
+
+        .video-panel {
+            min-width: 0;
+        }
+
+        .video-status {
+            margin-top: 8px;
+            color: #888;
+            font-size: 13px;
+        }
+
+        .video-preview {
+            width: 240px;
+            max-width: 100%;
+            aspect-ratio: 9 / 16;
+            margin-top: 10px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: #000;
+            object-fit: contain;
+        }
+
+        .actions {
+            margin-top: 14px;
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .progress-section {
+            margin-top: 28px;
+            padding: 18px;
+            background: #1b1b1b;
+            border: 1px solid #2b2b2b;
+            border-radius: 14px;
+        }
+
+        .progress-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .progress-wrapper {
+            display: none;
+            margin-top: 14px;
+        }
+
+        .progress-wrapper.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            overflow: hidden;
+            background: #2a2a2a;
+            border-radius: 20px;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #fff;
+            transition:
+                width 0.25s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .error {
+            margin-top: 14px;
+            padding: 12px;
+            background: #351717;
+            border: 1px solid #632222;
+            border-radius: 8px;
+            color: #ff9d9d;
+            display: none;
+        }
+
+        .empty {
+            margin-top: 18px;
+            padding: 24px;
+            background: #171717;
+            border: 1px solid #242424;
+            border-radius: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        .generating {
+            color: #aaa;
+        }
+
+        @media (max-width: 760px) {
+
+            .container {
+                padding-top: 20px;
+            }
+
+            .episode-content {
+                grid-template-columns: 1fr;
+            }
+
+            .video-preview {
+                width: 220px;
+            }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>MONKI LABS</h1>
+
+        <div class="subtitle">
+            AI Video Studio
+        </div>
+
+        <div class="topbar">
+
+            <h2>Episodes</h2>
+
+            <button id="createEpisodeButton" onclick="createEpisode()">
+                + Create New Episode
+            </button>
+
+        </div>
+
+        <div class="progress-section">
+
+            <div class="progress-title">
+                Generation Progress
+            </div>
+
+            <div id="progressWrapper" class="progress-wrapper">
+
+                <div class="progress-bar">
+
+                    <div id="progressFill" class="progress-fill"></div>
+
+                </div>
+
+                <div class="progress-text">
+
+                    <span id="progressMessage">
+                        Ready.
+                    </span>
+
+                    <span id="progressPercent">
+                        0%
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div id="error" class="error"></div>
+
+        </div>
+
+        <div id="episodes" class="episodes">
+
+            <div class="empty">
+                Loading episodes...
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let statusTimer = null;
+
+
+        async function api(
+            url,
+            options = {}
+        ) {
+
+            const response = await fetch(
+                url,
+                options
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Request failed."
+                );
+
+            }
+
+            return data;
+
+        }
+
+
+        async function createEpisode() {
+
+            const button =
+                document.getElementById(
+                    "createEpisodeButton"
+                );
+
+            button.disabled = true;
+
+            clearError();
+
+            try {
+
+                await api(
+                    "/api/episode",
+                    {
+                        method: "POST"
+                    }
+                );
+
+                startStatusPolling();
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+                button.disabled = false;
+
+            }
+
+        }
+
+
+        async function generateVideo(
+            episodeId
+        ) {
+
+            clearError();
+
+            try {
+
+                await api(
+                    "/api/video",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body:
+                            JSON.stringify(
+                                {
+                                    episode_id:
+                                        episodeId
+                                }
+                            )
+                    }
+                );
+
+                startStatusPolling();
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        function startStatusPolling() {
+
+            const wrapper =
+                document.getElementById(
+                    "progressWrapper"
+                );
+
+            wrapper.classList.add(
+                "active"
+            );
+
+            if (statusTimer) {
+
+                clearInterval(
+                    statusTimer
+                );
+
+            }
+
+            statusTimer =
+                setInterval(
+                    updateStatus,
+                    500
+                );
+
+            updateStatus();
+
+        }
+
+
+        async function updateStatus() {
+
+            try {
+
+                const status =
+                    await api(
+                        "/api/status"
+                    );
+
+                const fill =
+                    document.getElementById(
+                        "progressFill"
+                    );
+
+                const percent =
+                    document.getElementById(
+                        "progressPercent"
+                    );
+
+                const message =
+                    document.getElementById(
+                        "progressMessage"
+                    );
+
+                fill.style.width =
+                    status.progress +
+                    "%";
+
+                percent.textContent =
+                    status.progress +
+                    "%";
+
+                message.textContent =
+                    status.message ||
+                    "Working...";
+
+                if (status.error) {
+
+                    showError(
+                        status.error
+                    );
+
+                }
+
+                if (!status.running) {
+
+                    clearInterval(
+                        statusTimer
+                    );
+
+                    statusTimer = null;
+
+                    document
+                        .getElementById(
+                            "createEpisodeButton"
+                        )
+                        .disabled = false;
+
+                    loadEpisodes();
+
+                }
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        async function loadEpisodes() {
+
+            const container =
+                document.getElementById(
+                    "episodes"
+                );
+
+            try {
+
+                const episodes =
+                    await api(
+                        "/api/episodes"
+                    );
+
+                if (!episodes.length) {
+
+                    container.innerHTML =
+                        '<div class="empty">' +
+                        'No episodes yet.' +
+                        '</div>';
+
+                    return;
+
+                }
+
+                container.innerHTML =
+                    episodes
+                        .map(
+                            renderEpisode
+                        )
+                        .join("");
+
+            } catch (error) {
+
+                container.innerHTML =
+                    '<div class="empty">' +
+                    escapeHtml(
+                        error.message
+                    ) +
+                    '</div>';
+
+            }
+
+        }
+
+
+        function renderEpisode(
+            episode
+        ) {
+
+            const number =
+                escapeHtml(
+                    episode.number
+                );
+
+            const category =
+                escapeHtml(
+                    episode.category
+                );
+
+            const title =
+                escapeHtml(
+                    episode.title ||
+                    "Prompt not available"
+                );
+
+            const prompt =
+                escapeHtml(
+                    episode.prompt
+                );
+
+            let videoHtml = "";
+
+            if (
+                episode.video_exists &&
+                episode.video_path
+            ) {
+
+                const mediaPath =
+                    episode.video_path
+                        .split("/")
+                        .map(
+                            encodeURIComponent
+                        )
+                        .join("/");
+
+                videoHtml = `
+                    <div class="label">
+                        Video
+                    </div>
+
+                    <div class="video-status">
+                        episode.mp4
+                    </div>
+
+                    <div class="video-preview">
+
+                        <video
+                            controls
+                            preload="metadata"
+                            playsinline
+                            src="/media/${mediaPath}"
+                        ></video>
+
+                    </div>
+
+                    <div class="actions">
+
+                        <button
+                            class="secondary"
+                            disabled
+                        >
+                            Upload to YouTube
+                        </button>
+
+                    </div>
+                `;
+
+            } else {
+
+                videoHtml = `
+                    <div class="label">
+                        Video
+                    </div>
+
+                    <div class="video-status">
+                        No video generated yet.
+                    </div>
+
+                    <div class="actions">
+
+                        <button
+                            onclick="generateVideo(
+                                '${escapeJs(
+                    episode.path
+                )}'
+                            )"
+                        >
+                            Generate Video
+                        </button>
+
+                    </div>
+                `;
+
+            }
+
+            return `
+                <div class="episode-card">
+
+                    <div class="episode-header">
+
+                        <div class="episode-number">
+                            ${number}
+                        </div>
+
+                        <div class="episode-category">
+                            ${category}
+                        </div>
+
+                    </div>
+
+                    <div class="episode-content">
+
+                        <div>
+
+                            <div class="label">
+                                Prompt
+                            </div>
+
+                            ${episode.prompt_exists
+                    ?
+                    `
+                                    <div class="title">
+                                        ${title}
+                                    </div>
+
+                                    <div class="prompt">
+                                        ${prompt}
+                                    </div>
+                                `
+                    :
+                    `
+                                    <div class="prompt-empty">
+                                        Prompt not available.
+                                    </div>
+                                `
+                }
+
+                        </div>
+
+                        <div class="video-panel">
+
+                            ${videoHtml}
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+        }
+
+
+        function showError(
+            message
+        ) {
+
+            const element =
+                document.getElementById(
+                    "error"
+                );
+
+            element.textContent =
+                message;
+
+            element.style.display =
+                "block";
+
+        }
+
+
+        function clearError() {
+
+            const element =
+                document.getElementById(
+                    "error"
+                );
+
+            element.textContent =
+                "";
+
+            element.style.display =
+                "none";
+
+        }
+
+
+        function escapeHtml(
+            value
+        ) {
+
+            return String(
+                value
+            )
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
+        }
+
+
+        function escapeJs(
+            value
+        ) {
+
+            return String(
+                value
+            )
+                .replaceAll(
+                    "\\",
+                    "\\\\"
+                )
+                .replaceAll(
+                    "'",
+                    "\\'"
+                )
+                .replaceAll(
+                    "\n",
+                    "\\n"
+                )
+                .replaceAll(
+                    "\r",
+                    "\\r"
+                );
+
+        }
+
+
+        loadEpisodes();
+
+    </script>
+
+</body>
+
+</html>
