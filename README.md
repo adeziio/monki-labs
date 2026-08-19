@@ -104,21 +104,12 @@ monki-labs/
 ├── config/
 │   ├── ai_models.json
 │   ├── content.json
-│   ├── studio.json
-│   └── youtube.json
 │
 ├── core/
 │   ├── __init__.py
 │   ├── config_loader.py
-│   ├── episode_manager.py
 │   ├── hardware_detector.py
-│   ├── logger.py
 │   └── pipeline.py
-│
-├── utils/
-│   ├── __init__.py
-│   ├── device_manager.py
-│   └── file_manager.py
 │
 ├── web/
 │   ├── index.html
@@ -127,8 +118,6 @@ monki-labs/
 │
 ├── youtube/
 │   ├── __init__.py
-│   ├── metadata_generator.py
-│   └── uploader.py
 │
 ├── media/
 │   └── output/

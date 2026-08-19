@@ -1,5 +1,4 @@
 from core.config_loader import ConfigLoader
-from core.logger import Logger
 from core.hardware_detector import HardwareDetector
 
 from ai.video_generator import VideoGenerator
@@ -10,8 +9,6 @@ class MonkiPipeline:
     def __init__(
         self
     ):
-
-        self.logger = Logger()
 
         self.hardware = (
             HardwareDetector().detect()

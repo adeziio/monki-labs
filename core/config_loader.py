@@ -47,11 +47,6 @@ class ConfigLoader:
 
         return {
 
-            "studio":
-                self.load(
-                    "studio.json"
-                ),
-
             "content":
                 self.load(
                     "content.json"
@@ -61,10 +56,5 @@ class ConfigLoader:
                 self.load(
                     "ai_models.json"
                 ),
-
-            "youtube":
-                self.load(
-                    "youtube.json"
-                )
 
         }
