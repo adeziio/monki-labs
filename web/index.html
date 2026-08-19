@@ -2080,7 +2080,11 @@
             </div>
 
 
-            <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
+            <button
+                id="createEpisodeButton"
+                class="primary-button"
+                onclick="createEpisode()"
+            >
                 ＋ Create New Episode
             </button>
 
@@ -2102,7 +2106,10 @@
 
                 <div class="progress-bar">
 
-                    <div id="progressFill" class="progress-fill"></div>
+                    <div
+                        id="progressFill"
+                        class="progress-fill"
+                    ></div>
 
                 </div>
 
@@ -2164,6 +2171,8 @@
 
         let statusTimer = null;
 
+        let jobRunning = false;
+
 
         async function api(
             url,
@@ -2196,7 +2205,52 @@
         }
 
 
+        function setGenerationButtonsDisabled(
+            disabled
+        ) {
+
+            jobRunning =
+                disabled;
+
+
+            const createButton =
+                document.getElementById(
+                    "createEpisodeButton"
+                );
+
+
+            if (createButton) {
+
+                createButton.disabled =
+                    disabled;
+
+            }
+
+
+            document
+                .querySelectorAll(
+                    ".generate-video-button"
+                )
+                .forEach(
+                    button => {
+
+                        button.disabled =
+                            disabled;
+
+                    }
+                );
+
+        }
+
+
         async function createEpisode() {
+
+            if (jobRunning) {
+
+                return;
+
+            }
+
 
             const button =
                 document.getElementById(
@@ -2220,16 +2274,23 @@
                 );
 
 
+                setGenerationButtonsDisabled(
+                    true
+                );
+
+
                 startStatusPolling();
 
             } catch (error) {
 
-                showError(
-                    error.message
+                setGenerationButtonsDisabled(
+                    false
                 );
 
 
-                button.disabled = false;
+                showError(
+                    error.message
+                );
 
             }
 
@@ -2240,10 +2301,22 @@
             episodeId
         ) {
 
+            if (jobRunning) {
+
+                return;
+
+            }
+
+
             clearError();
 
 
             try {
+
+                setGenerationButtonsDisabled(
+                    true
+                );
+
 
                 await api(
                     "/api/video",
@@ -2272,6 +2345,11 @@
 
             } catch (error) {
 
+                setGenerationButtonsDisabled(
+                    false
+                );
+
+
                 showError(
                     error.message
                 );
@@ -2291,6 +2369,11 @@
 
             wrapper.classList.add(
                 "active"
+            );
+
+
+            setGenerationButtonsDisabled(
+                true
             );
 
 
@@ -2325,49 +2408,24 @@
                     );
 
 
-                const fill =
-                    document.getElementById(
-                        "progressFill"
+                applyStatus(
+                    status
+                );
+
+
+                if (status.running) {
+
+                    setGenerationButtonsDisabled(
+                        true
                     );
 
 
-                const percent =
-                    document.getElementById(
-                        "progressPercent"
-                    );
-
-
-                const message =
-                    document.getElementById(
-                        "progressMessage"
-                    );
-
-
-                fill.style.width =
-                    status.progress +
-                    "%";
-
-
-                percent.textContent =
-                    status.progress +
-                    "%";
-
-
-                message.textContent =
-                    status.message ||
-                    "Working...";
-
-
-                if (status.error) {
-
-                    showError(
-                        status.error
-                    );
+                    return;
 
                 }
 
 
-                if (!status.running) {
+                if (statusTimer) {
 
                     clearInterval(
                         statusTimer
@@ -2376,15 +2434,138 @@
 
                     statusTimer = null;
 
-
-                    document
-                        .getElementById(
-                            "createEpisodeButton"
-                        )
-                        .disabled = false;
+                }
 
 
-                    loadEpisodes();
+                setGenerationButtonsDisabled(
+                    false
+                );
+
+
+                await loadEpisodes();
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        function applyStatus(
+            status
+        ) {
+
+            const wrapper =
+                document.getElementById(
+                    "progressWrapper"
+                );
+
+
+            const fill =
+                document.getElementById(
+                    "progressFill"
+                );
+
+
+            const percent =
+                document.getElementById(
+                    "progressPercent"
+                );
+
+
+            const message =
+                document.getElementById(
+                    "progressMessage"
+                );
+
+
+            const progress =
+                Number(
+                    status.progress || 0
+                );
+
+
+            fill.style.width =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        progress
+                    )
+                ) +
+                "%";
+
+
+            percent.textContent =
+                progress +
+                "%";
+
+
+            message.textContent =
+                status.message ||
+                (
+                    status.running
+                        ? "Working..."
+                        : "Ready."
+                );
+
+
+            if (
+                status.running ||
+                progress > 0
+            ) {
+
+                wrapper.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            if (status.error) {
+
+                showError(
+                    status.error
+                );
+
+            }
+
+        }
+
+
+        async function restoreStatus() {
+
+            try {
+
+                const status =
+                    await api(
+                        "/api/status"
+                    );
+
+
+                applyStatus(
+                    status
+                );
+
+
+                if (status.running) {
+
+                    setGenerationButtonsDisabled(
+                        true
+                    );
+
+
+                    startStatusPolling();
+
+                } else {
+
+                    setGenerationButtonsDisabled(
+                        false
+                    );
 
                 }
 
@@ -2441,6 +2622,11 @@
                             renderEpisode
                         )
                         .join("");
+
+
+                setGenerationButtonsDisabled(
+                    jobRunning
+                );
 
 
             } catch (error) {
@@ -2565,7 +2751,8 @@
                     <div class="actions">
 
                         <button
-                            class="primary-button"
+                            class="primary-button generate-video-button"
+                            ${jobRunning ? "disabled" : ""}
                             onclick="generateVideo(
                                 '${escapeJs(
                     episode.path
@@ -2609,29 +2796,30 @@
                             </div>
 
 
-                            ${episode.prompt_exists
-                    ?
-                    `
+                            ${
+                                episode.prompt_exists
+                                    ?
+                                    `
 
-                                    <div class="title">
-                                        ${title}
-                                    </div>
+                                        <div class="title">
+                                            ${title}
+                                        </div>
 
 
-                                    <div class="prompt">
-                                        ${prompt}
-                                    </div>
+                                        <div class="prompt">
+                                            ${prompt}
+                                        </div>
 
-                                `
-                    :
-                    `
+                                    `
+                                    :
+                                    `
 
-                                    <div class="prompt-empty">
-                                        Prompt not available.
-                                    </div>
+                                        <div class="prompt-empty">
+                                            Prompt not available.
+                                        </div>
 
-                                `
-                }
+                                    `
+                            }
 
                         </div>
 
@@ -2747,7 +2935,16 @@
         }
 
 
-        loadEpisodes();
+        async function initializePage() {
+
+            await restoreStatus();
+
+            await loadEpisodes();
+
+        }
+
+
+        initializePage();
 
     </script>
 
