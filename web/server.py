@@ -64,6 +64,18 @@ job_state = {
 }
 
 
+"""
+Snapshots of the episodes that already existed when a job
+started. Episode directories created after this moment belong
+to the running job, so they can be flagged as "generating".
+
+This lets the web UI show exactly which episode is currently
+being generated.
+"""
+
+job_baseline_episode_ids = None
+
+
 def update_job_state(
     **updates
 ):
@@ -448,6 +460,98 @@ def parse_prompt_file(
     return prompts
 
 
+def scan_episode_ids():
+
+    """
+    Returns the set of episode ids currently discoverable under
+    the media output root, without parsing prompt files.
+
+    Used to snapshot which episodes existed when a job started.
+    """
+
+    ids = set()
+
+    if not MEDIA_ROOT.exists():
+
+        return ids
+
+    for category_directory in sorted(
+        MEDIA_ROOT.iterdir()
+    ):
+
+        if not category_directory.is_dir():
+
+            continue
+
+        for episode_directory in sorted(
+            category_directory.iterdir()
+        ):
+
+            if not episode_directory.is_dir():
+
+                continue
+
+            if not episode_directory.name.isdigit():
+
+                continue
+
+            try:
+
+                relative_directory = (
+                    episode_directory
+                    .relative_to(
+                        PROJECT_ROOT
+                    )
+                )
+
+            except ValueError:
+
+                continue
+
+            ids.add(
+                str(
+                    relative_directory
+                ).replace(
+                    "\\",
+                    "/"
+                )
+            )
+
+    return ids
+
+
+def is_episode_generating(
+    episode_id
+):
+
+    """
+    A freshly created episode (one that did not exist when the
+    current episode job started) is the one being generated.
+    """
+
+    state = (
+        get_job_state()
+    )
+
+    if not state.get("running"):
+
+        return False
+
+    if state.get("type") != "episode":
+
+        return False
+
+    if job_baseline_episode_ids is None:
+
+        return False
+
+    return (
+        episode_id
+        not in
+        job_baseline_episode_ids
+    )
+
+
 def discover_episodes():
 
     results = []
@@ -573,7 +677,10 @@ def discover_episodes():
                         else ""
                     ),
                     "video_exists": video_exists,
-                    "video_path": video_relative_path
+                    "video_path": video_relative_path,
+                    "generating": is_episode_generating(
+                        episode_id
+                    )
                 }
             )
 
@@ -835,6 +942,12 @@ def run_job(
 
     initialize_job_state(
         job_type
+    )
+
+    global job_baseline_episode_ids
+
+    job_baseline_episode_ids = (
+        scan_episode_ids()
     )
 
     def worker():
@@ -1225,6 +1338,10 @@ def run_job(
                 type=None,
                 active_stage=None
             )
+
+            global job_baseline_episode_ids
+
+            job_baseline_episode_ids = None
 
             job_lock.release()
 

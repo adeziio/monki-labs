@@ -1730,6 +1730,177 @@
         }
 
 
+        /* ==================================================
+           GENERATING HIGHLIGHT
+        ================================================== */
+
+        /*
+         * A newly created episode gets a clear pulsing highlight
+         * while the job is running, so the user can immediately
+         * see that it is being generated.
+         */
+
+        .episode-card.generating {
+
+            border-color:
+                rgba(164, 255, 99, 0.55);
+
+            animation:
+                generatingGlow 1.4s ease-in-out infinite;
+
+        }
+
+
+        .episode-card.generating::before {
+
+            opacity:
+                1;
+
+        }
+
+
+        .episode-card.generating::after {
+
+            opacity:
+                0.7;
+
+        }
+
+
+        .episode-generating-badge {
+
+            position:
+                absolute;
+
+            top:
+                12px;
+
+            right:
+                12px;
+
+            z-index:
+                3;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            padding:
+                4px 10px;
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(164, 255, 99, 0.14);
+
+            border:
+                1px solid rgba(164, 255, 99, 0.42);
+
+            color:
+                #caffb1;
+
+            font-size:
+                11px;
+
+            font-weight:
+                600;
+
+            letter-spacing:
+                0.04em;
+
+            opacity:
+                0;
+
+            transform:
+                translateY(-4px);
+
+            transition:
+                opacity 0.25s ease,
+                transform 0.25s ease;
+
+            pointer-events:
+                none;
+
+        }
+
+
+        .episode-card.generating .episode-generating-badge {
+
+            opacity:
+                1;
+
+            transform:
+                translateY(0);
+
+        }
+
+
+        .episode-generating-dot {
+
+            width:
+                8px;
+
+            height:
+                8px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--accent);
+
+            animation:
+                generatingPulse 1s ease-in-out infinite;
+
+        }
+
+
+        @keyframes generatingGlow {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 0 20px rgba(164, 255, 99, 0.12),
+                    inset 0 0 22px rgba(164, 255, 99, 0.05);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 34px rgba(164, 255, 99, 0.28),
+                    inset 0 0 26px rgba(164, 255, 99, 0.10);
+            }
+
+        }
+
+
+        @keyframes generatingPulse {
+
+            0%,
+            100% {
+                opacity:
+                    1;
+
+                transform:
+                    scale(1);
+            }
+
+            50% {
+                opacity:
+                    0.3;
+
+                transform:
+                    scale(0.6);
+            }
+
+        }
+
+
         .episode-header {
 
             position:
@@ -2682,6 +2853,19 @@
             false;
 
 
+        /*
+         * Most recently fetched episode list (newest first,
+         * matching the server sort) and state for the optimistic
+         * "generating" card shown immediately on Create New Episode.
+         */
+
+        let latestEpisodes =
+            [];
+
+        let optimisticEpisode =
+            null;
+
+
         async function api(
             url,
             options = {}
@@ -2776,6 +2960,9 @@
             highlightLatestEpisode =
                 false;
 
+            optimisticEpisode =
+                null;
+
             highlightEpisodeCards();
 
         }
@@ -2783,69 +2970,136 @@
 
         function highlightEpisodeCards() {
 
-            document
-                .querySelectorAll(
-                    ".episode-card"
-                )
-                .forEach(
-                    card => {
-
-                        card.classList.remove(
-                            "active"
-                        );
-
-                    }
+            const cards =
+                Array.from(
+                    document.querySelectorAll(
+                        ".episode-card"
+                    )
                 );
 
 
+            cards.forEach(
+                card => {
+
+                    card.classList.remove(
+                        "active",
+                        "generating"
+                    );
+
+                }
+            );
+
+
             if (
-                activeEpisodeId
+                !cards.length
             ) {
 
-                const matchingCard =
-                    document.querySelector(
-                        `.episode-card[data-episode-id="${escapeCssSelector(
-                            activeEpisodeId
-                        )}"]`
-                    );
+                return;
 
+            }
+
+
+            /*
+             * The episode currently being generated is identified
+             * by the server flag ("generating"), or is our
+             * optimistic placeholder. It receives the prominent
+             * pulsing highlight.
+             */
+
+            let generatingCard =
+                null;
+
+
+            if (
+                jobRunning
+            ) {
+
+                generatingCard =
+                    cards.find(
+                        card =>
+                            card.dataset.generating === "true"
+                    ) || null;
+
+
+                /*
+                 * When generating a video for an existing episode
+                 * there is no server "generating" flag, but the
+                 * active episode is the one being generated.
+                 */
 
                 if (
-                    matchingCard
+                    !generatingCard &&
+                    activeEpisodeId
                 ) {
 
-                    matchingCard.classList.add(
-                        "active"
-                    );
-
-                    return;
+                    generatingCard =
+                        cards.find(
+                            card =>
+                                card.dataset.episodeId === activeEpisodeId
+                        ) || null;
 
                 }
 
             }
 
 
+            let targetCard =
+                generatingCard;
+
+
             if (
+                !targetCard &&
+                activeEpisodeId
+            ) {
+
+                targetCard =
+                    cards.find(
+                        card =>
+                            card.dataset.episodeId === activeEpisodeId
+                    ) || null;
+
+            }
+
+
+            if (
+                !targetCard &&
                 highlightLatestEpisode
             ) {
 
-                const cards =
-                    document.querySelectorAll(
-                        ".episode-card"
-                    );
+                /*
+                 * The grid renders newest-first, so the latest
+                 * episode is the first card in the grid.
+                 */
+
+                targetCard =
+                    cards[0];
+
+            }
 
 
-                if (
-                    cards.length
-                ) {
+            if (
+                generatingCard
+            ) {
 
-                    cards[
-                        cards.length - 1
-                    ].classList.add(
-                        "active"
-                    );
+                generatingCard.classList.add(
+                    "active"
+                );
 
-                }
+                generatingCard.classList.add(
+                    "generating"
+                );
+
+            }
+
+
+            if (
+                targetCard &&
+                targetCard !== generatingCard
+            ) {
+
+                targetCard.classList.add(
+                    "active"
+                );
 
             }
 
@@ -2895,7 +3149,7 @@
                         "/api/episode",
                         {
                             method:
-                                "POST"
+                            "POST"
                         }
                     );
 
@@ -2942,11 +3196,14 @@
 
 
                 /*
-                 * Refresh immediately so the newly created
-                 * episode card appears before generation finishes.
+                 * Flag the generation job as running and show an
+                 * optimistic placeholder card immediately, so the
+                 * user can see that a new episode is being generated
+                 * even before the child process creates its directory.
                  */
 
-                await loadEpisodes();
+                optimisticEpisode =
+                    computeOptimisticEpisode();
 
 
                 setGenerationButtonsDisabled(
@@ -2954,35 +3211,30 @@
                 );
 
 
-                /*
-                 * Re-apply the active highlight after the
-                 * newly rendered cards are inserted.
-                 */
+                await loadEpisodes();
 
-                if (
-                    newEpisodeId
-                ) {
 
-                    setActiveEpisode(
-                        newEpisodeId
-                    );
-
-                } else {
-
-                    highlightEpisodeCards();
-
-                }
+                highlightEpisodeCards();
 
 
                 startStatusPolling();
 
+
             } catch (error) {
 
+                optimisticEpisode =
+                    null;
+
+
                 clearActiveEpisode();
+
 
                 setGenerationButtonsDisabled(
                     false
                 );
+
+
+                await loadEpisodes();
 
 
                 showError(
@@ -3141,6 +3393,17 @@
                         true
                     );
 
+
+                    /*
+                     * Avoid re-rendering the grid on every poll.
+                     * The only refreshes happen when a generation
+                     * job starts (Create New Episode) and at each
+                     * stage transition (prompt -> video completion),
+                     * handled by refreshAfterStageCompletion.
+                     * This keeps any already-loaded video previews
+                     * from being torn down and reloaded.
+                     */
+
                     return;
 
                 }
@@ -3173,6 +3436,57 @@
                 setGenerationButtonsDisabled(
                     false
                 );
+
+
+                /*
+                 * The job has stopped, so an optimistic placeholder
+                 * (if any) is no longer valid.
+                 */
+
+                optimisticEpisode =
+                    null;
+
+
+                let removedPlaceholders =
+                    0;
+
+
+                document
+                    .querySelectorAll(
+                        '.episode-card[data-optimistic="true"]'
+                    )
+                    .forEach(
+                        card => {
+
+                            card.remove();
+
+                            removedPlaceholders +=
+                                1;
+
+                        }
+                    );
+
+
+                if (
+                    removedPlaceholders
+                ) {
+
+                    const countElement =
+                        document.getElementById(
+                            "episodeCount"
+                        );
+
+
+                    countElement.textContent =
+                        Math.max(
+                            0,
+                            Number(
+                                countElement.textContent || 0
+                            ) -
+                            removedPlaceholders
+                        );
+
+                }
 
 
                 /*
@@ -3861,6 +4175,16 @@
                     );
 
 
+                    /*
+                     * Highlight the latest episode if the page is
+                     * reloaded while a job is running, so the user
+                     * can still see which episode was being generated.
+                     */
+
+                    highlightLatestEpisode =
+                        true;
+
+
                     startStatusPolling();
 
                 } else {
@@ -3898,32 +4222,91 @@
                     );
 
 
+                latestEpisodes =
+                    episodes;
+
+
+                /*
+                 * Keep the grid newest-first so a freshly created
+                 * episode always appears at the top.
+                 */
+
+                latestEpisodes.sort(
+                    (a, b) =>
+                        Number(
+                            b.number || 0
+                        ) -
+                        Number(
+                            a.number || 0
+                        )
+                );
+
+
+                if (
+                    optimisticEpisode &&
+                    episodes.some(
+                        episode =>
+                            episode.path === optimisticEpisode.id
+                    )
+                ) {
+
+                    /*
+                     * The real episode has appeared in the output
+                     * directory, so the optimistic placeholder is
+                     * no longer needed.
+                     */
+
+                    optimisticEpisode =
+                        null;
+
+                }
+
+
+                const count =
+                    episodes.length +
+                    (
+                        optimisticEpisode
+                            ? 1
+                            : 0
+                    );
+
+
                 document
                     .getElementById(
                         "episodeCount"
                     )
                     .textContent =
-                    episodes.length;
+                    count;
 
 
-                if (!episodes.length) {
+                if (
+                    episodes.length
+                ) {
 
                     container.innerHTML =
-                        '<div class="empty">' +
-                        'No episodes yet. Create your first one!' +
-                        '</div>';
+                        episodes
+                            .map(
+                                renderEpisode
+                            )
+                            .join("");
 
-                    return;
+                } else {
+
+                    container.innerHTML =
+                        (
+                            optimisticEpisode
+                                ?
+                                ""
+                                :
+                                '<div class="empty">' +
+                                'No episodes yet. Create your first one!' +
+                                '</div>'
+                        );
 
                 }
 
 
-                container.innerHTML =
-                    episodes
-                        .map(
-                            renderEpisode
-                        )
-                        .join("");
+                renderOptimisticEpisode();
 
 
                 setGenerationButtonsDisabled(
@@ -4097,7 +4480,14 @@
                 <article
                     class="episode-card"
                     data-episode-id="${episodeId}"
+                    data-generating="${episode.generating ? "true" : "false"}"
                 >
+
+                    <div class="episode-generating-badge">
+                        <span class="episode-generating-dot"></span>
+                        Generating…
+                    </div>
+
 
                     <div class="episode-header">
 
@@ -4163,6 +4553,155 @@
                 </article>
 
             `;
+
+        }
+
+
+function computeOptimisticEpisode() {
+
+            /*
+             * Predicts the id/number of the next episode so the UI
+             * can show a placeholder card immediately when the user
+             * clicks "Create New Episode".
+             *
+             * The backend assigns episode directories sequentially
+             * (highest existing number + 1) inside the active
+             * category, so this matches as long as an episode list
+             * has been loaded.
+             */
+
+            if (
+                !latestEpisodes.length
+            ) {
+
+                return null;
+
+            }
+
+
+            const numbers =
+                latestEpisodes
+                    .map(
+                        episode =>
+                            Number(
+                                episode.number
+                            ) || 0
+                    );
+
+
+            const nextNumber =
+                String(
+                    Math.max(...numbers) + 1
+                ).padStart(3, "0");
+
+
+            const category =
+                latestEpisodes[0].category;
+
+
+            return {
+                id: `media/output/${category}/${nextNumber}`,
+                category: category,
+                number: nextNumber
+            };
+
+        }
+
+
+        function renderOptimisticEpisode() {
+
+            const container =
+                document.getElementById(
+                    "episodes"
+                );
+
+
+            if (
+                !container ||
+                !optimisticEpisode
+            ) {
+
+                return null;
+
+            }
+
+
+            if (
+                container.querySelector(
+                    '.episode-card[data-optimistic="true"]'
+                )
+            ) {
+
+                return null;
+
+            }
+
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "episode-card";
+
+
+            card.dataset.episodeId =
+                optimisticEpisode.id;
+
+            card.dataset.generating =
+                "true";
+
+            card.dataset.optimistic =
+                "true";
+
+
+            card.innerHTML =
+                `
+                    <div class="episode-generating-badge">
+                        <span class="episode-generating-dot"></span>
+                        Generating…
+                    </div>
+
+                    <div class="episode-header">
+                        <div class="episode-number">
+                            #${optimisticEpisode.number}
+                        </div>
+                        <div class="episode-category">
+                            ${escapeHtml(optimisticEpisode.category)}
+                        </div>
+                    </div>
+
+                    <div class="episode-content">
+                        <div>
+                            <div class="label">
+                                Prompt
+                            </div>
+                            <div class="prompt-empty">
+                                Preparing episode…
+                            </div>
+                        </div>
+                        <div class="video-panel">
+                            <div class="video-heading">
+                                <div class="label">
+                                    Video
+                                </div>
+                            </div>
+                            <div class="video-status">
+                                Waiting for generation to begin.
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+
+            container.prepend(
+                card
+            );
+
+
+            return card;
 
         }
 
