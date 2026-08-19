@@ -192,18 +192,59 @@ Run the pipeline from the CLI:
 python main.py
 ```
 
-Run the browser-based UI locally:
+Run the browser-based UI locally (quick start):
+
+- On Windows (recommended for local development):
+
+```powershell
+.\run_windows.bat
+```
+
+- On Linux / RunPod (example):
+
+```bash
+bash run_linux.sh
+```
+
+Both of those scripts start the same web UI and backend pipeline. Alternatively you can start the HTTP server directly:
 
 ```powershell
 python web/server.py
 ```
 
-Then open:
+Then open the UI in a browser:
 
 ```text
 http://localhost:8000
 ```
 
+UI: Quick guide
+
+- Start the UI using one of the commands above. The server listens on port 8000 by default.
+- The UI lets you:
+  - Browse generated episodes (media/output/)
+  - Start a new generation job (full episode or single prompt)
+  - Monitor per-stage progress (prompt generation and video generation)
+  - See job status and any error messages returned by the pipeline
+
+Adding screenshots
+
+Screenshots are helpful. The repository does not currently include UI screenshots, but you can add them easily:
+
+1. Create a folder for screenshots (recommended):
+   - web/screenshots/
+
+2. Save images with descriptive names, for example:
+   - web/screenshots/overview.png
+   - web/screenshots/progress.png
+
+3. Add them to this README by committing the images and using Markdown image links. The README already contains placeholder references below; when you add the files they will render in GitHub:
+
+![UI overview](web/screenshots/overview.png)
+
+![Job progress view](web/screenshots/progress.png)
+
+If you want, provide a couple of screenshots and I can add them into the repository and embed them in the README for you.
 The web UI is used to browse generated episodes and monitor job progress while the pipeline runs in an isolated child process.
 
 ---
