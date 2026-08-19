@@ -93,41 +93,64 @@ This allows the number of generated clips to be changed through configuration wi
 monki-labs/
 │
 ├── ai/
-│   ├── providers/
+│   ├── __init__.py
+│   ├── base_ai_service.py
 │   ├── prompt_generator.py
-│   └── video_generator.py
+│   ├── video_generator.py
+│   └── providers/
+│       ├── __init__.py
+│       └── ollama_provider.py
+│
+├── config/
+│   ├── ai_models.json
+│   ├── content.json
+│   ├── studio.json
+│   └── youtube.json
 │
 ├── core/
+│   ├── __init__.py
 │   ├── config_loader.py
+│   ├── episode_manager.py
 │   ├── hardware_detector.py
 │   ├── logger.py
 │   └── pipeline.py
 │
-├── config/
-│   ├── studio.json
-│   ├── content.json
-│   ├── ai_models.json
-│   ├── audio.json
-│   └── youtube.json
+├── utils/
+│   ├── __init__.py
+│   ├── device_manager.py
+│   └── file_manager.py
+│
+├── web/
+│   ├── index.html
+│   ├── job_worker.py
+│   └── server.py
+│
+├── youtube/
+│   ├── __init__.py
+│   ├── metadata_generator.py
+│   └── uploader.py
 │
 ├── media/
 │   └── output/
 │
-├── requirements.txt
-├── requirements-pytorch.txt
-├── install.bat
-├── install.sh
-├── run.bat
-├── run_linux
+├── .gitignore
+├── install_linux.sh
+├── install_windows.bat
 ├── main.py
-└── README.md
+├── README.md
+├── requirements.txt
+├── run_linux.sh
+├── run_windows.bat
+└── .venv/ (created locally after install)
 ```
+
+The active runtime interface is split between the CLI pipeline and the web UI. The web server and job worker live in [web/server.py](web/server.py) and [web/job_worker.py](web/job_worker.py), while the AI generation logic remains in the `ai/` and `core/` packages.
 
 ---
 
 # 💻 Local Setup
 
-Monki Labs is developed locally on Windows using Python 3.12.
+Monki Labs is developed locally on Windows using Python 3.12, but the same repo also supports Linux/GPU execution.
 
 ## 1. Clone the repository
 
@@ -145,7 +168,7 @@ If the repository is private, authenticate with GitHub when prompted.
 Run the Windows installer:
 
 ```powershell
-.\install.bat
+.\install_windows.bat
 ```
 
 The installer:
@@ -162,18 +185,26 @@ The installer:
 
 ## 3. Run Monki Labs
 
-Once installation is complete:
-
-```powershell
-.\run.bat
-```
-
-You can also run the application manually:
+Run the pipeline from the CLI:
 
 ```powershell
 .\.venv\Scripts\activate
 python main.py
 ```
+
+Run the browser-based UI locally:
+
+```powershell
+python web/server.py
+```
+
+Then open:
+
+```text
+http://localhost:8000
+```
+
+The web UI is used to browse generated episodes and monitor job progress while the pipeline runs in an isolated child process.
 
 ---
 
@@ -184,13 +215,13 @@ The normal development workflow is:
 ```text
 Edit code
    ↓
-.\run.bat
+.\run_windows.bat
    ↓
 Review generated video
    ↓
 Make changes
    ↓
-.\run.bat
+.\run_windows.bat
 ```
 
 Generated videos are stored under:
@@ -246,7 +277,7 @@ For a private repository, authenticate with GitHub and clone the repository.
 Run the Linux installer:
 
 ```bash
-bash install.sh
+bash install_linux.sh
 ```
 
 The installer:
@@ -497,34 +528,36 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 
 ## ✅ Currently Working
 
-* Configuration-driven pipeline
-* Local LLM prompt generation
-* Ollama integration
-* LTX-2.3 video generation
-* Video + background music + sound effects generation
-* Configurable video duration
-* Configurable generation resolution
-* Configurable inference steps
-* Configurable guidance settings
-* Spatio-Temporal Guidance (STG)
-* Vertical 9:16 output
-* Single-prompt generation
-* Multi-prompt / multi-clip architecture
-* Automatic final video assembly
-* Prompt retention
-* Final video retention
-* Automatic output organization
-* Windows installation
-* Linux / GPU installation
-* RunPod-compatible execution
-* GPU memory optimization (model offload + memory hygiene)
-* End-to-end production pipeline on cloud GPU
+* Configuration-driven pipeline (JSON-driven behavior)
+* Local LLM prompt generation with robust JSON parsing and repair
+* Ollama language-model integration for prompt generation
+* LTX-2.3 video generation via Diffusers LTX2Pipeline
+* Generation of video with background music and sound effects (configurable)
+* Fine-grained configuration: duration, FPS, resolution, inference steps, guidance, negative prompts
+* Spatio-Temporal Guidance (STG) support and configurable STG blocks
+* Vertical 9:16 output and upscaling support
+* Single-prompt and multi-prompt / multi-clip architectures with automatic assembly
+* Prompt retention (prompt.txt) and final episode retention (episode.mp4)
+* Automatic output organization under media/output/<Category>/<NNN>/
+* Windows and Linux installers and run scripts for local and cloud execution
+* RunPod / temporary GPU instance compatible (same code can run locally or on cloud GPU)
+* GPU memory optimizations: model-level CPU offload, sequential offload, VAE tiling/slicing, attention slicing
+* Web-based control UI (web/index.html) and lightweight HTTP server (web/server.py) for browsing episodes and controlling jobs (default PORT 8000)
+* Job worker and child-process job execution (web/job_worker.py and web/server.py child process model) to isolate the HTTP server from native crashes caused by PyTorch / Diffusers / FFmpeg
+* Job progress tracking and reporting (per-stage progress for prompt and video generation)
+* Snapshotting of existing episodes at job start so the UI can identify the episode currently being generated
+* Episode discovery and prompt parsing (web/server.py parses prompt.txt and exposes episode metadata to the UI)
+* Ability to run a full episode job or a single-prompt video job (job types: "episode" and "video")
+* Lightweight logging and progress callback plumbing between pipeline and UI
+
 
 ## 🚧 Current Focus
 
 * 🎬 Improving prompt quality and visual clarity
-* 📺 Automated YouTube uploading
-* ⏱️ Testing longer video durations
+* 📺 Automated YouTube uploading — repository contains initial YouTube-related modules (youtube/metadata_generator.py and youtube/uploader.py) but the uploader and metadata generation are currently stubs / pending implementation
+* ⏱️ Testing longer video durations and memory/performance tuning for larger episodes
+* 🔐 Harden the web UI (authentication, access controls) and add more robust error handling for job execution
+* 📂 Playlist management and scheduled generation features (next-phase work)
 
 ## 🔮 Future Goals
 
