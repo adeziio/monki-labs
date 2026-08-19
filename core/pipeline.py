@@ -57,12 +57,14 @@ class MonkiPipeline:
 
     def generate_video_from_prompt(
         self,
-        prompt_item
+        prompt_item,
+        episode_id
     ):
 
         return (
             self.video.generate_from_prompt(
-                prompt_item
+                prompt_item,
+                episode_id
             )
         )
 

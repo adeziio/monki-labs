@@ -262,6 +262,95 @@ class VideoGenerator(
 
         return self.run_directory
 
+    def use_existing_run(
+        self,
+        episode_id
+    ):
+
+        if not episode_id:
+
+            raise ValueError(
+                "Episode ID is required."
+            )
+
+        episode_path = (
+            Path(
+                episode_id
+            )
+            .resolve()
+        )
+
+        category_path = (
+            self.category_output_directory
+            .resolve()
+        )
+
+        media_root = (
+            self.output_root
+            .resolve()
+        )
+
+        if (
+            media_root
+            not in episode_path.parents
+        ):
+
+            raise ValueError(
+                "Invalid episode path."
+            )
+
+        if (
+            episode_path.parent
+            !=
+            category_path
+        ):
+
+            raise ValueError(
+                "Episode does not belong to "
+                "the active category."
+            )
+
+        if not episode_path.is_dir():
+
+            raise ValueError(
+                "Episode directory does not exist: "
+                f"{episode_path}"
+            )
+
+        if not episode_path.name.isdigit():
+
+            raise ValueError(
+                "Invalid episode directory."
+            )
+
+        prompt_path = (
+            episode_path
+            /
+            "prompt.txt"
+        )
+
+        if not prompt_path.is_file():
+
+            raise ValueError(
+                "Episode does not contain "
+                "a prompt.txt file."
+            )
+
+        self.run_directory = (
+            episode_path
+        )
+
+        self.clip_output_directory = (
+            episode_path
+        )
+
+        self.log(
+            f"Using existing episode directory: "
+            f"{episode_path}"
+        )
+
+        return episode_path
+
     def get_device(
         self
     ):
@@ -1638,7 +1727,8 @@ class VideoGenerator(
 
     def generate_from_prompt(
         self,
-        prompt_item
+        prompt_item,
+        episode_id
     ):
 
         if not isinstance(
@@ -1675,15 +1765,13 @@ class VideoGenerator(
             "Preparing video generation..."
         )
 
-        self.start_new_run()
+        self.use_existing_run(
+            episode_id
+        )
 
-        self.write_prompt_file(
-            [
-                {
-                    "title": title or "Untitled",
-                    "prompt": prompt
-                }
-            ]
+        self.log(
+            f"Generating video for existing "
+            f"episode: {self.run_directory}"
         )
 
         self.load_pipeline()

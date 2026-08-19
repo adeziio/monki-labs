@@ -33,9 +33,7 @@ MEDIA_ROOT = (
 )
 
 INDEX_FILE = (
-    Path(__file__)
-    .resolve()
-    .parent
+    Path(__file__).resolve().parent
     /
     "index.html"
 )
@@ -741,8 +739,7 @@ class RequestHandler(
             started = run_job(
                 "video",
                 lambda:
-                    pipeline
-                    .generate_video_from_prompt(
+                    pipeline.generate_video_from_prompt(
                         prompt_item,
                         episode_id
                     )
