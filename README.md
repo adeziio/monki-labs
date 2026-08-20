@@ -11,13 +11,21 @@ The project is designed around **local and cloud GPU execution**, with the long-
 Monki Labs aims to:
 
 * 🤖 Automatically generate video concepts using a local language model
+
 * 🎬 Generate short-form AI videos from those concepts
+
 * 🎵 Generate video, background music, and sound effects together
+
 * 📱 Produce vertical 9:16 videos optimized for short-form platforms
+
 * 📦 Organize generated content automatically by category and run
+
 * ☁️ Support GPU-based cloud execution
+
 * 🔄 Eventually run automatically without requiring a local PC
+
 * 📅 Support recurring automated video generation and publishing
+
 * 💰 Remain completely free to operate using local/open-source models and free infrastructure where possible
 
 The long-term vision is a pipeline that can run independently, generate quality content, and eventually publish videos automatically.
@@ -30,17 +38,29 @@ At a high level:
 
 ```text
 Content Configuration
+
         ↓
+
 Local LLM
+
         ↓
+
 AI Video Prompt
+
         ↓
+
 LTX-2.3 Video Generation
+
         ↓
+
 Video + Background Music + Sound Effects
+
         ↓
+
 Final MP4
+
         ↓
+
 Organized Output
 ```
 
@@ -49,6 +69,7 @@ The application is **configuration-driven**, allowing content and AI settings to
 The video generation architecture supports both:
 
 * **Single-prompt generation** for one continuous video
+
 * **Multiple-prompt generation** for multiple coherent clips that are combined into one final video
 
 This allows the number of generated clips to be changed through configuration without redesigning the pipeline.
@@ -60,29 +81,41 @@ This allows the number of generated clips to be changed through configuration wi
 ### AI
 
 * 🧠 Ollama
+
 * 🤖 Qwen 3 8B
+
 * 🎥 LTX-2.3
+
 * 🤗 Hugging Face Diffusers
+
 * 🔥 PyTorch
 
 ### Video
 
 * 🎬 MoviePy
+
 * FFmpeg
+
 * ImageIO
 
 ### Application
 
 * 🐍 Python 3.12
+
 * JSON configuration
+
 * Virtual environments
 
 ### Development
 
 * VS Code
+
 * Git / GitHub
+
 * Pytest
+
 * Black
+
 * Flake8
 
 ---
@@ -91,49 +124,89 @@ This allows the number of generated clips to be changed through configuration wi
 
 ```text
 monki-labs/
+
 │
+
 ├── ai/
+
 │   ├── __init__.py
+
 │   ├── base_ai_service.py
+
 │   ├── prompt_generator.py
+
 │   ├── video_generator.py
+
 │   └── providers/
+
 │       ├── __init__.py
+
 │       └── ollama_provider.py
+
 │
+
 ├── config/
+
 │   ├── ai_models.json
+
 │   ├── content.json
+
 │
+
 ├── core/
+
 │   ├── __init__.py
+
 │   ├── config_loader.py
+
 │   ├── hardware_detector.py
+
 │   └── pipeline.py
+
 │
+
 ├── web/
+
 │   ├── index.html
+
 │   ├── job_worker.py
+
 │   └── server.py
+
 │
+
 ├── youtube/
+
 │   ├── __init__.py
+
 │
+
 ├── media/
+
 │   └── output/
+
 │
+
 ├── .gitignore
+
 ├── install_linux.sh
+
 ├── install_windows.bat
+
 ├── main.py
+
 ├── README.md
+
 ├── requirements.txt
+
 ├── run_linux.sh
+
 ├── run_windows.bat
+
 └── .venv/ (created locally after install)
 ```
 
-The active runtime interface is split between the CLI pipeline and the web UI. The web server and job worker live in [web/server.py](web/server.py) and [web/job_worker.py](web/job_worker.py), while the AI generation logic remains in the `ai/` and `core/` packages.
+The active runtime interface is split between the CLI pipeline and the web UI. The web server and job worker live in `web/server.py` and `web/job_worker.py`, while the AI generation logic remains in the `ai/` and `core/` packages.
 
 ---
 
@@ -145,6 +218,7 @@ Monki Labs is developed locally on Windows using Python 3.12, but the same repo 
 
 ```powershell
 git clone https://github.com/YOUR_USERNAME/monki-labs.git
+
 cd monki-labs
 ```
 
@@ -163,11 +237,17 @@ Run the Windows installer:
 The installer:
 
 * Checks for Python
+
 * Creates the `.venv` virtual environment
+
 * Detects whether an NVIDIA GPU is available
+
 * Installs the appropriate PyTorch build
+
 * Installs project dependencies
+
 * Checks for FFmpeg
+
 * Verifies PyTorch and CUDA availability
 
 ---
@@ -178,18 +258,19 @@ Run the pipeline from the CLI:
 
 ```powershell
 .\.venv\Scripts\activate
+
 python main.py
 ```
 
 Run the browser-based UI locally (quick start):
 
-- On Windows (recommended for local development):
+* On Windows (recommended for local development):
 
 ```powershell
 .\run_windows.bat
 ```
 
-- On Linux / RunPod (example):
+* On Linux / RunPod (example):
 
 ```bash
 bash run_linux.sh
@@ -209,12 +290,17 @@ http://localhost:8000
 
 UI: Quick guide
 
-- Start the UI using one of the commands above. The server listens on port 8000 by default.
-- The UI lets you:
-  - Browse generated episodes (media/output/)
-  - Start a new generation job (full episode or single prompt)
-  - Monitor per-stage progress (prompt generation and video generation)
-  - See job status and any error messages returned by the pipeline
+* Start the UI using one of the commands above. The server listens on port 8000 by default.
+
+* The UI lets you:
+
+  * Browse generated episodes (media/output/)
+
+  * Start a new generation job (full episode or single prompt)
+
+  * Monitor per-stage progress (prompt generation and video generation)
+
+  * See job status and any error messages returned by the pipeline
 
 ![UI overview](web/screenshots/overview.png)
 
@@ -228,13 +314,21 @@ The normal development workflow is:
 
 ```text
 Edit code
+
    ↓
+
 .\run_windows.bat
+
    ↓
+
 Review generated video
+
    ↓
+
 Make changes
+
    ↓
+
 .\run_windows.bat
 ```
 
@@ -250,16 +344,27 @@ For example:
 
 ```text
 media/
+
 └── output/
+
     └── Viral Brainrot/
+
         ├── 001/
+
         │   ├── episode.mp4
+
         │   └── prompt.txt
+
         ├── 002/
+
         │   ├── episode.mp4
+
         │   └── prompt.txt
+
         └── 003/
+
             ├── episode.mp4
+
             └── prompt.txt
 ```
 
@@ -279,6 +384,7 @@ The same repository and `main.py` are used locally and on cloud GPU environments
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/monki-labs.git
+
 cd monki-labs
 ```
 
@@ -297,9 +403,13 @@ bash install_linux.sh
 The installer:
 
 * Creates the Python virtual environment
+
 * Checks for FFmpeg
+
 * Checks for the available GPU environment
+
 * Installs project dependencies
+
 * Verifies PyTorch and CUDA availability
 
 ---
@@ -313,14 +423,97 @@ bash run_linux.sh
 The Linux runner:
 
 * Starts Ollama with GPU acceleration (fast prompt generation)
+
 * Configures PyTorch CUDA memory handling (`expandable_segments:True`)
+
 * Runs the main pipeline
 
 No application code changes are required to run the pipeline on Linux.
 
 ---
 
-## 4. Temporary GPU Environments
+## 4. Access the Web UI from Your Browser
+
+When running Monki Labs on a RunPod instance, the web UI runs inside the pod on port `8000`.
+
+RunPod must expose port `8000` as an HTTP port so the UI can be accessed from a normal browser outside the pod.
+
+### RunPod port configuration
+
+In the RunPod pod configuration, under **Expose HTTP ports**, add:
+
+```text
+8000
+```
+
+Keep the existing ports as needed. A typical Monki Labs configuration is:
+
+```text
+HTTP:
+    8888 → Jupyter
+    8000 → Monki Labs
+
+TCP:
+    22 → SSH
+```
+
+Port `8888` is used by Jupyter and does not need to be removed when adding port `8000`.
+
+Port `22` is used for SSH and should remain under TCP ports.
+
+### Start the Monki Labs server
+
+The web server listens on port `8000` by default.
+
+For example:
+
+```bash
+python web/server.py
+```
+
+or use the normal RunPod/Linux runner:
+
+```bash
+bash run_linux.sh
+```
+
+The server must listen on port `8000` so that RunPod can forward browser requests to the application.
+
+### Open the UI
+
+After port `8000` has been exposed, RunPod provides an HTTP proxy URL similar to:
+
+```text
+https://<pod-id>-8000.proxy.runpod.net
+```
+
+Open that URL in your normal browser.
+
+For example:
+
+```text
+https://f35oovba8yahyd-8000.proxy.runpod.net
+```
+
+The exact URL is generated by RunPod and will vary by pod.
+
+### Important
+
+`localhost:8000` refers to the RunPod machine itself. It is **not** the URL to use from your local computer.
+
+When accessing Monki Labs from your own browser, use the RunPod HTTP proxy URL for port `8000`.
+
+Jupyter remains accessible separately through its own port:
+
+```text
+https://<pod-id>-8888.proxy.runpod.net
+```
+
+This allows both Jupyter and the Monki Labs web UI to run simultaneously on the same RunPod instance.
+
+---
+
+## 5. Temporary GPU Environments
 
 RunPod instances can be treated as temporary compute environments.
 
@@ -336,20 +529,20 @@ LTX-2.3 is a large model (~50GB in bfloat16). It requires substantial GPU and sy
 
 ## Minimum (production)
 
-| Component | Requirement |
-|---|---|
-| **GPU VRAM** | 48GB (RTX A6000, RTX L40S) |
-| **System RAM** | 100GB+ |
-| **Storage** | 200GB+ NVMe (model cache + outputs) |
-| **CPU** | 8+ cores |
+| Component      | Requirement                         |
+| -------------- | ----------------------------------- |
+| **GPU VRAM**   | 48GB (RTX A6000, RTX L40S)          |
+| **System RAM** | 100GB+                              |
+| **Storage**    | 200GB+ NVMe (model cache + outputs) |
+| **CPU**        | 8+ cores                            |
 
 ## Recommended (production)
 
-| Component | Recommendation |
-|---|---|
-| **GPU** | RTX L40S (48GB VRAM) |
-| **System RAM** | 100GB+ |
-| **Cost** | ~$1.00/hour on RunPod |
+| Component      | Recommendation        |
+| -------------- | --------------------- |
+| **GPU**        | RTX L40S (48GB VRAM)  |
+| **System RAM** | 100GB+                |
+| **Cost**       | ~$1.00/hour on RunPod |
 
 ## Why 48GB VRAM is required
 
@@ -407,19 +600,24 @@ The following configuration has been tested and verified to run end-to-end on an
 ## Key settings explained
 
 * **`mode: "model"`** — model-level CPU offload. Keeps only the active component on GPU. Required for 48GB VRAM.
+
 * **`generation_resolution: 768×1344`** — the generation resolution. Output is upscaled to 1080×1920. Higher resolutions (e.g., 896×1600) are possible but increase VRAM usage.
+
 * **`clip_count: 2` × `duration_seconds: 6`** — two 6-second clips concatenated into a 12-second episode. This multi-clip architecture is required because the transformer must hold all frames' latents in VRAM simultaneously — a single 12s clip (289 frames) exceeds 48GB.
+
 * **`stg_scale: 1.5`** — Spatio-Temporal Guidance applied to block 28. Improves sharpness and motion coherence.
+
 * **`audio_stg_scale: 0.0`** — audio STG disabled to reduce VRAM. Audio (music + SFX) is still generated.
+
 * **`low_cpu_mem_usage: true`** — loads the model directly in bfloat16, avoiding the fp32 double-buffer peak during load.
 
 ## Expected performance (L40S)
 
-| Metric | Value |
-|---|---|
-| Per clip (25 steps, 145 frames) | ~9-10 min |
-| Full episode (2 clips + encode) | ~20-25 min |
-| Cost @ ~$1.00/hr | ~$0.35-0.45 per episode |
+| Metric                          | Value                   |
+| ------------------------------- | ----------------------- |
+| Per clip (25 steps, 145 frames) | ~9-10 min               |
+| Full episode (2 clips + encode) | ~20-25 min              |
+| Cost @ ~$1.00/hr                | ~$0.35-0.45 per episode |
 
 ---
 
@@ -434,14 +632,23 @@ This allows the pipeline to evolve without repeatedly modifying Python code.
 Configuration covers areas such as:
 
 * Content categories
+
 * Video duration and output requirements
+
 * Video generation resolution
+
 * Video generation FPS
+
 * Inference steps
+
 * Guidance settings
+
 * AI model selection
+
 * Audio generation behavior
+
 * YouTube configuration
+
 * Studio-level settings
 
 The application reads the appropriate configuration at runtime.
@@ -457,19 +664,29 @@ The video model generates the visual content and associated audio in the same ge
 Content configuration controls the final video requirements, including:
 
 * Duration
+
 * Aspect ratio
+
 * Output FPS
+
 * Resolution
+
 * Video format
 
 AI model configuration separately controls generation-specific settings such as:
 
 * Generation resolution
+
 * Generation FPS
+
 * Inference steps
+
 * Guidance scale
+
 * Audio guidance
+
 * Spatio-temporal guidance
+
 * Negative prompts
 
 This keeps output requirements and model-specific generation settings configurable without hard-coding them into the application.
@@ -485,12 +702,19 @@ The prompt generator creates visual concepts designed specifically for AI video 
 Prompts prioritize:
 
 * Clear physical movement
+
 * Movement through the environment
+
 * Environmental interaction
+
 * Camera movement
+
 * Visual comedy
+
 * Escalation
+
 * Strong visual payoff
+
 * Clear and concise visual descriptions
 
 The system does not rely on preconfigured characters or character references.
@@ -519,15 +743,20 @@ Each generation creates a unique run directory:
 
 ```text
 media/output/
+
 └── <Category Name>/
+
     └── 001/
+
         ├── prompt.txt
+
         └── episode.mp4
 ```
 
 The system retains:
 
 * `prompt.txt` — the exact prompt or prompts used for generation
+
 * `episode.mp4` — the final generated video
 
 Intermediate video clips and temporary generation files are removed after successful processing.
@@ -543,42 +772,69 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 ## ✅ Currently Working
 
 * Configuration-driven pipeline (JSON-driven behavior)
-* Local LLM prompt generation with robust JSON parsing and repair
-* Ollama language-model integration for prompt generation
-* LTX-2.3 video generation via Diffusers LTX2Pipeline
-* Generation of video with background music and sound effects (configurable)
-* Fine-grained configuration: duration, FPS, resolution, inference steps, guidance, negative prompts
-* Spatio-Temporal Guidance (STG) support and configurable STG blocks
-* Vertical 9:16 output and upscaling support
-* Single-prompt and multi-prompt / multi-clip architectures with automatic assembly
-* Prompt retention (prompt.txt) and final episode retention (episode.mp4)
-* Automatic output organization under media/output/<Category>/<NNN>/
-* Windows and Linux installers and run scripts for local and cloud execution
-* RunPod / temporary GPU instance compatible (same code can run locally or on cloud GPU)
-* GPU memory optimizations: model-level CPU offload, sequential offload, VAE tiling/slicing, attention slicing
-* Web-based control UI (web/index.html) and lightweight HTTP server (web/server.py) for browsing episodes and controlling jobs (default PORT 8000)
-* Job worker and child-process job execution (web/job_worker.py and web/server.py child process model) to isolate the HTTP server from native crashes caused by PyTorch / Diffusers / FFmpeg
-* Job progress tracking and reporting (per-stage progress for prompt and video generation)
-* Snapshotting of existing episodes at job start so the UI can identify the episode currently being generated
-* Episode discovery and prompt parsing (web/server.py parses prompt.txt and exposes episode metadata to the UI)
-* Ability to run a full episode job or a single-prompt video job (job types: "episode" and "video")
-* Lightweight logging and progress callback plumbing between pipeline and UI
 
+* Local LLM prompt generation with robust JSON parsing and repair
+
+* Ollama language-model integration for prompt generation
+
+* LTX-2.3 video generation via Diffusers LTX2Pipeline
+
+* Generation of video with background music and sound effects (configurable)
+
+* Fine-grained configuration: duration, FPS, resolution, inference steps, guidance, negative prompts
+
+* Spatio-Temporal Guidance (STG) support and configurable STG blocks
+
+* Vertical 9:16 output and upscaling support
+
+* Single-prompt and multi-prompt / multi-clip architectures with automatic assembly
+
+* Prompt retention (`prompt.txt`) and final episode retention (`episode.mp4`)
+
+* Automatic output organization under `media/output/<Category>/<NNN>/`
+
+* Windows and Linux installers and run scripts for local and cloud execution
+
+* RunPod / temporary GPU instance compatible (same code can run locally or on cloud GPU)
+
+* GPU memory optimizations: model-level CPU offload, sequential offload, VAE tiling/slicing, attention slicing
+
+* Web-based control UI (`web/index.html`) and lightweight HTTP server (`web/server.py`) for browsing episodes and controlling jobs (default PORT 8000)
+
+* Job worker and child-process job execution (`web/job_worker.py` and `web/server.py` child process model) to isolate the HTTP server from native crashes caused by PyTorch / Diffusers / FFmpeg
+
+* Job progress tracking and reporting (per-stage progress for prompt and video generation)
+
+* Snapshotting of existing episodes at job start so the UI can identify the episode currently being generated
+
+* Episode discovery and prompt parsing (`web/server.py` parses `prompt.txt` and exposes episode metadata to the UI)
+
+* Ability to run a full episode job or a single-prompt video job (job types: `"episode"` and `"video"`)
+
+* Lightweight logging and progress callback plumbing between pipeline and UI
 
 ## 🚧 Current Focus
 
 * 🎬 Improving prompt quality and visual clarity
-* 📺 Automated YouTube uploading — repository contains initial YouTube-related modules (youtube/metadata_generator.py and youtube/uploader.py) but the uploader and metadata generation are currently stubs / pending implementation
+
+* 📺 Automated YouTube uploading — repository contains initial YouTube-related modules (`youtube/metadata_generator.py` and `youtube/uploader.py`) but the uploader and metadata generation are currently stubs / pending implementation
+
 * ⏱️ Testing longer video durations and memory/performance tuning for larger episodes
+
 * 🔐 Harden the web UI (authentication, access controls) and add more robust error handling for job execution
+
 * 📂 Playlist management and scheduled generation features (next-phase work)
 
 ## 🔮 Future Goals
 
 * 📂 Playlist management
+
 * ⏰ Scheduled generation
+
 * ☁️ Automated cloud GPU execution
+
 * 🤖 Fully unattended content generation
+
 * 📅 Recurring automated publishing
 
 ---
@@ -591,21 +847,37 @@ The intended workflow is:
 
 ```text
 Scheduled Trigger
+
        ↓
+
 Cloud GPU Environment
+
        ↓
+
 Clone / Update Repository
+
        ↓
+
 Run Monki Labs
+
        ↓
+
 Generate Prompt
+
        ↓
+
 Generate Video + Audio
+
        ↓
+
 Retain Final Video + Prompt
+
        ↓
+
 Upload to YouTube
+
        ↓
+
 Terminate GPU Environment
 ```
 
@@ -620,11 +892,17 @@ Monki Labs follows a **free-only philosophy**.
 The project prioritizes:
 
 * 🆓 Local and open-source AI models
+
 * 🆓 Free software
+
 * 🆓 Free development tools
+
 * ☁️ Temporary GPU infrastructure when needed
+
 * 🔑 No paid AI APIs
+
 * 🔑 No required paid API keys
+
 * 🔑 No required subscriptions
 
 The goal is to keep the software and AI pipeline free to operate, using temporary GPU infrastructure only when necessary for generation.
@@ -637,15 +915,25 @@ Monki Labs is ultimately intended to become an automated content studio:
 
 ```text
 Idea
- ↓
+
+  ↓
+
 AI Prompt
- ↓
+
+  ↓
+
 AI Video + Audio
- ↓
+
+  ↓
+
 Final Video
- ↓
+
+  ↓
+
 YouTube
- ↓
+
+  ↓
+
 Scheduled Repeat
 ```
 
