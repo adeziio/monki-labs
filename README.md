@@ -151,6 +151,8 @@ monki-labs/
 
 │   ├── content.json
 
+│   ├── youtube.json
+
 │
 
 ├── core/
@@ -178,6 +180,14 @@ monki-labs/
 ├── youtube/
 
 │   ├── __init__.py
+
+│   ├── auth.py
+
+│   ├── config.py
+
+│   ├── metadata_generator.py
+
+│   └── uploader.py
 
 │
 
@@ -852,7 +862,7 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 
 * 🎬 Improving prompt quality and visual clarity
 
-* 📺 Automated YouTube uploading — repository contains initial YouTube-related modules (`youtube/metadata_generator.py` and `youtube/uploader.py`) but the uploader and metadata generation are currently stubs / pending implementation
+* 📺 Automated YouTube uploading — the web UI has an "Upload to YouTube" button per episode that opens a pre-filled modal (video title/description/tags + account credentials for testing multiple channels). `web/server.py` exposes `GET /api/youtube/form` and `POST /api/youtube/upload`; `youtube/` implements OAuth token refresh, metadata generation from `prompt.txt`, and a resumable YouTube Data API v3 upload. Defaults live in `config/youtube.json`.
 
 * ⏱️ Testing longer video durations and memory/performance tuning for larger episodes
 

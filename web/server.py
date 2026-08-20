@@ -5,12 +5,19 @@ from http.server import (
 )
 from urllib.parse import (
     urlparse,
-    unquote
+    unquote,
+    parse_qs
 )
 import json
 import multiprocessing
 import threading
 import traceback
+
+from youtube import (
+    config as youtube_config,
+    metadata_generator,
+    uploader
+)
 
 
 HOST = "0.0.0.0"
@@ -816,6 +823,125 @@ def get_episode_prompt(
     return prompts[0]
 
 
+def resolve_episode_video_path(
+    episode_id
+):
+
+    """
+    Resolves and validates the episode.mp4 path for an episode id.
+    """
+
+    episode_path = (
+        PROJECT_ROOT
+        /
+        Path(episode_id)
+    ).resolve()
+
+    allowed_root = (
+        MEDIA_ROOT.resolve()
+    )
+
+    if (
+        allowed_root
+        not in episode_path.parents
+    ):
+
+        raise ValueError(
+            "Invalid episode path."
+        )
+
+    if not episode_path.is_dir():
+
+        raise ValueError(
+            "Episode does not exist."
+        )
+
+    video_path = (
+        episode_path
+        /
+        "episode.mp4"
+    )
+
+    if not video_path.is_file():
+
+        raise ValueError(
+            "Episode does not contain a video yet."
+        )
+
+    return video_path
+
+
+def get_episode_identity(
+    episode_id
+):
+
+    """
+    Returns the category and episode number from an episode id.
+    """
+
+    episode_path = (
+        PROJECT_ROOT
+        /
+        Path(episode_id)
+    ).resolve()
+
+    relative = (
+        episode_path
+        .relative_to(
+            MEDIA_ROOT
+        )
+    )
+
+    parts = relative.parts
+
+    if len(parts) < 2:
+
+        raise ValueError(
+            "Invalid episode directory structure."
+        )
+
+    return {
+        "category": parts[0],
+        "number": parts[1]
+    }
+
+
+def _print_upload_progress(
+    uploaded_bytes,
+    total_bytes,
+    message
+):
+
+    try:
+
+        percent = int(
+            (
+                uploaded_bytes
+                /
+                total_bytes
+            )
+            * 100
+        )
+
+    except Exception:
+
+        percent = 0
+
+    percent = int(
+        max(
+            0,
+            min(
+                100,
+                percent
+            )
+        )
+    )
+
+    print(
+        f"[YOUTUBE] {percent}% - {message}"
+    )
+
+
 def drain_progress_queue(
     progress_queue
 ):
@@ -1532,6 +1658,97 @@ class RequestHandler(
 
             return
 
+        if path == "/api/youtube/form":
+
+            params = parse_qs(
+                parsed.query
+            )
+
+            episode_ids = (
+                params.get(
+                    "episode_id",
+                    []
+                )
+            )
+
+            if not episode_ids:
+
+                self.send_json(
+                    {
+                        "error":
+                        "Missing episode ID."
+                    },
+                    400
+                )
+
+                return
+
+            episode_id = (
+                episode_ids[0]
+            )
+
+            try:
+
+                prompt_item = (
+                    get_episode_prompt(
+                        episode_id
+                    )
+                )
+
+                identity = (
+                    get_episode_identity(
+                        episode_id
+                    )
+                )
+
+                config = (
+                    youtube_config.load_youtube_config()
+                )
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(
+                            error
+                        )
+                    },
+                    400
+                )
+
+                return
+
+            metadata = (
+                metadata_generator.generate_metadata_from_prompt(
+                    prompt_item,
+                    category=identity["category"],
+                    episode_number=identity["number"],
+                    config=config
+                )
+            )
+
+            self.send_json(
+                {
+                    "config": config,
+                    "episode": {
+                        "id": episode_id,
+                        "category": identity["category"],
+                        "number": identity["number"],
+                        "title": prompt_item.get(
+                            "title",
+                            ""
+                        ),
+                        "prompt": prompt_item.get(
+                            "prompt",
+                            ""
+                        )
+                    },
+                    "metadata": metadata
+                }
+            )
+
+            return
+
         if path.startswith(
             "/media/"
         ):
@@ -1644,6 +1861,106 @@ class RequestHandler(
             self.send_json(
                 {
                     "started": True
+                }
+            )
+
+            return
+
+        if parsed.path == "/api/youtube/upload":
+
+            try:
+
+                data = self.read_json()
+
+                episode_id = str(
+                    data.get(
+                        "episode_id",
+                        ""
+                    )
+                ).strip()
+
+                if not episode_id:
+
+                    raise ValueError(
+                        "Missing episode ID."
+                    )
+
+                video_path = (
+                    resolve_episode_video_path(
+                        episode_id
+                    )
+                )
+
+                account = (
+                    data.get("account")
+                    or
+                    {}
+                )
+
+                if not isinstance(account, dict):
+
+                    raise ValueError(
+                        "Account must be a dictionary."
+                    )
+
+                account = {
+                    key: str(
+                        account.get(key) or ""
+                    ).strip()
+                    for key in (
+                        "account_name",
+                        "channel_name",
+                        "channel_id",
+                        "client_id",
+                        "client_secret",
+                        "refresh_token",
+                        "access_token",
+                        "api_key"
+                    )
+                }
+
+                metadata = (
+                    metadata_generator.normalize_upload_metadata(
+                        data.get("metadata")
+                        or
+                        {}
+                    )
+                )
+
+                result = (
+                    uploader.upload_short(
+                        video_path,
+                        metadata,
+                        account,
+                        progress_callback=(
+                            _print_upload_progress
+                        )
+                    )
+                )
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(
+                            error
+                        )
+                    },
+                    400
+                )
+
+                return
+
+            print(
+                f"[YOUTUBE] Uploaded: {result.video_url}"
+            )
+
+            self.send_json(
+                {
+                    "success": True,
+                    "video_id": result.video_id,
+                    "video_url": result.video_url,
+                    "title": result.title
                 }
             )
 

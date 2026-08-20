@@ -2408,6 +2408,480 @@
 
 
         /* ==================================================
+           YOUTUBE UPLOAD MODAL
+        ================================================== */
+
+        .youtube-modal {
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            z-index:
+                1000;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            padding:
+                24px;
+
+        }
+
+
+        .youtube-modal[hidden] {
+
+            display:
+                none;
+
+        }
+
+
+        .youtube-modal-backdrop {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            background:
+                rgba(5, 8, 12, 0.72);
+
+            backdrop-filter:
+                blur(6px);
+
+        }
+
+
+        .youtube-modal-panel {
+
+            position:
+                relative;
+
+            width:
+                min(760px, 100%);
+
+            max-height:
+                92vh;
+
+            overflow-y:
+                auto;
+
+            background:
+                #10141a;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.09);
+
+            border-radius:
+                20px;
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.55);
+
+        }
+
+
+        .youtube-modal-header {
+
+            display:
+                flex;
+
+            align-items:
+                flex-start;
+
+            justify-content:
+                space-between;
+
+            gap:
+                16px;
+
+            padding:
+                22px 24px 16px;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.055);
+
+        }
+
+
+        .youtube-modal-title {
+
+            font-size:
+                19px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                -0.4px;
+
+            color:
+                #eef1f4;
+
+        }
+
+
+        .youtube-modal-subtitle {
+
+            margin-top:
+                5px;
+
+            font-size:
+                11px;
+
+            color:
+                #6b7480;
+
+            word-break:
+                break-all;
+
+        }
+
+
+        .youtube-modal-close {
+
+            border:
+                1px solid var(--border);
+
+            background:
+                rgba(255, 255, 255, 0.045);
+
+            color:
+                #9aa3af;
+
+            width:
+                34px;
+
+            height:
+                34px;
+
+            min-width:
+                34px;
+
+            border-radius:
+                10px;
+
+            cursor:
+                pointer;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .youtube-modal-close:hover {
+
+            color:
+                #ffffff;
+
+            background:
+                rgba(255, 255, 255, 0.09);
+
+        }
+
+
+        .youtube-form {
+
+            padding:
+                4px 24px 22px;
+
+        }
+
+
+        .youtube-form-section {
+
+            padding:
+                16px 0;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.05);
+
+        }
+
+
+        .youtube-form-heading {
+
+            font-size:
+                12px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                1.4px;
+
+            text-transform:
+                uppercase;
+
+            color:
+                #94ed5b;
+
+            margin-bottom:
+                14px;
+
+        }
+
+
+        .youtube-form-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:
+                12px;
+
+        }
+
+
+        .youtube-field {
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            gap:
+                6px;
+
+            min-width:
+                0;
+
+        }
+
+
+        .youtube-field-full {
+
+            grid-column:
+                1 / -1;
+
+        }
+
+
+        .youtube-field label {
+
+            font-size:
+                11px;
+
+            font-weight:
+                700;
+
+            color:
+                #9aa4b0;
+
+        }
+
+
+        .youtube-optional {
+
+            color:
+                #58606a;
+
+            font-weight:
+                600;
+
+        }
+
+
+        .youtube-field input,
+        .youtube-field select,
+        .youtube-field textarea {
+
+            width:
+                100%;
+
+            background:
+                rgba(255, 255, 255, 0.045);
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                11px;
+
+            color:
+                #e6e9ed;
+
+            padding:
+                10px 12px;
+
+            font-size:
+                13px;
+
+            outline:
+                none;
+
+            box-sizing:
+                border-box;
+
+        }
+
+
+        .youtube-field textarea {
+
+            resize:
+                vertical;
+
+            min-height:
+                90px;
+
+            line-height:
+                1.5;
+
+            font-family:
+                inherit;
+
+        }
+
+
+        .youtube-field input:focus,
+        .youtube-field select:focus,
+        .youtube-field textarea:focus {
+
+            border-color:
+                rgba(148, 237, 91, 0.55);
+
+            box-shadow:
+                0 0 0 3px rgba(148, 237, 91, 0.10);
+
+        }
+
+
+        .youtube-hint {
+
+            font-size:
+                10.5px;
+
+            color:
+                #58606a;
+
+        }
+
+
+        .youtube-modal-result {
+
+            margin-top:
+                16px;
+
+            padding:
+                13px 14px;
+
+            border-radius:
+                12px;
+
+            font-size:
+                13px;
+
+            line-height:
+                1.55;
+
+            word-break:
+                break-word;
+
+        }
+
+
+        .youtube-modal-result[hidden] {
+
+            display:
+                none;
+
+        }
+
+
+        .youtube-modal-result.error {
+
+            background:
+                rgba(255, 92, 92, 0.10);
+
+            border:
+                1px solid rgba(255, 92, 92, 0.28);
+
+            color:
+                #ffb3b3;
+
+        }
+
+
+        .youtube-modal-result.success {
+
+            background:
+                rgba(148, 237, 91, 0.08);
+
+            border:
+                1px solid rgba(148, 237, 91, 0.30);
+
+            color:
+                #d7ffb0;
+
+        }
+
+
+        .youtube-modal-result a {
+
+            color:
+                #a9ff70;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .youtube-actions {
+
+            display:
+                flex;
+
+            gap:
+                10px;
+
+            justify-content:
+                flex-end;
+
+            padding-top:
+                18px;
+
+        }
+
+
+        .youtube-actions button {
+
+            padding:
+                10px 20px;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .youtube-actions .primary-button:disabled {
+
+            opacity:
+                0.5;
+
+            cursor:
+                wait;
+
+        }
+
+
+        /* ==================================================
            RESPONSIVE
         ================================================== */
 
@@ -2825,6 +3299,197 @@
             </span>
 
             · AI VIDEO STUDIO
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+             YOUTUBE UPLOAD MODAL
+        ================================================== -->
+
+    <div id="youtubeModal" class="youtube-modal" hidden>
+
+        <div class="youtube-modal-backdrop" onclick="closeYoutubeUploadModal()"></div>
+
+
+        <div class="youtube-modal-panel" role="dialog" aria-modal="true" aria-labelledby="youtubeModalTitle">
+
+            <div class="youtube-modal-header">
+
+                <div>
+
+                    <div class="youtube-modal-title" id="youtubeModalTitle">
+                        Upload to YouTube
+                    </div>
+
+
+                    <div class="youtube-modal-subtitle" id="youtubeModalEpisode">
+                        Loading episode…
+                    </div>
+
+                </div>
+
+
+                <button type="button" class="youtube-modal-close" aria-label="Close"
+                    onclick="closeYoutubeUploadModal()">
+                    ✕
+                </button>
+
+            </div>
+
+
+            <form class="youtube-form" id="youtubeUploadForm" autocomplete="off">
+
+                <div class="youtube-form-section">
+
+                    <div class="youtube-form-heading">
+                        Account
+                    </div>
+
+
+                    <div class="youtube-form-grid">
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="youtubeAccountSelect">Saved Account</label>
+                            <select id="youtubeAccountSelect" onchange="applyYoutubeAccountSelection()"></select>
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeAccountName">Account User Name</label>
+                            <input id="youtubeAccountName" type="text" placeholder="account_name" />
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeChannelName">Channel Name</label>
+                            <input id="youtubeChannelName" type="text" placeholder="channel_name" />
+                        </div>
+
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="youtubeChannelId">Channel ID <span
+                                    class="youtube-optional">(optional)</span></label>
+                            <input id="youtubeChannelId" type="text" placeholder="UC…" />
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeClientId">OAuth Client ID</label>
+                            <input id="youtubeClientId" type="text" placeholder="1234….apps.googleusercontent.com" />
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeClientSecret">OAuth Client Secret</label>
+                            <input id="youtubeClientSecret" type="password" placeholder="••••••••"
+                                autocomplete="new-password" />
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeRefreshToken">Refresh Token</label>
+                            <input id="youtubeRefreshToken" type="password" placeholder="1//0b…"
+                                autocomplete="new-password" />
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeAccessToken">Access Token <span class="youtube-optional">(optional, else
+                                    auto-refresh)</span></label>
+                            <input id="youtubeAccessToken" type="password" placeholder="ya29…"
+                                autocomplete="new-password" />
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeApiKey">API Key <span class="youtube-optional">(optional)</span></label>
+                            <input id="youtubeApiKey" type="password" placeholder="AIza…" autocomplete="new-password" />
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="youtube-form-section">
+
+                    <div class="youtube-form-heading">
+                        Video Metadata
+                    </div>
+
+
+                    <div class="youtube-form-grid">
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="youtubeTitle">Title</label>
+                            <input id="youtubeTitle" type="text" />
+                        </div>
+
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="youtubeDescription">Description</label>
+                            <textarea id="youtubeDescription" rows="7"></textarea>
+                        </div>
+
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="youtubeTags">Tags</label>
+                            <input id="youtubeTags" type="text" placeholder="#Shorts, #AI, keyword…" />
+                            <div class="youtube-hint">Comma separated.</div>
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeCategoryId">Category ID</label>
+                            <input id="youtubeCategoryId" type="text" placeholder="24" />
+                            <div class="youtube-hint">YouTube category. "24" = Entertainment.</div>
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubePrivacyStatus">Privacy Status</label>
+                            <select id="youtubePrivacyStatus">
+                                <option value="private">Private</option>
+                                <option value="unlisted">Unlisted</option>
+                                <option value="public">Public</option>
+                            </select>
+                        </div>
+
+
+                        <div class="youtube-field">
+                            <label for="youtubeMadeForKids">Made for Kids</label>
+                            <select id="youtubeMadeForKids">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div id="youtubeModalResult" class="youtube-modal-result" hidden></div>
+
+
+                <div class="youtube-actions">
+
+                    <button type="button" class="secondary" onclick="closeYoutubeUploadModal()">
+                        Cancel
+                    </button>
+
+
+                    <button type="button" class="primary-button" id="youtubeSubmitButton"
+                        onclick="submitYoutubeUpload()">
+                        Upload Short
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
@@ -4450,7 +5115,9 @@
 
                         <button
                             class="secondary"
-                            disabled
+                            onclick="openYoutubeUploadModal(
+                                '${escapeJs(episode.path)}'
+                            )"
                         >
                             Upload to YouTube
                         </button>
@@ -4825,6 +5492,551 @@
                     "\r",
                     "\\r"
                 );
+
+        }
+
+
+        let youtubeConfig =
+            null;
+
+
+        let youtubeAccounts =
+            [];
+
+
+        let youtubeEpisode =
+            null;
+
+
+        let youtubeMetadata =
+            null;
+
+
+        function getYoutubeFieldValue(
+            id
+        ) {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+
+            return (
+                element
+                    ? element.value
+                    : ""
+            );
+
+        }
+
+
+        function setYoutubeFieldValue(
+            id,
+            value
+        ) {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+
+            if (element) {
+
+                element.value =
+                    value || "";
+
+            }
+
+        }
+
+
+        async function openYoutubeUploadModal(
+            episodeId
+        ) {
+
+            try {
+
+                const data =
+                    await api(
+                        "/api/youtube/form?episode_id=" +
+                        encodeURIComponent(
+                            episodeId
+                        )
+                    );
+
+
+                youtubeConfig =
+                    data.config ||
+                    {};
+
+
+                youtubeAccounts =
+                    Array.isArray(
+                        youtubeConfig.accounts &&
+                        youtubeConfig.accounts.list
+                    )
+                        ? youtubeConfig.accounts.list
+                        : [];
+
+
+                youtubeEpisode =
+                    data.episode ||
+                    {
+                        id: episodeId
+                    };
+
+
+                youtubeMetadata =
+                    data.metadata ||
+                    {};
+
+
+                document.getElementById(
+                    "youtubeModalEpisode"
+                ).textContent =
+                    episodeId;
+
+                document.getElementById(
+                    "youtubeModalResult"
+                ).hidden =
+                    true;
+
+
+                populateYoutubeAccountSelect();
+
+                applyYoutubeAccountSelection();
+
+                populateYoutubeMetadataFields();
+
+
+                document.getElementById(
+                    "youtubeModal"
+                ).hidden =
+                    false;
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        function closeYoutubeUploadModal() {
+
+            document.getElementById(
+                "youtubeModal"
+            ).hidden =
+                true;
+
+        }
+
+
+        function populateYoutubeAccountSelect() {
+
+            const select =
+                document.getElementById(
+                    "youtubeAccountSelect"
+                );
+
+
+            const defaultAccountName =
+                youtubeConfig.accounts
+                    ? youtubeConfig.accounts.default_account
+                    : "";
+
+
+            const defaultIndex =
+                Math.max(
+                    0,
+                    youtubeAccounts.findIndex(
+                        account =>
+                            account.account_name ===
+                            defaultAccountName
+                    )
+                );
+
+
+            select.innerHTML =
+                '<option value="">New account (edit manually)</option>' +
+                youtubeAccounts
+                    .map(
+                        (account, index) => {
+
+                            const name =
+                                account.account_name ||
+                                "account " +
+                                (index + 1);
+
+                            return (
+                                '<option value="' +
+                                escapeHtml(name) +
+                                '">' +
+                                escapeHtml(name) +
+                                " — " +
+                                escapeHtml(
+                                    account.channel_name ||
+                                    "no channel name"
+                                ) +
+                                "</option>"
+                            );
+
+                        }
+                    )
+                    .join("");
+
+
+            if (youtubeAccounts.length) {
+
+                select.selectedIndex =
+                    defaultIndex > 0
+                        ? defaultIndex
+                        : 1;
+
+            }
+
+        }
+
+
+        function applyYoutubeAccountSelection() {
+
+            const select =
+                document.getElementById(
+                    "youtubeAccountSelect"
+                );
+
+
+            const selectedName =
+                select.value;
+
+
+            let account =
+                null;
+
+
+            if (selectedName) {
+
+                account =
+                    youtubeAccounts.find(
+                        item =>
+                            item.account_name ===
+                            selectedName
+                    ) ||
+                    null;
+
+            }
+
+
+            setYoutubeFieldValue(
+                "youtubeAccountName",
+                account
+                    ? account.account_name
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeChannelName",
+                account
+                    ? account.channel_name
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeChannelId",
+                account
+                    ? account.channel_id
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeClientId",
+                account
+                    ? account.client_id
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeClientSecret",
+                account
+                    ? account.client_secret
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeRefreshToken",
+                account
+                    ? account.refresh_token
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeAccessToken",
+                account
+                    ? account.access_token
+                    : ""
+            );
+
+            setYoutubeFieldValue(
+                "youtubeApiKey",
+                account
+                    ? account.api_key
+                    : ""
+            );
+
+        }
+
+
+        function populateYoutubeMetadataFields() {
+
+            const metadata =
+                youtubeMetadata ||
+                {};
+
+
+            setYoutubeFieldValue(
+                "youtubeTitle",
+                metadata.title
+            );
+
+            setYoutubeFieldValue(
+                "youtubeDescription",
+                metadata.description
+            );
+
+            setYoutubeFieldValue(
+                "youtubeTags",
+                Array.isArray(metadata.tags)
+                    ? metadata.tags.join(", ")
+                    : (
+                        metadata.tags ||
+                        ""
+                    )
+            );
+
+            setYoutubeFieldValue(
+                "youtubeCategoryId",
+                metadata.category_id
+            );
+
+            setYoutubeFieldValue(
+                "youtubePrivacyStatus",
+                metadata.privacy_status
+            );
+
+            setYoutubeFieldValue(
+                "youtubeMadeForKids",
+                metadata.made_for_kids
+                    ? "true"
+                    : "false"
+            );
+
+        }
+
+
+        function collectYoutubeAccount() {
+
+            return {
+                account_name:
+                    getYoutubeFieldValue(
+                        "youtubeAccountName"
+                    ),
+
+                channel_name:
+                    getYoutubeFieldValue(
+                        "youtubeChannelName"
+                    ),
+
+                channel_id:
+                    getYoutubeFieldValue(
+                        "youtubeChannelId"
+                    ),
+
+                client_id:
+                    getYoutubeFieldValue(
+                        "youtubeClientId"
+                    ),
+
+                client_secret:
+                    getYoutubeFieldValue(
+                        "youtubeClientSecret"
+                    ),
+
+                refresh_token:
+                    getYoutubeFieldValue(
+                        "youtubeRefreshToken"
+                    ),
+
+                access_token:
+                    getYoutubeFieldValue(
+                        "youtubeAccessToken"
+                    ),
+
+                api_key:
+                    getYoutubeFieldValue(
+                        "youtubeApiKey"
+                    )
+            };
+
+        }
+
+
+        function collectYoutubeMetadata() {
+
+            return {
+                title:
+                    getYoutubeFieldValue(
+                        "youtubeTitle"
+                    ),
+
+                description:
+                    getYoutubeFieldValue(
+                        "youtubeDescription"
+                    ),
+
+                tags:
+                    getYoutubeFieldValue(
+                        "youtubeTags"
+                    ),
+
+                category_id:
+                    getYoutubeFieldValue(
+                        "youtubeCategoryId"
+                    ),
+
+                privacy_status:
+                    getYoutubeFieldValue(
+                        "youtubePrivacyStatus"
+                    ),
+
+                made_for_kids:
+                    getYoutubeFieldValue(
+                        "youtubeMadeForKids"
+                    ) === "true"
+            };
+
+        }
+
+
+        async function submitYoutubeUpload() {
+
+            if (
+                !youtubeEpisode ||
+                !youtubeEpisode.id
+            ) {
+
+                return;
+
+            }
+
+
+            const button =
+                document.getElementById(
+                    "youtubeSubmitButton"
+                );
+
+
+            const result =
+                document.getElementById(
+                    "youtubeModalResult"
+                );
+
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "Uploading…";
+
+
+            result.hidden =
+                false;
+
+            result.className =
+                "youtube-modal-result";
+
+            result.textContent =
+                "Uploading video… This can take a little while.";
+
+
+            try {
+
+                const data =
+                    await api(
+                        "/api/youtube/upload",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        episode_id:
+                                            youtubeEpisode.id,
+
+                                        account:
+                                            collectYoutubeAccount(),
+
+                                        metadata:
+                                            collectYoutubeMetadata()
+                                    }
+                                )
+                        }
+                    );
+
+
+                result.className =
+                    "youtube-modal-result success";
+
+                result.innerHTML =
+                    "✅ Uploaded: " +
+                    '<a href="' +
+                    escapeHtml(
+                        data.video_url ||
+                        "#"
+                    ) +
+                    '" target="_blank" rel="noopener">' +
+                    escapeHtml(
+                        data.title ||
+                        "video"
+                    ) +
+                    "</a>" +
+                    (
+                        data.video_id
+                            ? " (ID: " +
+                            escapeHtml(
+                                data.video_id
+                            ) +
+                            ")"
+                            : ""
+                    );
+
+            } catch (error) {
+
+                result.className =
+                    "youtube-modal-result error";
+
+                result.textContent =
+                    "Upload failed: " +
+                    error.message;
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "Upload Short";
+
+            }
 
         }
 
