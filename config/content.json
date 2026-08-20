@@ -1,8 +1,8 @@
 {
-    "active_category": "viral_brainrot",
+    "active_category": "brainrot",
     "categories": {
-        "viral_brainrot": {
-            "name": "Viral Brainrot",
+        "brainrot": {
+            "name": "Brainrot",
             "genre": "short-form visual comedy",
             "tone": [
                 "funny",

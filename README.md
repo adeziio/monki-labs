@@ -347,7 +347,7 @@ media/
 
 └── output/
 
-    └── Viral Brainrot/
+    └── Brainrot/
 
         ├── 001/
 
