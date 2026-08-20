@@ -29,7 +29,7 @@
             "generation_fps": 24,
             "steps": {
                 "cpu": 8,
-                "cuda": 20
+                "cuda": 28
             },
             "stg_blocks": {
                 "indices": [
