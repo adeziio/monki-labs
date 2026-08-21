@@ -1,7 +1,5 @@
 import argparse
 
-import json
-
 import threading
 
 import webbrowser
@@ -20,6 +18,10 @@ from urllib.parse import (
 )
 
 import requests
+
+from dotenv import (
+    set_key
+)
 
 
 TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -259,59 +261,36 @@ def save_account_to_config(
     refresh_token
 ):
 
-    config_path = (
+    env_path = (
         Path(__file__)
         .resolve()
         .parent
         .parent
         /
-        "config"
-        /
-        "youtube.json"
+        ".env"
     )
 
-    config = json.loads(
-        config_path.read_text(
-            encoding="utf-8"
-        )
+    set_key(
+        str(env_path),
+        "youtube_client_id",
+        client_id
     )
 
-    existing_account = config.get("account") or {}
-
-    config["account"] = {
-        "channel_name": str(
-            existing_account.get("channel_name") or ""
-        ).strip(),
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "refresh_token": refresh_token
-    }
-
-    text = json.dumps(
-        config,
-        indent=4,
-        ensure_ascii=False
+    set_key(
+        str(env_path),
+        "youtube_client_secret",
+        client_secret
     )
 
-    text = (
-        text
-        .replace(
-            "\n",
-            "\r\n"
-        )
-        +
-        "\r\n"
-    )
-
-    config_path.write_text(
-        text,
-        encoding="utf-8",
-        newline=""
+    set_key(
+        str(env_path),
+        "youtube_refresh_token",
+        refresh_token
     )
 
     print(
         "[OAUTH] Saved OAuth credentials "
-        f"in {config_path}"
+        f"in {env_path}"
     )
 
 

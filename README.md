@@ -870,6 +870,8 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 
 * The upload form also accepts a human-readable Channel Name. The backend resolves it through the authenticated account using `channels.list(mine=true)` and rejects missing, unmatched, or ambiguous names before uploading. Standard YouTube `videos.insert` does not expose a normal target-channel parameter; for Google accounts managing multiple Brand channels, authorize the intended channel/account context and test with a private upload first.
 
+* YouTube OAuth secrets are loaded from `.env` when available. Use `youtube_client_id`, `youtube_client_secret`, and `youtube_refresh_token` (uppercase `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` are also supported). Environment values override the corresponding `config/youtube.json` values; the JSON file should contain only non-secret defaults such as `channel_name`.
+
 * ⏱️ Testing longer video durations and memory/performance tuning for larger episodes
 
 * 🔐 Harden the web UI (authentication, access controls) and add more robust error handling for job execution

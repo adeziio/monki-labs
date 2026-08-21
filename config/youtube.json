@@ -22,9 +22,6 @@
         }
     },
     "account": {
-        "channel_name": "Monki Labs",
-        "client_id": "",
-        "client_secret": "",
-        "refresh_token": ""
+        "channel_name": "Monki Labs"
     }
 }
