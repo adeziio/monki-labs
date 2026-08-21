@@ -361,7 +361,7 @@ media/
 
 └── output/
 
-    └── Brainrot/
+    └── brainrot/
 
         ├── 001/
 
