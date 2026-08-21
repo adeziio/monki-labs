@@ -1,8 +1,8 @@
 # 🐒 Monki Labs
 
-Monki Labs is a fully automated AI video generation pipeline designed to create short-form vertical videos with minimal human interaction.
+Monki Labs is an AI video generation studio for creating short-form vertical videos with minimal human interaction.
 
-The project is designed around **local and cloud GPU execution**, with the long-term goal of automatically generating and publishing high-quality videos on a recurring schedule.
+The project supports local and cloud GPU execution, with a web UI for generation, episode management, replay automation, and YouTube uploads.
 
 ---
 
@@ -772,175 +772,64 @@ The video model is free to generate the visual subjects based entirely on the ge
 
 ---
 
-# 🎞️ Single or Multiple Prompts
+# 🎞️ Prompt and Episode Generation
 
-The pipeline supports a configurable number of prompts per episode.
+# 📺 YouTube Uploads
 
-With **one prompt**, the model generates one continuous video.
+Completed episodes can be uploaded directly from the web UI. Each episode card with a finished `episode.mp4` includes an **Upload to YouTube** button that opens a metadata and authentication modal.
 
-With **multiple prompts**, each prompt generates a separate video segment and the segments are combined into one final `episode.mp4`.
+![YouTube upload modal](web/screenshots/youtube.png)
 
-The architecture intentionally retains this flexibility so the number of prompts can be increased later if longer or more complex videos require multiple generated segments.
 
-Regardless of the number of prompts, the final episode remains a single video file.
+### Upload metadata
 
----
+The modal allows the following video fields to be reviewed and changed before upload:
 
-# 📦 Output Retention
+* **Channel Name** — human-readable channel name. The server resolves this through the authenticated Google account using `channels.list(mine=true)` and refuses missing, unmatched, or ambiguous names.
 
-Each generation creates a unique run directory:
+* **Title** — prefilled from the `TITLE:` value in the episode's `prompt.txt`.
 
-```text
-media/output/
+* **Description** — prefilled from the episode title and `PROMPT:` text.
 
-└── <Category Name>/
+* **Tags** — comma-separated YouTube tags.
 
-    └── 001/
+* **Category ID** — YouTube's numeric category identifier. The default is `24` (Entertainment).
 
-        ├── prompt.txt
+* **Privacy Status** — `private`, `unlisted`, or `public`.
 
-        └── episode.mp4
+* **Made for Kids** — controls the corresponding YouTube audience declaration.
+
+### OAuth credentials
+
+The account section contains only the values needed for OAuth authentication:
+
+* OAuth Client ID
+* OAuth Client Secret
+* Refresh Token
+
+Credentials are loaded from `.env` using these keys:
+
+```env
+youtube_client_id=YOUR_CLIENT_ID
+youtube_client_secret=YOUR_CLIENT_SECRET
+youtube_refresh_token=YOUR_REFRESH_TOKEN
 ```
 
-The system retains:
+Uppercase variants (`YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN`) are also supported. Environment values override the corresponding values in `config/youtube.json`, allowing that JSON file to contain only non-secret defaults such as `channel_name`.
 
-* `prompt.txt` — the exact prompt or prompts used for generation
+The OAuth helper reads the client ID and client secret from `.env` automatically, opens Google's consent screen, and writes the resulting refresh token back to `.env`:
 
-* `episode.mp4` — the final generated video
-
-Intermediate video clips and temporary generation files are removed after successful processing.
-
-When multiple prompts are used, they are stored together in the same `prompt.txt` file with a consistent structure and separator between prompts.
-
-This keeps each generation self-contained while avoiding unnecessary storage of intermediate files.
-
----
-
-# 🧪 Development Status
-
-## ✅ Currently Working
-
-* Configuration-driven pipeline (JSON-driven behavior)
-
-* Local LLM prompt generation with robust JSON parsing and repair
-
-* Ollama language-model integration for prompt generation
-
-* LTX-2.3 video generation via Diffusers LTX2Pipeline
-
-* Generation of video with background music and sound effects (configurable)
-
-* Fine-grained configuration: duration, FPS, resolution, inference steps, guidance, negative prompts
-
-* Spatio-Temporal Guidance (STG) support and configurable STG blocks
-
-* Vertical 9:16 output and upscaling support
-
-* Single-prompt and multi-prompt / multi-clip architectures with automatic assembly
-
-* Prompt retention (`prompt.txt`) and final episode retention (`episode.mp4`)
-
-* Automatic output organization under `media/output/<Category>/<NNN>/`
-
-* Windows and Linux installers and run scripts for local and cloud execution
-
-* RunPod / temporary GPU instance compatible (same code can run locally or on cloud GPU)
-
-* GPU memory optimizations: model-level CPU offload, sequential offload, VAE tiling/slicing, attention slicing
-
-* Web-based control UI (`web/index.html`) and lightweight HTTP server (`web/server.py`) for browsing episodes and controlling jobs (default PORT 8000)
-
-* Job worker and child-process job execution (`web/job_worker.py` and `web/server.py` child process model) to isolate the HTTP server from native crashes caused by PyTorch / Diffusers / FFmpeg
-
-* Job progress tracking and reporting (per-stage progress for prompt and video generation)
-
-* Snapshotting of existing episodes at job start so the UI can identify the episode currently being generated
-
-* Episode discovery and prompt parsing (`web/server.py` parses `prompt.txt` and exposes episode metadata to the UI)
-
-* Ability to run a full episode job or a single-prompt video job (job types: `"episode"` and `"video"`)
-
-* Lightweight logging and progress callback plumbing between pipeline and UI
-
-## 🚧 Current Focus
-
-* 🎬 Improving prompt quality and visual clarity
-
-* 📺 Automated YouTube uploading — the web UI has an "Upload to YouTube" button per episode that opens a pre-filled modal. The account section contains only the three required OAuth fields (Client ID, Client Secret, and Refresh Token); video metadata remains editable. `web/server.py` exposes `GET /api/youtube/form` and `POST /api/youtube/upload`; `youtube/` implements OAuth token refresh, metadata generation from `prompt.txt`, and a resumable YouTube Data API v3 upload. Defaults live in `config/youtube.json`.
-
-* The upload form also accepts a human-readable Channel Name. The backend resolves it through the authenticated account using `channels.list(mine=true)` and rejects missing, unmatched, or ambiguous names before uploading. Standard YouTube `videos.insert` does not expose a normal target-channel parameter; for Google accounts managing multiple Brand channels, authorize the intended channel/account context and test with a private upload first.
-
-* YouTube OAuth secrets are loaded from `.env` when available. Use `youtube_client_id`, `youtube_client_secret`, and `youtube_refresh_token` (uppercase `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` are also supported). Environment values override the corresponding `config/youtube.json` values; the JSON file should contain only non-secret defaults such as `channel_name`.
-
-* Channel-name resolution requires both OAuth scopes: `youtube.upload` and `youtube.readonly`. If an existing refresh token reports "insufficient authentication scopes", run `python -m youtube.oauth_helper` again and approve the additional read-only YouTube permission. The new refresh token is written to `.env` automatically.
-
-* `youtube.oauth_helper` automatically reads `youtube_client_id` and `youtube_client_secret` from `.env`; you can run it without credential arguments. After authorization, it writes the new `youtube_refresh_token` back to `.env`. Explicit `--client-id` and `--client-secret` arguments remain available as overrides.
-
-* ⏱️ Testing longer video durations and memory/performance tuning for larger episodes
-
-* 🔐 Harden the web UI (authentication, access controls) and add more robust error handling for job execution
-
-* 📂 Playlist management and scheduled generation features (next-phase work)
-
-## 🔮 Future Goals
-
-* 📂 Playlist management
-
-* ⏰ Scheduled generation
-
-* ☁️ Automated cloud GPU execution
-
-* 🤖 Fully unattended content generation
-
-* 📅 Recurring automated publishing
-
----
-
-# ☁️ Long-Term Automation
-
-The ultimate goal is for Monki Labs to operate without requiring the developer's PC to remain running.
-
-The intended workflow is:
-
-```text
-Scheduled Trigger
-
-       ↓
-
-Cloud GPU Environment
-
-       ↓
-
-Clone / Update Repository
-
-       ↓
-
-Run Monki Labs
-
-       ↓
-
-Generate Prompt
-
-       ↓
-
-Generate Video + Audio
-
-       ↓
-
-Retain Final Video + Prompt
-
-       ↓
-
-Upload to YouTube
-
-       ↓
-
-Terminate GPU Environment
+```powershell
+python -m youtube.oauth_helper
 ```
 
-The application is intentionally being developed so the same pipeline can run locally for development and later on temporary cloud GPU infrastructure.
+The OAuth flow requires both `youtube.upload` and `youtube.readonly` scopes. The readonly scope is used to resolve and verify the human-readable Channel Name before uploading. If an existing refresh token was created without that scope, run the helper again and approve the additional permission.
 
----
+### Upload process
+
+The backend exchanges the refresh token for a temporary access token, verifies the requested channel, and uploads the MP4 through the YouTube Data API v3 resumable upload protocol. Access tokens expire after approximately one hour; they are regenerated automatically and do not need to be stored manually.
+
+For Google accounts managing multiple Brand channels, authorize the intended channel/account context and test the first upload with `private` visibility. YouTube's standard `videos.insert` endpoint does not provide a normal target-channel parameter, so the application rejects channel-name mismatches instead of guessing.
 
 # 💰 Cost Philosophy
 
@@ -966,9 +855,9 @@ The goal is to keep the software and AI pipeline free to operate, using temporar
 
 ---
 
-# 🔮 Vision
+# 🔄 Completed Workflow
 
-Monki Labs is ultimately intended to become an automated content studio:
+Monki Labs currently supports the following workflow:
 
 ```text
 Idea
@@ -991,12 +880,10 @@ YouTube
 
   ↓
 
-Scheduled Repeat
+Optional Replay Toggle
 ```
 
-The developer should only need to configure the system and monitor the results.
-
-Everything else should eventually happen automatically.
+The developer configures the content and generation settings, starts an episode from the web UI, and can optionally enable replay to continue generating episodes automatically.
 
 ---
 

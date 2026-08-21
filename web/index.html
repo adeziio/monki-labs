@@ -876,6 +876,118 @@
         }
 
 
+        .episode-controls {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+        }
+
+
+        .replay-toggle {
+
+            width:
+                38px;
+
+            height:
+                38px;
+
+            padding:
+                0;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(255, 255, 255, 0.045);
+
+            color:
+                #9aa3af;
+
+            cursor:
+                pointer;
+
+            font-size:
+                18px;
+
+            transition:
+                color 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+
+        }
+
+
+        .replay-toggle:hover {
+
+            color:
+                #e6e9ed;
+
+            background:
+                rgba(255, 255, 255, 0.09);
+
+        }
+
+
+        .replay-toggle.active {
+
+            border-color:
+                rgba(148, 237, 91, 0.65);
+
+            background:
+                rgba(148, 237, 91, 0.13);
+
+            color:
+                #a9ff70;
+
+            animation:
+                replaySpin 1.5s linear infinite;
+
+        }
+
+
+        .replay-toggle:disabled {
+
+            opacity:
+                0.55;
+
+            cursor:
+                not-allowed;
+
+        }
+
+
+        @keyframes replaySpin {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
         .section-heading {
 
             display:
@@ -3032,7 +3144,15 @@
             }
 
 
-            .topbar .primary-button {
+            .topbar .episode-controls {
+
+                width:
+                    100%;
+
+            }
+
+
+            .topbar .episode-controls .primary-button {
 
                 width:
                     100%;
@@ -3143,9 +3263,19 @@
             </div>
 
 
-            <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
-                ＋ Create New Episode
-            </button>
+            <div class="episode-controls">
+
+                <button id="replayToggleButton" class="replay-toggle" type="button" aria-label="Enable automatic replay"
+                    aria-pressed="false" title="Automatically create the next episode when generation completes"
+                    onclick="toggleReplay()">
+                    ↻
+                </button>
+
+                <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
+                    ＋ Create New Episode
+                </button>
+
+            </div>
 
         </div>
 
@@ -3364,16 +3494,17 @@
                         <div class="youtube-field youtube-field-full">
                             <label for="youtubeChannelName">Channel Name</label>
                             <input id="youtubeChannelName" type="text" placeholder="Your YouTube channel name" />
-                            <div class="youtube-hint">Must exactly match a channel available to the authorized Google account.</div>
+                            <div class="youtube-hint">Must exactly match a channel available to the authorized Google
+                                account.</div>
                         </div>
 
                         <div class="youtube-field">
                             <label for="youtubeClientId">OAuth Client ID</label>
-                            <input id="youtubeClientId" type="text" placeholder="1234….apps.googleusercontent.com" />
+                            <input id="youtubeClientId" type="password" placeholder="••••••••" />
                         </div>
 
 
-                        <div class="youtube-field">
+                        <div class=" youtube-field">
                             <label for="youtubeClientSecret">OAuth Client Secret</label>
                             <input id="youtubeClientSecret" type="password" placeholder="••••••••"
                                 autocomplete="new-password" />
@@ -3508,6 +3639,14 @@
             null;
 
 
+        let replayEnabled =
+            false;
+
+
+        let replayStarting =
+            false;
+
+
         async function api(
             url,
             options = {}
@@ -3560,6 +3699,18 @@
 
             }
 
+            const replayButton =
+                document.getElementById(
+                    "replayToggleButton"
+                );
+
+            if (replayButton) {
+
+                replayButton.disabled =
+                    disabled;
+
+            }
+
 
             document
                 .querySelectorAll(
@@ -3573,6 +3724,60 @@
 
                     }
                 );
+
+        }
+
+
+        function toggleReplay() {
+
+            if (jobRunning) {
+
+                return;
+
+            }
+
+            replayEnabled =
+                !replayEnabled;
+
+            updateReplayButton();
+
+        }
+
+
+        function updateReplayButton() {
+
+            const button =
+                document.getElementById(
+                    "replayToggleButton"
+                );
+
+            if (!button) {
+
+                return;
+
+            }
+
+            button.classList.toggle(
+                "active",
+                replayEnabled
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                String(replayEnabled)
+            );
+
+            button.setAttribute(
+                "aria-label",
+                replayEnabled
+                    ? "Disable automatic replay"
+                    : "Enable automatic replay"
+            );
+
+            button.title =
+                replayEnabled
+                    ? "Automatic replay is on"
+                    : "Automatically create the next episode when generation completes";
 
         }
 
@@ -4074,9 +4279,12 @@
 
                 await loadEpisodes();
 
-
                 setGenerationButtonsDisabled(
                     false
+                );
+
+                await startReplayIfComplete(
+                    status
                 );
 
 
@@ -4156,6 +4364,64 @@
                 showError(
                     error.message
                 );
+
+            }
+
+        }
+
+
+        async function startReplayIfComplete(
+            status
+        ) {
+
+            if (
+                !replayEnabled ||
+                replayStarting ||
+                status.error ||
+                !activeEpisodeId ||
+                normalizeProgress(
+                    status.prompt_progress
+                ) < 100 ||
+                normalizeProgress(
+                    status.video_progress
+                ) < 100
+            ) {
+
+                return;
+
+            }
+
+            const completedEpisode =
+                latestEpisodes.find(
+                    episode =>
+                        String(
+                            episode.path || ""
+                        ) === String(
+                            activeEpisodeId
+                        )
+                );
+
+            if (
+                !completedEpisode ||
+                !completedEpisode.prompt_exists ||
+                !completedEpisode.video_exists
+            ) {
+
+                return;
+
+            }
+
+            replayStarting =
+                true;
+
+            try {
+
+                await createEpisode();
+
+            } finally {
+
+                replayStarting =
+                    false;
 
             }
 
