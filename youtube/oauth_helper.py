@@ -254,10 +254,8 @@ def exchange_code(
 
 
 def save_account_to_config(
-    account_name,
     client_id,
     client_secret,
-    access_token,
     refresh_token
 ):
 
@@ -278,56 +276,16 @@ def save_account_to_config(
         )
     )
 
-    accounts = (
-        config
-        .setdefault(
-            "accounts",
-            {}
-        )
-        .setdefault(
-            "list",
-            []
-        )
-    )
+    existing_account = config.get("account") or {}
 
-    updated = False
-
-    for account in accounts:
-
-        if (
-            account.get(
-                "account_name"
-            )
-            ==
-            account_name
-        ):
-
-            account["client_id"] = client_id
-
-            account["client_secret"] = client_secret
-
-            account["access_token"] = access_token
-
-            account["refresh_token"] = refresh_token
-
-            updated = True
-
-            break
-
-    if not updated:
-
-        accounts.append(
-            {
-                "account_name": account_name,
-                "channel_name": "",
-                "channel_id": "",
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "refresh_token": refresh_token,
-                "access_token": access_token,
-                "api_key": ""
-            }
-        )
+    config["account"] = {
+        "channel_name": str(
+            existing_account.get("channel_name") or ""
+        ).strip(),
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": refresh_token
+    }
 
     text = json.dumps(
         config,
@@ -352,7 +310,7 @@ def save_account_to_config(
     )
 
     print(
-        f"[OAUTH] Saved/updated account '{account_name}' "
+        "[OAUTH] Saved OAuth credentials "
         f"in {config_path}"
     )
 
@@ -392,15 +350,6 @@ def main():
         "--scope",
         default=DEFAULT_SCOPE,
         help="OAuth scope (default: youtube.upload)."
-    )
-
-    parser.add_argument(
-        "--account",
-        default="",
-        help=(
-            "Account name to save the tokens under in "
-            "config/youtube.json (optional)."
-        )
     )
 
     args = parser.parse_args()
@@ -491,22 +440,11 @@ def main():
             "localhost redirect) and consent was granted."
         )
 
-    if args.account:
-
-        save_account_to_config(
-            args.account,
+    save_account_to_config(
             client_id,
             client_secret,
-            access_token,
             refresh_token
-        )
-
-    elif refresh_token:
-
-        print(
-            "[OAUTH] Tip: run with --account NAME to save these "
-            "tokens into config/youtube.json."
-        )
+    )
 
 
 if __name__ == "__main__":

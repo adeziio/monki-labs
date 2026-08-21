@@ -1891,11 +1891,7 @@ class RequestHandler(
                     )
                 )
 
-                account = (
-                    data.get("account")
-                    or
-                    {}
-                )
+                account = data.get("account") or {}
 
                 if not isinstance(account, dict):
 
@@ -1908,14 +1904,10 @@ class RequestHandler(
                         account.get(key) or ""
                     ).strip()
                     for key in (
-                        "account_name",
-                        "channel_name",
-                        "channel_id",
                         "client_id",
                         "client_secret",
                         "refresh_token",
-                        "access_token",
-                        "api_key"
+                        "channel_name"
                     )
                 }
 

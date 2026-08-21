@@ -8,6 +8,10 @@ from youtube.auth import (
     resolve_access_token
 )
 
+from youtube.channel import (
+    resolve_channel_by_name
+)
+
 
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 
@@ -97,6 +101,12 @@ def upload_short(
     )
 
     access_token = resolve_access_token(account)
+
+    resolve_channel_by_name(
+        access_token,
+        account.get("channel_name"),
+        timeout=30
+    )
 
     upload_uri = _start_upload_session(
         access_token,

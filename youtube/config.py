@@ -13,10 +13,10 @@ def load_youtube_config():
     return loader.load("youtube.json")
 
 
-def get_accounts(config=None):
+def get_account(config=None):
     config = config if config is not None else load_youtube_config()
-    accounts = (config.get("accounts") or {}).get("list") or []
-    return [account for account in accounts if isinstance(account, dict)]
+    account = config.get("account") or {}
+    return account if isinstance(account, dict) else {}
 
 
 def get_metadata_defaults(config=None):

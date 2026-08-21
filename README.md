@@ -189,6 +189,8 @@ monki-labs/
 
 │   ├── oauth_helper.py
 
+│   ├── channel.py
+
 │   └── uploader.py
 
 │
@@ -864,7 +866,9 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 
 * 🎬 Improving prompt quality and visual clarity
 
-* 📺 Automated YouTube uploading — the web UI has an "Upload to YouTube" button per episode that opens a pre-filled modal (video title/description/tags + account credentials for testing multiple channels). `web/server.py` exposes `GET /api/youtube/form` and `POST /api/youtube/upload`; `youtube/` implements OAuth token refresh, metadata generation from `prompt.txt`, and a resumable YouTube Data API v3 upload. Defaults live in `config/youtube.json`.
+* 📺 Automated YouTube uploading — the web UI has an "Upload to YouTube" button per episode that opens a pre-filled modal. The account section contains only the three required OAuth fields (Client ID, Client Secret, and Refresh Token); video metadata remains editable. `web/server.py` exposes `GET /api/youtube/form` and `POST /api/youtube/upload`; `youtube/` implements OAuth token refresh, metadata generation from `prompt.txt`, and a resumable YouTube Data API v3 upload. Defaults live in `config/youtube.json`.
+
+* The upload form also accepts a human-readable Channel Name. The backend resolves it through the authenticated account using `channels.list(mine=true)` and rejects missing, unmatched, or ambiguous names before uploading. Standard YouTube `videos.insert` does not expose a normal target-channel parameter; for Google accounts managing multiple Brand channels, authorize the intended channel/account context and test with a private upload first.
 
 * ⏱️ Testing longer video durations and memory/performance tuning for larger episodes
 

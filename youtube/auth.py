@@ -68,21 +68,11 @@ def resolve_access_token(
 ):
 
     """
-    Returns a usable access token for an account.
-
-    An already-issued access token wins when present. Otherwise the
-    refresh token flow is used to mint a fresh access token.
+    Always obtains a fresh short-lived access token from the required
+    client credentials and refresh token.
     """
 
     account = account or {}
-
-    access_token = str(
-        account.get("access_token") or ""
-    ).strip()
-
-    if access_token:
-
-        return access_token
 
     return refresh_access_token(
         str(account.get("client_id") or "").strip(),

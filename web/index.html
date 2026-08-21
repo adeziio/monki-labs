@@ -3352,29 +3352,10 @@
                     <div class="youtube-form-grid">
 
                         <div class="youtube-field youtube-field-full">
-                            <label for="youtubeAccountSelect">Saved Account</label>
-                            <select id="youtubeAccountSelect" onchange="applyYoutubeAccountSelection()"></select>
-                        </div>
-
-
-                        <div class="youtube-field">
-                            <label for="youtubeAccountName">Account User Name</label>
-                            <input id="youtubeAccountName" type="text" placeholder="account_name" />
-                        </div>
-
-
-                        <div class="youtube-field">
                             <label for="youtubeChannelName">Channel Name</label>
-                            <input id="youtubeChannelName" type="text" placeholder="channel_name" />
+                            <input id="youtubeChannelName" type="text" placeholder="Your YouTube channel name" />
+                            <div class="youtube-hint">Must exactly match a channel available to the authorized Google account.</div>
                         </div>
-
-
-                        <div class="youtube-field youtube-field-full">
-                            <label for="youtubeChannelId">Channel ID <span
-                                    class="youtube-optional">(optional)</span></label>
-                            <input id="youtubeChannelId" type="text" placeholder="UC…" />
-                        </div>
-
 
                         <div class="youtube-field">
                             <label for="youtubeClientId">OAuth Client ID</label>
@@ -3393,20 +3374,6 @@
                             <label for="youtubeRefreshToken">Refresh Token</label>
                             <input id="youtubeRefreshToken" type="password" placeholder="1//0b…"
                                 autocomplete="new-password" />
-                        </div>
-
-
-                        <div class="youtube-field">
-                            <label for="youtubeAccessToken">Access Token <span class="youtube-optional">(optional, else
-                                    auto-refresh)</span></label>
-                            <input id="youtubeAccessToken" type="password" placeholder="ya29…"
-                                autocomplete="new-password" />
-                        </div>
-
-
-                        <div class="youtube-field">
-                            <label for="youtubeApiKey">API Key <span class="youtube-optional">(optional)</span></label>
-                            <input id="youtubeApiKey" type="password" placeholder="AIza…" autocomplete="new-password" />
                         </div>
 
                     </div>
@@ -5500,10 +5467,6 @@
             null;
 
 
-        let youtubeAccounts =
-            [];
-
-
         let youtubeEpisode =
             null;
 
@@ -5572,15 +5535,6 @@
                     {};
 
 
-                youtubeAccounts =
-                    Array.isArray(
-                        youtubeConfig.accounts &&
-                        youtubeConfig.accounts.list
-                    )
-                        ? youtubeConfig.accounts.list
-                        : [];
-
-
                 youtubeEpisode =
                     data.episode ||
                     {
@@ -5604,10 +5558,7 @@
                     true;
 
 
-                populateYoutubeAccountSelect();
-
-                applyYoutubeAccountSelection();
-
+                populateYoutubeAccountFields();
                 populateYoutubeMetadataFields();
 
 
@@ -5637,155 +5588,30 @@
         }
 
 
-        function populateYoutubeAccountSelect() {
+        function populateYoutubeAccountFields() {
 
-            const select =
-                document.getElementById(
-                    "youtubeAccountSelect"
-                );
-
-
-            const defaultAccountName =
-                youtubeConfig.accounts
-                    ? youtubeConfig.accounts.default_account
-                    : "";
-
-
-            const defaultIndex =
-                Math.max(
-                    0,
-                    youtubeAccounts.findIndex(
-                        account =>
-                            account.account_name ===
-                            defaultAccountName
-                    )
-                );
-
-
-            select.innerHTML =
-                '<option value="">New account (edit manually)</option>' +
-                youtubeAccounts
-                    .map(
-                        (account, index) => {
-
-                            const name =
-                                account.account_name ||
-                                "account " +
-                                (index + 1);
-
-                            return (
-                                '<option value="' +
-                                escapeHtml(name) +
-                                '">' +
-                                escapeHtml(name) +
-                                " — " +
-                                escapeHtml(
-                                    account.channel_name ||
-                                    "no channel name"
-                                ) +
-                                "</option>"
-                            );
-
-                        }
-                    )
-                    .join("");
-
-
-            if (youtubeAccounts.length) {
-
-                select.selectedIndex =
-                    defaultIndex > 0
-                        ? defaultIndex
-                        : 1;
-
-            }
-
-        }
-
-
-        function applyYoutubeAccountSelection() {
-
-            const select =
-                document.getElementById(
-                    "youtubeAccountSelect"
-                );
-
-
-            const selectedName =
-                select.value;
-
-
-            let account =
-                null;
-
-
-            if (selectedName) {
-
-                account =
-                    youtubeAccounts.find(
-                        item =>
-                            item.account_name ===
-                            selectedName
-                    ) ||
-                    null;
-
-            }
-
-
-            setYoutubeFieldValue(
-                "youtubeAccountName",
-                account
-                    ? account.account_name
-                    : ""
-            );
+            const account =
+                youtubeConfig.account ||
+                {};
 
             setYoutubeFieldValue(
                 "youtubeChannelName",
-                account
-                    ? account.channel_name
-                    : ""
-            );
-
-            setYoutubeFieldValue(
-                "youtubeChannelId",
-                account
-                    ? account.channel_id
-                    : ""
+                account.channel_name
             );
 
             setYoutubeFieldValue(
                 "youtubeClientId",
-                account
-                    ? account.client_id
-                    : ""
+                account.client_id
             );
 
             setYoutubeFieldValue(
                 "youtubeClientSecret",
-                account
-                    ? account.client_secret
-                    : ""
+                account.client_secret
             );
 
             setYoutubeFieldValue(
                 "youtubeRefreshToken",
-                account
-                    ? account.refresh_token
-                    : ""
-            );
-
-            setYoutubeFieldValue(
-                "youtubeAccessToken",
-                account
-                    ? account.access_token
-                    : ""
-            );
-
-            setYoutubeFieldValue(
-                "youtubeApiKey",
-                account
-                    ? account.api_key
-                    : ""
+                account.refresh_token
             );
 
         }
@@ -5838,22 +5664,12 @@
         }
 
 
-        function collectYoutubeAccount() {
+        function collectYoutubeCredentials() {
 
             return {
-                account_name:
-                    getYoutubeFieldValue(
-                        "youtubeAccountName"
-                    ),
-
                 channel_name:
                     getYoutubeFieldValue(
                         "youtubeChannelName"
-                    ),
-
-                channel_id:
-                    getYoutubeFieldValue(
-                        "youtubeChannelId"
                     ),
 
                 client_id:
@@ -5869,16 +5685,6 @@
                 refresh_token:
                     getYoutubeFieldValue(
                         "youtubeRefreshToken"
-                    ),
-
-                access_token:
-                    getYoutubeFieldValue(
-                        "youtubeAccessToken"
-                    ),
-
-                api_key:
-                    getYoutubeFieldValue(
-                        "youtubeApiKey"
                     )
             };
 
@@ -5983,7 +5789,7 @@
                                             youtubeEpisode.id,
 
                                         account:
-                                            collectYoutubeAccount(),
+                                            collectYoutubeCredentials(),
 
                                         metadata:
                                             collectYoutubeMetadata()
