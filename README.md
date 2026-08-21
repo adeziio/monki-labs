@@ -772,6 +772,35 @@ The video model is free to generate the visual subjects based entirely on the ge
 
 # 🎞️ Prompt and Episode Generation
 
+Every episode starts with a generated Brainrot concept. The prompt generator
+uses a two-stage process to improve concept quality and 8-second feasibility:
+
+1. **Brainstorm** — Ollama produces a pool of raw candidate concepts with
+   maximum variety across absurdity families (object agency, broken physics,
+   role mismatch, scale violations, and more).
+2. **Score, select, rewrite** — the model scores each candidate on a 0–2 rubric
+   across `visual_hook`, `physical_clarity`, `eight_second_feasibility`,
+   `novelty`, and `final_image`. Only candidates with a total score of 8/10 or
+   higher and no dimension below 1 are rewritten into the final form:
+
+   ```text
+   ordinary recognizable setup → one impossible physical mutation →
+   one immediate visual action → one concrete final image
+   ```
+
+The system also:
+
+- Keeps a rolling history of recent accepted concepts to avoid repeats.
+- Rejects generic physics spectacle (floating, flying, gravity tricks) when it
+  lacks a concrete absurdity hook.
+- Rejects abstract, difficult-to-render phrasing (world collapse, sentient
+  charts, ambiguous actions).
+- Derives the suggested word count from the configured `video.duration_seconds`.
+- Falls back to a single-shot generation mode if the two-stage path produces
+  no survivors.
+
+The pipeline remains fully configurable through `config/content.json`.
+
 # 📺 YouTube Uploads
 
 Completed episodes can be uploaded directly from the web UI. Each episode card with a finished `episode.mp4` includes an **Upload to YouTube** button that opens a metadata and authentication modal.

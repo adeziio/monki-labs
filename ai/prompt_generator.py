@@ -65,6 +65,92 @@ class PromptGenerator(
             if str(value).strip()
         )
 
+    def build_shared_context_sections(self):
+
+        genre = self.category_config.get(
+            "genre",
+            "short-form visual comedy"
+        )
+
+        tone = self.category_config.get(
+            "tone",
+            []
+        )
+
+        world = self.category_config.get(
+            "world",
+            []
+        )
+
+        protagonists = self.category_config.get(
+            "protagonists",
+            []
+        )
+
+        comedy_types = self.category_config.get(
+            "comedy_types",
+            []
+        )
+
+        absurdity_families = self.prompt_config.get(
+            "absurdity_families",
+            []
+        )
+
+        instructions = self.prompt_config.get(
+            "instructions",
+            []
+        )
+
+        creative_directions = self.prompt_config.get(
+            "creative_directions",
+            []
+        )
+
+        priorities = self.prompt_config.get(
+            "creative_priorities",
+            []
+        )
+
+        diversity = self.prompt_config.get(
+            "diversity_guidance",
+            []
+        )
+
+        return f"""GENRE
+{genre}
+
+TONE
+{self.format_bullets(tone)}
+
+POSSIBLE WORLDS
+{self.format_bullets(world)}
+
+POSSIBLE PROTAGONISTS
+{self.format_bullets(protagonists)}
+
+COMEDY ENGINES
+{self.format_bullets(comedy_types)}
+
+ABSURDITY FAMILIES
+{self.format_bullets(absurdity_families)}
+
+RECENT CONCEPTS TO AVOID REPEATING
+{self.get_recent_concepts_text()}
+
+RULES
+{self.format_bullets(instructions)}
+
+CREATIVE FREEDOM
+{self.format_bullets(creative_directions)}
+
+PRIORITIES
+{self.format_bullets(priorities)}
+
+VARIETY
+{self.format_bullets(diversity)}
+"""
+
     def get_recent_concepts_text(self):
 
         recent_concepts = getattr(
@@ -626,6 +712,33 @@ No commentary.
             f"Generating {count} video prompts"
         )
 
+        if self.prompt_config.get(
+            "two_stage_generation",
+            True
+        ):
+
+            prompts = self.generate_two_stage(
+                count
+            )
+
+            if prompts:
+
+                return prompts
+
+            self.log(
+                "Two-stage generation produced no final prompts. "
+                "Falling back to one-shot generation."
+            )
+
+        return self.generate_single_stage(
+            count
+        )
+
+    def generate_single_stage(
+        self,
+        count
+    ):
+
         prompt = self.build_prompt(
             count
         )
@@ -656,6 +769,308 @@ No commentary.
             )
 
         return []
+
+    def generate_two_stage(
+        self,
+        count
+    ):
+
+        candidate_count = int(
+            self.prompt_config.get(
+                "candidate_pool_size",
+                8
+            )
+        )
+
+        threshold = int(
+            self.prompt_config.get(
+                "minimum_total_score",
+                8
+            )
+        )
+
+        minimum_dimension = int(
+            self.prompt_config.get(
+                "minimum_dimension_score",
+                1
+            )
+        )
+
+        for attempt in range(2):
+
+            candidates = self.parse_candidates(
+                self.llm.generate(
+                    self.build_brainstorm_prompt(
+                        candidate_count
+                    ),
+                    response_format=self.get_brainstorm_schema()
+                )
+            )
+
+            if not candidates:
+
+                self.log(
+                    "Stage one (brainstorm) returned no candidates. "
+                    "Retrying."
+                )
+
+                continue
+
+            prompts = self.parse_response(
+                self.llm.generate(
+                    self.build_selection_prompt(
+                        candidates,
+                        count,
+                        threshold,
+                        minimum_dimension
+                    ),
+                    response_format=self.get_selection_schema()
+                ),
+                count
+            )
+
+            if prompts:
+
+                return prompts
+
+            self.log(
+                "Stage two (scoring/selection) produced no survivors. "
+                "Retrying with a fresh brainstorm."
+            )
+
+        return []
+
+    def build_brainstorm_prompt(
+        self,
+        candidate_count
+    ):
+
+        word_range = self.get_prompt_word_range()
+
+        minimum_words = word_range["minimum_words"]
+
+        maximum_words = word_range["maximum_words"]
+
+        duration_seconds = word_range["duration_seconds"]
+
+        return f"""STAGE ONE - BRAINSTORMING
+
+Generate exactly {candidate_count} raw candidate concepts for Brainrot
+short-form vertical videos.
+
+This is ONLY a brainstorming stage. Do NOT filter, refine, score, or reject
+any candidate here. Maximize raw variety and rotate across completely
+different domains: food, animals, insects, household objects, public spaces,
+anatomy, weather, vehicles, clothing, and bizarre professions.
+
+{self.build_shared_context_sections()}
+CANDIDATE QUALITY BAR
+- Every candidate must have one immediately absurd visual idea.
+- Prefer a concrete impossible mutation: unexpected legs, eyes, hands, mouths,
+  inside-out bodies, tiny worlds, or objects performing impossible jobs.
+- Avoid generic floating, flying, or gravity-breaking unless paired with a
+  stronger mutation.
+- Avoid offices, bureaucratic meetings, paperwork-only ideas, and miniature
+  civilisations.
+- Keep each candidate to a single visual beat.
+
+PROMPT LENGTH
+Write each candidate in approximately {minimum_words}-{maximum_words} words
+for a ~{duration_seconds:g}-second vertical video.
+
+OUTPUT
+Return exactly {candidate_count} candidates as JSON:
+[{{"title": "Short title", "prompt": "Candidate prompt"}}]
+
+Return ONLY the JSON array. No markdown. No code block. No explanations.
+"""
+
+    def build_selection_prompt(
+        self,
+        candidates,
+        final_count,
+        threshold,
+        minimum_dimension
+    ):
+
+        word_range = self.get_prompt_word_range()
+
+        minimum_words = word_range["minimum_words"]
+
+        maximum_words = word_range["maximum_words"]
+
+        duration_seconds = word_range["duration_seconds"]
+
+        candidate_list = json.dumps(
+            candidates,
+            ensure_ascii=False,
+            indent=2
+        )
+
+        return f"""STAGE TWO - SCORING, SELECTION, AND FINAL REWRITING
+
+You are an expert editor for Brainrot short-form AI videos. Below are
+{len(candidates)} raw candidate concepts.
+
+{self.build_shared_context_sections()}
+SCORING RUBRIC - score each candidate 0-2 per dimension:
+1. visual_hook: 2 = the very first image is immediately absurd and stop-scrolling.
+2. physical_clarity: 2 = one dominant subject, concrete action, easy to picture.
+3. eight_second_feasibility: 2 = one continuous shot suitable for
+   ~{duration_seconds:g} seconds, not overloaded.
+4. novelty: 2 = fresh and unexpected, not a rehash of the recent concepts.
+5. final_image: 2 = ends on a concrete object, pose, or location that is clearly renderable.
+
+Accept ONLY candidates where:
+- total score >= {threshold}/10
+- every dimension >= {minimum_dimension}
+- the prompt has no abstract phrasing (world collapse, reality breaks,
+  does not exist, sentient charts).
+- the prompt is not purely floating / flying / gravity-breaking spectacle.
+- there is one dominant subject and at most one or two supporting objects.
+
+REWRITE each surviving candidate into the final form:
+ordinary recognizable setup -> one impossible physical mutation ->
+one immediate visual action -> one concrete final image.
+
+Keep it {minimum_words}-{maximum_words} words. One sentence is preferred.
+
+RECENT CONCEPTS TO AVOID REPEATING
+{self.get_recent_concepts_text()}
+
+CANDIDATES TO SCORE
+{candidate_list}
+
+OUTPUT
+Return ONLY the accepted, rewritten concepts as JSON:
+[{{"title": "...", "prompt": "...", "reason": "one short line on why it passes the rubric"}}]
+Select at most {final_count} of the strongest. An empty array is allowed when none pass.
+
+Return ONLY the JSON array. No markdown. No code block. No commentary.
+"""
+
+    def parse_candidates(
+        self,
+        response
+    ):
+
+        if not response:
+
+            return []
+
+        response = self.clean_response(
+            response
+        )
+
+        if not response:
+
+            return []
+
+        try:
+
+            data = json.loads(
+                response
+            )
+
+        except (
+            json.JSONDecodeError,
+            TypeError
+        ):
+
+            data = self.extract_json_array(
+                response
+            )
+
+        if not isinstance(
+            data,
+            list
+        ):
+
+            return []
+
+        candidates = []
+
+        for item in data:
+
+            if not isinstance(
+                item,
+                dict
+            ):
+
+                continue
+
+            title = str(
+                item.get(
+                    "title",
+                    ""
+                )
+            ).strip()
+
+            prompt = str(
+                item.get(
+                    "prompt",
+                    ""
+                )
+            ).strip()
+
+            if title and prompt:
+
+                candidates.append(
+                    {
+                        "title": title,
+                        "prompt": prompt
+                    }
+                )
+
+        return candidates
+
+    def get_brainstorm_schema(self):
+
+        return {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "prompt"
+                ],
+                "additionalProperties": False
+            }
+        }
+
+    def get_selection_schema(self):
+
+        return {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "prompt",
+                    "reason"
+                ],
+                "additionalProperties": False
+            }
+        }
 
     def get_response_schema(self):
 
