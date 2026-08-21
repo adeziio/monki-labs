@@ -318,8 +318,6 @@ UI: Quick guide
 
 ![UI overview](web/screenshots/overview.png)
 
-![Job progress view](web/screenshots/progress.png)
-
 ---
 
 ## 4. Development Workflow
