@@ -42,6 +42,13 @@ class OllamaProvider:
             )
         )
 
+        self.options = (
+            language_config.get(
+                "options",
+                {}
+            )
+        )
+
     def generate(
         self,
         prompt,
@@ -59,6 +66,15 @@ class OllamaProvider:
             "stream": False,
             "think": self.thinking
         }
+
+        if isinstance(
+            self.options,
+            dict
+        ) and self.options:
+
+            request_data["options"] = dict(
+                self.options
+            )
 
         if response_format:
 
