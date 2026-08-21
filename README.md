@@ -872,6 +872,8 @@ This keeps each generation self-contained while avoiding unnecessary storage of 
 
 * YouTube OAuth secrets are loaded from `.env` when available. Use `youtube_client_id`, `youtube_client_secret`, and `youtube_refresh_token` (uppercase `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` are also supported). Environment values override the corresponding `config/youtube.json` values; the JSON file should contain only non-secret defaults such as `channel_name`.
 
+* Channel-name resolution requires both OAuth scopes: `youtube.upload` and `youtube.readonly`. If an existing refresh token reports "insufficient authentication scopes", run `python -m youtube.oauth_helper` again and approve the additional read-only YouTube permission. The new refresh token is written to `.env` automatically.
+
 * `youtube.oauth_helper` automatically reads `youtube_client_id` and `youtube_client_secret` from `.env`; you can run it without credential arguments. After authorization, it writes the new `youtube_refresh_token` back to `.env`. Explicit `--client-id` and `--client-secret` arguments remain available as overrides.
 
 * ⏱️ Testing longer video durations and memory/performance tuning for larger episodes

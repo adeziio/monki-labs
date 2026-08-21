@@ -39,6 +39,15 @@ def resolve_channel_by_name(
 
     if response.status_code != 200:
 
+        if response.status_code == 403:
+
+            raise YouTubeChannelError(
+                "Could not look up the authenticated YouTube channel. "
+                "The OAuth token is missing the youtube.readonly scope. "
+                "Run youtube.oauth_helper again and approve the new "
+                "permissions."
+            )
+
         raise YouTubeChannelError(
             _error_message(
                 response,

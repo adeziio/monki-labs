@@ -31,7 +31,10 @@ TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
 
 AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 
-DEFAULT_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+DEFAULT_SCOPE = (
+    "https://www.googleapis.com/auth/youtube.upload "
+    "https://www.googleapis.com/auth/youtube.readonly"
+)
 
 DEFAULT_PORT = 8080
 
@@ -343,7 +346,10 @@ def main():
     parser.add_argument(
         "--scope",
         default=DEFAULT_SCOPE,
-        help="OAuth scope (default: youtube.upload)."
+        help=(
+            "OAuth scopes (default: youtube.upload + "
+            "youtube.readonly)."
+        )
     )
 
     args = parser.parse_args()
