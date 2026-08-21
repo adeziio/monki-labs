@@ -1,5 +1,7 @@
 import argparse
 
+import os
+
 import threading
 
 import webbrowser
@@ -20,6 +22,7 @@ from urllib.parse import (
 import requests
 
 from dotenv import (
+    load_dotenv,
     set_key
 )
 
@@ -33,6 +36,11 @@ DEFAULT_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
 DEFAULT_PORT = 8080
 
 WAIT_TIMEOUT_SECONDS = 240
+
+
+def project_root():
+
+    return Path(__file__).resolve().parent.parent
 
 
 class AuthRedirectHandler(
@@ -296,6 +304,13 @@ def save_account_to_config(
 
 def main():
 
+    env_path = project_root() / ".env"
+
+    load_dotenv(
+        env_path,
+        override=False
+    )
+
     parser = argparse.ArgumentParser(
         description=(
             "Grab YouTube OAuth tokens (access + refresh) for the "
@@ -335,28 +350,24 @@ def main():
 
     client_id = str(
         args.client_id
+        or os.getenv("YOUTUBE_CLIENT_ID")
+        or os.getenv("youtube_client_id")
+        or ""
     ).strip()
 
     client_secret = str(
         args.client_secret
+        or os.getenv("YOUTUBE_CLIENT_SECRET")
+        or os.getenv("youtube_client_secret")
+        or ""
     ).strip()
-
-    if not client_id:
-
-        client_id = input(
-            "OAuth Client ID: "
-        ).strip()
-
-    if not client_secret:
-
-        client_secret = input(
-            "OAuth Client Secret: "
-        ).strip()
 
     if not client_id or not client_secret:
 
         raise SystemExit(
-            "[OAUTH] Both Client ID and Client Secret are required."
+            "[OAUTH] Client ID and Client Secret were not found. "
+            "Add youtube_client_id and youtube_client_secret to "
+            f"{env_path}, or pass --client-id/--client-secret."
         )
 
     tokens = run_authorization_flow(
