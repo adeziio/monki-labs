@@ -217,7 +217,7 @@
                 "quality_max_action_markers": 4,
                 "quality_max_clause_markers": 2,
                 "candidate_pool_size": 8,
-                "two_stage_generation": true,
+                "two_stage_generation": false,
                 "minimum_total_score": 8,
                 "minimum_dimension_score": 1,
                 "visual_absurdity_markers": [
