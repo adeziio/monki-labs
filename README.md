@@ -801,6 +801,8 @@ The system also:
   lacks a concrete absurdity hook.
 - Rejects abstract, difficult-to-render phrasing (world collapse, sentient
   charts, ambiguous actions).
+- Requires a LIVING main character — a person, animal, insect, sea creature,
+  or monster. Inanimate objects are props only, never the protagonist.
 - Derives the suggested word count from the configured `video.duration_seconds`.
 - Falls back to a single-shot generation mode if the two-stage path produces
   no survivors.

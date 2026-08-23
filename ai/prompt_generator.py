@@ -149,6 +149,12 @@ PRIORITIES
 
 VARIETY
 {self.format_bullets(diversity)}
+
+MAIN SUBJECT RULES
+{self.format_bullets(self.prompt_config.get("living_subject_rules", []))}
+
+WOW FACTOR
+{self.format_bullets(self.prompt_config.get("wow_factor_guidance", []))}
 """
 
     def get_recent_concepts_text(self):
@@ -279,6 +285,89 @@ VARIETY
                 return True, "high prompt overlap"
 
         return False, ""
+
+    def validate_living_subject(
+        self,
+        prompt
+    ):
+
+        """
+        Rejects prompts whose main subject is an inanimate object.
+        Uses a lightweight heuristic: the first meaningful word of the
+        prompt is treated as the subject noun.
+        """
+
+        if not self.prompt_config.get(
+            "require_living_protagonist",
+            True
+        ):
+
+            return True, ""
+
+        tokens = re.findall(
+            r"[a-z]+",
+            str(prompt).strip().casefold()
+        )
+
+        stopwords = {
+            "a", "an", "the", "and", "as", "at", "but", "by",
+            "for", "from", "in", "into", "of", "on", "onto",
+            "or", "that", "then", "to", "with", "while", "when",
+            "inside", "outside", "near", "over", "under",
+            "suddenly", "slowly", "quickly", "calmly",
+            "its", "his", "her", "their", "one"
+        }
+
+        subject_tokens = [
+            token
+            for token in tokens
+            if token not in stopwords
+        ]
+
+        if not subject_tokens:
+
+            return True, ""
+
+        adjective_skip = {
+            "melting", "giant", "floating", "flying", "talking",
+            "dancing", "screaming", "gigantic", "massive", "tiny",
+            "small", "burning", "frozen", "living", "angry"
+        }
+
+        while (
+            len(subject_tokens) > 1
+            and subject_tokens[0] in adjective_skip
+        ):
+
+            subject_tokens.pop(0)
+
+        first = subject_tokens[0]
+
+        candidate = (
+            first[:-1]
+            if first.endswith("s") and len(first) > 3
+            else first
+        )
+
+        inanimate_nouns = {
+            str(value).strip().casefold()
+            for value in self.prompt_config.get(
+                "inanimate_subject_nouns",
+                []
+            )
+            if str(value).strip()
+        }
+
+        if (
+            candidate in inanimate_nouns
+            or f"{candidate}s" in inanimate_nouns
+        ):
+
+            return False, (
+                f"inanimate object as main subject: {candidate}"
+            )
+
+        return True, ""
 
     def validate_visual_prompt(self, prompt):
 
@@ -683,6 +772,10 @@ narration, previous clips, future clips, or instructions to the video model.
 
 Let the concept determine the number of characters and objects.
 
+The main character must be ALIVE: a person, animal, insect, sea creature,
+or monster. Inanimate objects may appear only as props for that living
+character, never as the main character.
+
 OUTPUT
 
 Return exactly {count} concepts.
@@ -873,6 +966,7 @@ CANDIDATE QUALITY BAR
 - Avoid offices, bureaucratic meetings, paperwork-only ideas, and miniature
   civilisations.
 - Keep each candidate to a single visual beat.
+- Make the main character a LIVING being; inanimate objects are props only.
 
 PROMPT LENGTH
 Write each candidate in approximately {minimum_words}-{maximum_words} words
@@ -928,6 +1022,8 @@ Accept ONLY candidates where:
   does not exist, sentient charts).
 - the prompt is not purely floating / flying / gravity-breaking spectacle.
 - there is one dominant subject and at most one or two supporting objects.
+- the MAIN subject is a LIVING being (person, animal, insect, sea creature,
+  or monster); inanimate objects only as props.
 
 REWRITE each surviving candidate into the final form:
 ordinary recognizable setup -> one impossible physical mutation ->
@@ -1200,6 +1296,19 @@ Return ONLY the JSON array. No markdown. No code block. No commentary.
                 self.log(
                     f"Skipping '{title}' because "
                     "the prompt is empty."
+                )
+
+                continue
+
+            living_valid, reason = self.validate_living_subject(
+                prompt
+            )
+
+            if not living_valid:
+
+                self.log(
+                    f"Skipping '{title}' because the main subject "
+                    f"is not a living being ({reason})."
                 )
 
                 continue
