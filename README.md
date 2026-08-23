@@ -658,6 +658,12 @@ The following configuration has been tested and verified to run end-to-end on an
 
 * **`low_cpu_mem_usage: true`** — loads the model directly in bfloat16, avoiding the fp32 double-buffer peak during load.
 
+* **`generation_retry_attempts: 2`** — automatic retries when clip generation fails. Any exception is retried; memory-related failures (CUDA OOM / `MemoryError`) additionally trigger an aggressive VRAM/RAM cleanup and a full model reload before retrying.
+
+* **`generation_retry_backoff_seconds: 20`** — base wait between retries. The wait scales with the attempt number (20s, then 40s, ...).
+
+* **Automatic memory release** — after every generation (success or failure) the video model is dropped from memory and CUDA caches are emptied (`ai/memory_utils.py`), so each episode starts with maximum free RAM/VRAM. Memory is also released before model load, after model load, and between clips.
+
 ## Expected performance (L40S)
 
 | Metric                          | Value                   |

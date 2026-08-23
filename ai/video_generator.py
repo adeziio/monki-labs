@@ -1,6 +1,6 @@
 from pathlib import Path
 import re
-import gc
+import time
 
 import torch
 
@@ -25,6 +25,11 @@ from diffusers.pipelines.ltx2.utils import (
 )
 
 from ai.base_ai_service import BaseAIService
+from ai.memory_utils import (
+    get_cuda_memory_summary,
+    is_memory_error,
+    release_memory
+)
 from ai.prompt_generator import PromptGenerator
 
 
@@ -123,6 +128,142 @@ class VideoGenerator(
     ):
 
         self.progress_callback = callback
+
+    def get_generation_retry_settings(self):
+
+        attempts = int(
+            self.video_config.get(
+                "generation_retry_attempts",
+                2
+            )
+        )
+
+        backoff_seconds = float(
+            self.video_config.get(
+                "generation_retry_backoff_seconds",
+                20
+            )
+        )
+
+        attempts = max(
+            0,
+            attempts
+        )
+
+        backoff_seconds = max(
+            0.0,
+            backoff_seconds
+        )
+
+        return attempts, backoff_seconds
+
+    def release_pipeline_memory(
+        self,
+        aggressive=False
+    ):
+
+        """
+        Drops the video model and releases RAM/VRAM so the next
+        generation starts from a clean slate. Safe to call when the
+        model is already released.
+        """
+
+        if self.pipeline is not None:
+
+            summary = get_cuda_memory_summary()
+
+            self.log(
+                "Releasing video model from memory."
+                + (
+                    f" ({summary})"
+                    if summary
+                    else ""
+                )
+            )
+
+            self.pipeline = None
+
+        release_memory(
+            aggressive=aggressive
+        )
+
+    def run_with_generation_retries(
+        self,
+        description,
+        operation,
+        stage="video"
+    ):
+
+        """
+        Runs a video-generation operation and automatically retries
+        when any exception occurs. Memory-related failures trigger an
+        aggressive VRAM/RAM cleanup before the retry.
+        """
+
+        max_retries, backoff_seconds = (
+            self.get_generation_retry_settings()
+        )
+
+        attempt = 0
+
+        while True:
+
+            try:
+
+                return operation()
+
+            except Exception as error:
+
+                if attempt >= max_retries:
+
+                    self.log(
+                        f"{description} failed after "
+                        f"{attempt + 1} attempt(s): {error}"
+                    )
+
+                    raise
+
+                attempt += 1
+
+                memory_error = is_memory_error(error)
+
+                error_kind = (
+                    "memory"
+                    if memory_error
+                    else "unexpected"
+                )
+
+                wait_seconds = (
+                    backoff_seconds
+                    *
+                    attempt
+                )
+
+                self.log(
+                    f"{description} failed with an {error_kind} "
+                    f"error on attempt {attempt} "
+                    f"(of {max_retries + 1}): {error}"
+                )
+
+                self.release_pipeline_memory(
+                    aggressive=memory_error
+                )
+
+                self.update_progress(
+                    14,
+                    f"{description} failed. Cleaning up memory "
+                    f"and retrying (attempt {attempt})...",
+                    stage=stage
+                )
+
+                if wait_seconds > 0:
+
+                    self.log(
+                        f"Waiting {wait_seconds:g} seconds "
+                        f"before retry {attempt}."
+                    )
+
+                    time.sleep(wait_seconds)
 
     def update_progress(
         self,
@@ -1058,6 +1199,11 @@ class VideoGenerator(
             f"{dtype}"
         )
 
+        # Free any leftover RAM/VRAM from previous runs so the
+        # ~50GB model load starts from the cleanest state possible.
+
+        release_memory()
+
         self.pipeline = (
             LTX2Pipeline.from_pretrained(
                 model_name,
@@ -1081,6 +1227,11 @@ class VideoGenerator(
             self.pipeline.to(
                 device
             )
+
+        # Release loader temporaries and defragment CUDA memory
+        # after the model is resident on its target device.
+
+        release_memory()
 
         self.update_progress(
             12,
@@ -1509,8 +1660,18 @@ class VideoGenerator(
 
             return callback_kwargs
 
-        video, audio = (
-            self.pipeline(
+        def execute_generation():
+
+            if self.pipeline is None:
+
+                self.log(
+                    "Video model was released. "
+                    "Reloading before retry."
+                )
+
+                self.load_pipeline()
+
+            return self.pipeline(
                 prompt=ltx_prompt,
                 negative_prompt=negative_prompt,
                 width=model_width,
@@ -1528,6 +1689,12 @@ class VideoGenerator(
                 callback_on_step_end=generation_callback,
                 output_type="np",
                 return_dict=False
+            )
+
+        video, audio = (
+            self.run_with_generation_retries(
+                "Clip generation",
+                execute_generation
             )
         )
 
@@ -1566,11 +1733,7 @@ class VideoGenerator(
         del video
         del audio
 
-        gc.collect()
-
-        if torch.cuda.is_available():
-
-            torch.cuda.empty_cache()
+        release_memory()
 
         self.update_progress(
             92,
@@ -1827,15 +1990,7 @@ class VideoGenerator(
                 stage="video"
             )
 
-            del self.pipeline
-
-            self.pipeline = None
-
-            gc.collect()
-
-            if torch.cuda.is_available():
-
-                torch.cuda.empty_cache()
+            self.release_pipeline_memory()
 
             final_video, clips = (
                 self.combine_clips(
@@ -1932,6 +2087,10 @@ class VideoGenerator(
             )
 
             raise
+
+        finally:
+
+            self.release_pipeline_memory()
 
     def generate(
         self
@@ -2035,11 +2194,7 @@ class VideoGenerator(
                     clip_path
                 )
 
-                gc.collect()
-
-                if torch.cuda.is_available():
-
-                    torch.cuda.empty_cache()
+                release_memory()
 
             self.log(
                 "All clips generated. "
@@ -2047,15 +2202,7 @@ class VideoGenerator(
                 "before final assembly."
             )
 
-            del self.pipeline
-
-            self.pipeline = None
-
-            gc.collect()
-
-            if torch.cuda.is_available():
-
-                torch.cuda.empty_cache()
+            self.release_pipeline_memory()
 
             if not clip_paths:
 
@@ -2156,3 +2303,7 @@ class VideoGenerator(
             )
 
             raise
+
+        finally:
+
+            self.release_pipeline_memory()
