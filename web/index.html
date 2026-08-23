@@ -4370,6 +4370,22 @@
         }
 
 
+            function normalizeEpisodeId(
+            value
+        ) {
+
+            return String(
+                value ||
+                ""
+            )
+                .trim()
+                .replace(/\\/g, "/")
+                .replace(/\/+$/, "")
+                .toLowerCase();
+
+        }
+
+
         async function startReplayIfComplete(
             status
         ) {
@@ -4378,7 +4394,6 @@
                 !replayEnabled ||
                 replayStarting ||
                 status.error ||
-                !activeEpisodeId ||
                 normalizeProgress(
                     status.prompt_progress
                 ) < 100 ||
@@ -4391,15 +4406,56 @@
 
             }
 
-            const completedEpisode =
-                latestEpisodes.find(
-                    episode =>
-                        String(
-                            episode.path || ""
-                        ) === String(
-                            activeEpisodeId
-                        )
-                );
+            /*
+             * Prefer the tracked active episode, but fall back to the
+             * newest fully-completed episode. The server currently
+             * returns only {"started": true} from POST /api/episode,
+             * so activeEpisodeId is not always known.
+             */
+
+            let completedEpisode =
+                null;
+
+
+            if (activeEpisodeId) {
+
+                const targetId =
+                    normalizeEpisodeId(
+                        activeEpisodeId
+                    );
+
+                completedEpisode =
+                    latestEpisodes.find(
+                        episode =>
+                            normalizeEpisodeId(
+                                episode.path
+                            ) === targetId
+                    );
+
+            }
+
+
+            if (
+                !completedEpisode ||
+                !completedEpisode.prompt_exists ||
+                !completedEpisode.video_exists
+            ) {
+
+                /*
+                 * Fall back to the newest fully-completed episode
+                 * (latestEpisodes is sorted newest-first).
+                 */
+
+                completedEpisode =
+                    latestEpisodes.find(
+                        episode =>
+                            episode.prompt_exists &&
+                            episode.video_exists &&
+                            !episode.generating
+                    );
+
+            }
+
 
             if (
                 !completedEpisode ||

@@ -23,7 +23,7 @@
             "enabled": true,
             "provider": "ltx",
             "model": "diffusers/LTX-2.3-Diffusers",
-            "generation_retry_attempts": 2,
+            "generation_retry_attempts": 99,
             "generation_retry_backoff_seconds": 20,
             "device_allocation": {
                 "mode": "model",
