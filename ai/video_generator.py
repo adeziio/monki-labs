@@ -1204,13 +1204,33 @@ class VideoGenerator(
 
         release_memory()
 
-        self.pipeline = (
-            LTX2Pipeline.from_pretrained(
-                model_name,
-                torch_dtype=dtype,
-                low_cpu_mem_usage=True
+        # Newer diffusers versions renamed `torch_dtype` to `dtype`.
+        # Try the new argument first and fall back for older installs.
+
+        try:
+
+            self.pipeline = (
+                LTX2Pipeline.from_pretrained(
+                    model_name,
+                    dtype=dtype,
+                    low_cpu_mem_usage=True
+                )
             )
-        )
+
+        except TypeError:
+
+            self.log(
+                "diffusers rejected `dtype`; "
+                "falling back to `torch_dtype`."
+            )
+
+            self.pipeline = (
+                LTX2Pipeline.from_pretrained(
+                    model_name,
+                    torch_dtype=dtype,
+                    low_cpu_mem_usage=True
+                )
+            )
 
         if device == "cuda":
 
