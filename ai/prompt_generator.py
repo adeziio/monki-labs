@@ -1,5 +1,6 @@
 import json
 import math
+import random
 import re
 from pathlib import Path
 
@@ -52,10 +53,12 @@ class PromptGenerator(
 
     def pick_episode_setting(self):
         """
-        Rotates through the configured setting_rotation list so each
-        episode generation lands in a different location. The last used
-        index is persisted per category in a small state file because
-        each episode job runs in a fresh process.
+        Picks the next setting from the configured setting_rotation
+        list in shuffled order - like a shuffled playlist. Every setting
+        is used once per cycle before any repeats, the shuffle order is
+        re-randomized at the start of each cycle, and the state is
+        persisted per category because each episode job runs in a
+        fresh process.
         """
 
         settings = [
@@ -96,13 +99,80 @@ class PromptGenerator(
 
             state = {}
 
-        key = f"setting_index:{self.category_name}"
+        order_key = (
+            f"setting_order:{self.category_name}"
+        )
 
-        next_index = (
-            int(state.get(key, -1)) + 1
-        ) % len(settings)
+        position_key = (
+            f"setting_position:{self.category_name}"
+        )
 
-        state[key] = next_index
+        last_key = (
+            f"setting_last:{self.category_name}"
+        )
+
+        try:
+
+            order = list(
+                state.get(order_key, [])
+            )
+
+            position = int(
+                state.get(position_key, 0)
+            )
+
+        except (
+            TypeError,
+            ValueError
+        ):
+
+            order = []
+
+            position = 0
+
+        # (Re)shuffle when there is no saved order yet or when the
+        # configured settings list has changed since it was saved.
+
+        if (
+            not order
+            or sorted(order) != list(range(len(settings)))
+        ):
+
+            order = list(range(len(settings)))
+
+            random.shuffle(order)
+
+            position = 0
+
+        if position >= len(order):
+
+            # Cycle complete: reshuffle for a fresh random order and
+            # avoid repeating whatever played last.
+
+            previous_last = state.get(last_key)
+
+            order = list(range(len(settings)))
+
+            random.shuffle(order)
+
+            if (
+                len(order) > 1
+                and str(order[0]) == str(previous_last)
+            ):
+                order[0], order[-1] = (
+                    order[-1],
+                    order[0]
+                )
+
+            position = 0
+
+        chosen_index = order[position]
+
+        state[order_key] = order
+
+        state[position_key] = position + 1
+
+        state[last_key] = chosen_index
 
         try:
 
@@ -126,7 +196,7 @@ class PromptGenerator(
                 "setting rotation state."
             )
 
-        setting = settings[next_index]
+        setting = settings[chosen_index]
 
         self.log(
             f"Episode setting rotated to: {setting}"
