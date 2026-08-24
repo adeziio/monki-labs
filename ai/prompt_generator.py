@@ -1,6 +1,7 @@
 import json
 import math
 import re
+from pathlib import Path
 
 from ai.base_ai_service import BaseAIService
 from ai.providers.ollama_provider import OllamaProvider
@@ -30,6 +31,8 @@ class PromptGenerator(
             content_config["active_category"]
         )
 
+        self.category_name = active_category
+
         self.category_config = (
             content_config[
                 "categories"
@@ -46,6 +49,90 @@ class PromptGenerator(
         )
 
         self.recent_concepts = []
+
+    def pick_episode_setting(self):
+        """
+        Rotates through the configured setting_rotation list so each
+        episode generation lands in a different location. The last used
+        index is persisted per category in a small state file because
+        each episode job runs in a fresh process.
+        """
+
+        settings = [
+            str(value).strip()
+            for value in self.prompt_config.get(
+                "setting_rotation",
+                []
+            )
+            if str(value).strip()
+        ]
+
+        if not settings:
+
+            return ""
+
+        state_path = (
+            Path("media")
+            / "output"
+            / ".prompt_state.json"
+        )
+
+        state = {}
+
+        try:
+
+            if state_path.exists():
+
+                state = json.loads(
+                    state_path.read_text(
+                        encoding="utf-8"
+                    )
+                )
+
+        except (
+            json.JSONDecodeError,
+            OSError
+        ):
+
+            state = {}
+
+        key = f"setting_index:{self.category_name}"
+
+        next_index = (
+            int(state.get(key, -1)) + 1
+        ) % len(settings)
+
+        state[key] = next_index
+
+        try:
+
+            state_path.parent.mkdir(
+                parents=True,
+                exist_ok=True
+            )
+
+            state_path.write_text(
+                json.dumps(
+                    state,
+                    indent=4
+                ),
+                encoding="utf-8"
+            )
+
+        except OSError:
+
+            self.log(
+                "Could not persist prompt "
+                "setting rotation state."
+            )
+
+        setting = settings[next_index]
+
+        self.log(
+            f"Episode setting rotated to: {setting}"
+        )
+
+        return setting
 
     def format_bullets(
         self,
@@ -314,6 +401,21 @@ WOW FACTOR
             []
         )
 
+        episode_setting = self.pick_episode_setting()
+
+        setting_section = ""
+
+        if episode_setting:
+
+            setting_section = f"""
+THIS EPISODE'S SETTING
+
+Every concept in this batch must take place in: {episode_setting}.
+State the setting explicitly inside the paragraph. Do not choose a
+different location and do not default to an office, kitchen, or any
+other familiar indoor space.
+"""
+
         return f"""Generate exactly {count} original video concepts.
 
 For each concept, write a single FULL generation prompt that is ready to be
@@ -321,6 +423,7 @@ fed directly into the video model. The full prompt must contain every visual
 and every audio element in one continuous paragraph.
 
 {self.build_shared_context_sections()}
+{setting_section}
 MUSIC AND SOUND FX (derive dynamically from the concept)
 {self.format_bullets(audio_guidance)}
 

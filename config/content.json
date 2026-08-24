@@ -135,7 +135,26 @@
                 "living_subject_rules": [
                     "The main character must be ALIVE: a person, animal, insect, sea creature, or monster.",
                     "Inanimate objects may never be the main character; they can only appear as props, clothing, food, or the absurd element the living character interacts with.",
-                    "When an object misbehaves, show a living character noticing or reacting to it."
+                    "When an object misbehaves, show a living character noticing or reacting to it.",
+                    "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
+                ],
+                "setting_rotation": [
+                    "a laundromat late at night",
+                    "a rooftop garden in the middle of a city",
+                    "a 24-hour supermarket",
+                    "a public swimming pool",
+                    "a long-haul bus on an empty highway",
+                    "a dentist waiting room",
+                    "a foggy fishing pier at dawn",
+                    "an arcade after closing time",
+                    "a mountain hiking trail",
+                    "a crowded subway platform",
+                    "a drive-in movie theater",
+                    "a bowling alley during a league night",
+                    "a botanical garden greenhouse",
+                    "a roadside diner in the desert",
+                    "a library during final exams",
+                    "a beach boardwalk in the off-season"
                 ],
                 "ltx2_prompt_rules": [
                     "Write ONE continuous natural-language paragraph in English. No titles, headings, code fences, or markdown.",
