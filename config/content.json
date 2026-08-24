@@ -64,30 +64,10 @@
                 }
             },
             "audio": {
-                "enabled": true,
-                "music": {
-                    "enabled": true,
-                    "style": "high-energy comedic background music",
-                    "mood": [
-                        "funny",
-                        "playful",
-                        "absurd"
-                    ],
-                    "instruments": [
-                        "bouncy percussion",
-                        "cartoon-style drums",
-                        "playful bass",
-                        "short comedic accents"
-                    ],
-                    "vocals": false
-                }
+                "enabled": true
             },
             "generation": {
-                "clip_count": 1,
-                "visual_style": "",
-                "motion_style": "",
-                "camera_style": "",
-                "continuity": "none"
+                "clip_count": 1
             },
             "prompt_generation": {
                 "instructions": [
@@ -127,23 +107,6 @@
                     "reality reveal: something ordinary opens to reveal an impossible living world",
                     "mundane escalation: a trivial task by a living character spirals into a physically impossible emergency"
                 ],
-                "repetition_motif_terms": [
-                    "paperclip",
-                    "stapler",
-                    "ruler",
-                    "printer",
-                    "keyboard",
-                    "office",
-                    "bureaucrat",
-                    "mayor",
-                    "chancellor",
-                    "gravity",
-                    "balloon",
-                    "portal",
-                    "janitor",
-                    "filing",
-                    "banana"
-                ],
                 "creative_priorities": [
                     "Instant visual weirdness",
                     "Originality",
@@ -162,94 +125,6 @@
                     "Do not use the same subject-object pairing twice.",
                     "Change the emotional tone, scale, setting, and type of impossible rule between concepts."
                 ],
-                "quality_forbidden_phrases": [
-                    "sentient chart",
-                    "sentient bureaucratic",
-                    "the entire world collapses",
-                    "the entire office world collapses",
-                    "processes a paper cut",
-                    "miniature army",
-                    "the room's walls collapse",
-                    "the room collapses",
-                    "stares blankly",
-                    "tiny human ceo",
-                    "its breakfasts",
-                    "miniature bureaucratic meeting",
-                    "slowly melting into",
-                    "slowly rises to confront",
-                    "forming a puddle",
-                    "puddle that slowly morphs",
-                    "one leaping into a toaster",
-                    "non-existent desk",
-                    "doesn't exist",
-                    "materializes under",
-                    "miniature city collapsing",
-                    "collapsing under its own gravity",
-                    "drain the room's walls",
-                    "walls into a single teacup",
-                    "slowly rises to confront",
-                    "tiny office meeting",
-                    "tiny bureaucratic meeting",
-                    "emergency meeting",
-                    "holds an emergency meeting",
-                    "files paperwork",
-                    "sorts letters",
-                    "types while"
-                ],
-                "quality_action_markers": [
-                    " stamps ",
-                    " files ",
-                    " types ",
-                    " writes ",
-                    " wipes ",
-                    " flows ",
-                    " opens ",
-                    " closes ",
-                    " folds ",
-                    " melts ",
-                    " morphs ",
-                    " transforms ",
-                    " grows ",
-                    " runs ",
-                    " bursts ",
-                    " explodes ",
-                    " collapses ",
-                    " peels ",
-                    " reveals ",
-                    " crawls ",
-                    " floats "
-                ],
-                "quality_max_action_markers": 4,
-                "quality_max_clause_markers": 2,
-                "require_living_protagonist": true,
-                "inanimate_subject_nouns": [
-                    "spoon", "fork", "knife", "bowl", "cup", "mug",
-                    "glass", "plate", "pan", "pot", "kettle", "toaster",
-                    "oven", "microwave", "fridge", "refrigerator",
-                    "blender", "chair", "stool", "bench", "table",
-                    "desk", "sofa", "couch", "lamp", "clock", "book",
-                    "notebook", "pencil", "pen", "paper", "stapler",
-                    "paperclip", "printer", "keyboard", "monitor",
-                    "laptop", "phone", "television", "remote", "bottle",
-                    "jar", "box", "bag", "backpack", "umbrella", "shoe",
-                    "sneaker", "sock", "hat", "cap", "glove", "mirror",
-                    "pillow", "blanket", "towel", "brush", "comb",
-                    "sponge", "mop", "broom", "bucket", "mailbox",
-                    "ladder", "rope", "chain", "hammer", "wrench",
-                    "screwdriver", "drill", "scissors", "ruler",
-                    "eraser", "crayon", "marker", "bread", "loaf",
-                    "toast", "pancake", "waffle", "cereal", "sandwich",
-                    "pizza", "burger", "cheese", "butter", "donut",
-                    "cupcake", "cake", "cookie", "noodle", "spaghetti",
-                    "sushi", "taco", "apple", "banana", "orange",
-                    "grape", "watermelon", "lemon", "potato", "tomato",
-                    "carrot", "broccoli", "pumpkin", "popcorn", "candy",
-                    "chocolate", "teapot", "vase", "candle", "globe",
-                    "suitcase", "cart", "balloon", "kite", "dice",
-                    "car", "truck", "bus", "bicycle", "bike",
-                    "scooter", "skateboard", "boat", "train", "plane",
-                    "airplane", "rocket", "toilet", "sink", "bathtub"
-                ],
                 "wow_factor_guidance": [
                     "The concept should make a viewer gasp, laugh out loud, or ask 'what am I watching' within the first second.",
                     "Escalate until the final image is ten times stranger than the setup.",
@@ -262,70 +137,38 @@
                     "Inanimate objects may never be the main character; they can only appear as props, clothing, food, or the absurd element the living character interacts with.",
                     "When an object misbehaves, show a living character noticing or reacting to it."
                 ],
-                "candidate_pool_size": 8,
-                "two_stage_generation": true,
-                "minimum_total_score": 8,
-                "minimum_dimension_score": 1,
-                "visual_absurdity_markers": [
-                    "grows until it reaches",
-                    "keeps growing",
-                    "multiplies into",
-                    "an entire swarm",
-                    "dozens of identical",
-                    "its own shadow",
-                    "its reflection",
-                    "the shadow escapes",
-                    "the reflection climbs",
-                    "steps out of",
-                    "climbs out of",
-                    "walks out of",
-                    "crawls out of",
-                    "opens its mouth",
-                    "turns its head",
-                    "shakes hands with",
-                    "stands up and walks",
-                    "wears a full suit",
-                    "wearing a tiny",
-                    "conducts an orchestra",
-                    "impossible anatomy",
-                    "impossible biology"
+                "ltx2_prompt_rules": [
+                    "Write ONE continuous natural-language paragraph in English. No titles, headings, code fences, or markdown.",
+                    "Start directly with: Style: <visual style>, <rest of the paragraph>. Default to cinematic-realistic if unclear.",
+                    "ESTABLISH THE SHOT: open right after Style with shot scale and framing in cinematic terms the model understands (macro close-up, medium two-shot, low-angle wide, over-the-shoulder, shallow depth of field).",
+                    "SET THE SCENE: establish the lighting source, color palette, surface textures, and atmosphere as the subject acts.",
+                    "DEFINE THE CHARACTER: give the living subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing - and show emotion through visible physical cues, never abstract labels.",
+                    "DESCRIBE THE ACTION as a natural chronological sequence flowing from setup to payoff, told through what is visibly happening.",
+                    "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the gag plays better still.",
+                    "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
+                    "Maintain strict chronological flow using temporal connectors: as, then, while, when, until.",
+                    "Describe the complete soundscape inside the same paragraph, integrated chronologically alongside the actions: background music, ambient sounds, and specific sound effects. Name the exact source and texture of every sound, never vague descriptions such as ambient sound is present.",
+                    "Music must be derived from the concept itself: name the actual mood, tempo, and instruments the absurd situation suggests. Never copy a template of fixed instruments and never reuse a music cue from a previous episode.",
+                    "Visuals and audio only: do not include smell, taste, or touch.",
+                    "Do NOT use timestamps, scene cuts, or phrases such as The scene opens with. Start directly with Style.",
+                    "No dialogue unless speech is essential; if speech is included, put the exact words in quotes with a voice description.",
+                    "Match detail density to shot scale: close-ups need fine texture and facial detail, wide shots stay simpler.",
+                    "Be specific but restrained: concrete details such as neon reflections on wet pavement are good; intensifiers such as vibrant, blinding, breathtaking, or massive are not.",
+                    "The final paragraph is the full prompt that will be fed directly to the video model, so every visual and every sound must be present in this single paragraph."
                 ],
-                "boring_physics_markers": [
-                    "floats",
-                    "floating",
-                    "flies across",
-                    "flies through",
-                    "levitates",
-                    "defies gravity",
-                    "breaks gravity",
-                    "hangs in midair",
-                    "spins in the air"
+                "audio_guidance": [
+                    "Audio (music and sound effects) must be derived dynamically from the absurd concept and escalate together with the action.",
+                    "EVERY concept must include a named background-music cue woven into the paragraph. Silence or a bare hum is not acceptable.",
+                    "Name concrete music: identify the actual energy, instruments, or rhythm the premise suggests. Avoid generic cartoon-style drums or fixed comedic accents.",
+                    "Layer the sounds chronologically: the setup sound, a rising musical cue during the mutation, a popping/creaking/whistling payoff sound, and the final lingering tone.",
+                    "If the scene implies a hidden-world reveal, include a muffled interior hum or echo; if it implies scale, use deep booms or tinkling miniature sounds.",
+                    "Keep every sound source referenced to something visible or implied in the scene."
                 ],
                 "prompt_format": {
-                    "paragraphs": 1,
-                    "minimum_words_per_second": 2.75,
-                    "maximum_words_per_second": 4.75,
-                    "minimum_words_floor": 12,
-                    "maximum_words_cap": 80,
-                    "chronological": true,
-                    "include": [
-                        "subject",
-                        "main action",
-                        "immediate visual consequence"
-                    ],
-                    "exclude": [
-                        "duration",
-                        "seconds",
-                        "frames",
-                        "timing instructions",
-                        "dialogue",
-                        "narration",
-                        "backstory",
-                        "multiple separate events",
-                        "long action sequences",
-                        "explanations",
-                        "generic filler"
-                    ]
+                    "minimum_words_per_second": 12,
+                    "maximum_words_per_second": 20,
+                    "minimum_words_floor": 60,
+                    "maximum_words_cap": 300
                 }
             }
         }

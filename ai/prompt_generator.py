@@ -174,315 +174,6 @@ WOW FACTOR
             for concept in recent_concepts[-8:]
         )
 
-    def get_significant_words(self, value):
-
-        ignored = {
-            "a", "an", "the", "and", "as", "at", "by", "from",
-            "in", "into", "of", "on", "or", "that", "then", "to",
-            "with", "while", "suddenly", "tiny", "small", "normal",
-            "sits", "standing", "near"
-        }
-
-        words = re.findall(
-            r"[a-z0-9]+",
-            str(value).lower()
-        )
-
-        return {
-            word
-            for word in words
-            if len(word) > 3 and word not in ignored
-        }
-
-    def is_repetitive_concept(
-        self,
-        title,
-        prompt,
-        history=None
-    ):
-
-        current_title = self.get_significant_words(
-            title
-        )
-
-        current_prompt = self.get_significant_words(
-            prompt
-        )
-
-        motif_terms = set(
-            self.prompt_config.get(
-                "repetition_motif_terms",
-                []
-            )
-        )
-
-        current_motifs = {
-            term
-            for term in current_prompt
-            if term in motif_terms
-        }
-
-        previous_concepts = (
-            history
-            if history is not None
-            else self.recent_concepts
-        )
-
-        for previous in previous_concepts:
-
-            previous_title = self.get_significant_words(
-                previous["title"]
-            )
-
-            previous_prompt = self.get_significant_words(
-                previous["prompt"]
-            )
-
-            if title.strip().casefold() == previous["title"].strip().casefold():
-
-                return True, "duplicate title"
-
-            title_overlap = current_title & previous_title
-
-            if (
-                current_title and
-                len(title_overlap) >= max(
-                    2,
-                    math.ceil(
-                        len(current_title) * 0.65
-                    )
-                )
-            ):
-
-                return True, "high title overlap"
-
-            motif_overlap = current_motifs & {
-                term
-                for term in previous_prompt
-                if term in motif_terms
-            }
-
-            if len(motif_overlap) >= 2:
-
-                return True, (
-                    "repeated motif: "
-                    + ", ".join(
-                        sorted(motif_overlap)
-                    )
-                )
-
-            prompt_overlap = current_prompt & previous_prompt
-
-            if (
-                len(prompt_overlap) >= 5 and
-                len(prompt_overlap) /
-                max(
-                    len(current_prompt),
-                    1
-                ) >= 0.65
-            ):
-
-                return True, "high prompt overlap"
-
-        return False, ""
-
-    def validate_living_subject(
-        self,
-        prompt
-    ):
-
-        """
-        Rejects prompts whose main subject is an inanimate object.
-        Uses a lightweight heuristic: the first meaningful word of the
-        prompt is treated as the subject noun.
-        """
-
-        if not self.prompt_config.get(
-            "require_living_protagonist",
-            True
-        ):
-
-            return True, ""
-
-        tokens = re.findall(
-            r"[a-z]+",
-            str(prompt).strip().casefold()
-        )
-
-        stopwords = {
-            "a", "an", "the", "and", "as", "at", "but", "by",
-            "for", "from", "in", "into", "of", "on", "onto",
-            "or", "that", "then", "to", "with", "while", "when",
-            "inside", "outside", "near", "over", "under",
-            "suddenly", "slowly", "quickly", "calmly",
-            "its", "his", "her", "their", "one"
-        }
-
-        subject_tokens = [
-            token
-            for token in tokens
-            if token not in stopwords
-        ]
-
-        if not subject_tokens:
-
-            return True, ""
-
-        adjective_skip = {
-            "melting", "giant", "floating", "flying", "talking",
-            "dancing", "screaming", "gigantic", "massive", "tiny",
-            "small", "burning", "frozen", "living", "angry"
-        }
-
-        while (
-            len(subject_tokens) > 1
-            and subject_tokens[0] in adjective_skip
-        ):
-
-            subject_tokens.pop(0)
-
-        first = subject_tokens[0]
-
-        candidate = (
-            first[:-1]
-            if first.endswith("s") and len(first) > 3
-            else first
-        )
-
-        inanimate_nouns = {
-            str(value).strip().casefold()
-            for value in self.prompt_config.get(
-                "inanimate_subject_nouns",
-                []
-            )
-            if str(value).strip()
-        }
-
-        if (
-            candidate in inanimate_nouns
-            or f"{candidate}s" in inanimate_nouns
-        ):
-
-            return False, (
-                f"inanimate object as main subject: {candidate}"
-            )
-
-        return True, ""
-
-    def validate_visual_prompt(self, prompt):
-
-        normalized = str(
-            prompt
-        ).strip().casefold()
-
-        forbidden_phrases = {
-            str(value).strip().casefold()
-            for value in self.prompt_config.get(
-                "quality_forbidden_phrases",
-                []
-            )
-            if str(value).strip()
-        }
-
-        for phrase in forbidden_phrases:
-
-            if phrase in normalized:
-
-                return False, (
-                    f"abstract or unsafe phrase: {phrase}"
-                )
-
-        action_markers = self.prompt_config.get(
-            "quality_action_markers",
-            []
-        )
-
-        action_count = sum(
-            normalized.count(
-                str(marker).casefold()
-            )
-            for marker in action_markers
-        )
-
-        maximum_actions = int(
-            self.prompt_config.get(
-                "quality_max_action_markers",
-                5
-            )
-        )
-
-        if action_count > maximum_actions:
-
-            return False, (
-                f"too many simultaneous actions ({action_count})"
-            )
-
-        clause_markers = (
-            " while ",
-            " as ",
-            " then ",
-            " and "
-        )
-
-        clause_count = sum(
-            normalized.count(
-                marker
-            )
-            for marker in clause_markers
-        )
-
-        maximum_clauses = int(
-            self.prompt_config.get(
-                "quality_max_clause_markers",
-                3
-            )
-        )
-
-        if clause_count > maximum_clauses:
-
-            return False, (
-                f"too many chained clauses ({clause_count})"
-            )
-
-        absurdity_markers = {
-            str(value).strip().casefold()
-            for value in self.prompt_config.get(
-                "visual_absurdity_markers",
-                []
-            )
-            if str(value).strip()
-        }
-
-        physics_only_markers = {
-            str(value).strip().casefold()
-            for value in self.prompt_config.get(
-                "boring_physics_markers",
-                []
-            )
-            if str(value).strip()
-        }
-
-        has_absurdity_marker = any(
-            marker in normalized
-            for marker in absurdity_markers
-        )
-
-        has_physics_only_marker = any(
-            marker in normalized
-            for marker in physics_only_markers
-        )
-
-        if (
-            has_physics_only_marker and
-            not has_absurdity_marker
-        ):
-
-            return False, (
-                "generic physics spectacle without a visual absurdity hook"
-            )
-
-        return True, ""
-
     def remember_concepts(self, concepts):
 
         self.recent_concepts.extend(
@@ -599,64 +290,6 @@ WOW FACTOR
         count
     ):
 
-        genre = self.category_config.get(
-            "genre",
-            "short-form visual comedy"
-        )
-
-        tone = self.category_config.get(
-            "tone",
-            []
-        )
-
-        world = self.category_config.get(
-            "world",
-            []
-        )
-
-        protagonists = self.category_config.get(
-            "protagonists",
-            []
-        )
-
-        comedy_types = self.category_config.get(
-            "comedy_types",
-            []
-        )
-
-        absurdity_families = self.prompt_config.get(
-            "absurdity_families",
-            []
-        )
-
-        instructions = (
-            self.prompt_config.get(
-                "instructions",
-                []
-            )
-        )
-
-        creative_directions = (
-            self.prompt_config.get(
-                "creative_directions",
-                []
-            )
-        )
-
-        priorities = (
-            self.prompt_config.get(
-                "creative_priorities",
-                []
-            )
-        )
-
-        diversity = (
-            self.prompt_config.get(
-                "diversity_guidance",
-                []
-            )
-        )
-
         word_range = self.get_prompt_word_range()
 
         duration_seconds = word_range[
@@ -671,121 +304,51 @@ WOW FACTOR
             "maximum_words"
         ]
 
-        candidate_pool_size = int(
-            self.prompt_config.get(
-                "candidate_pool_size",
-                5
-            )
+        ltx2_rules = self.prompt_config.get(
+            "ltx2_prompt_rules",
+            []
         )
 
-        return f"""
-Generate exactly {count} final original video concepts.
+        audio_guidance = self.prompt_config.get(
+            "audio_guidance",
+            []
+        )
 
-For every final concept, silently brainstorm at least
-{candidate_pool_size} different candidates first. Reject candidates that
-are generic, abstract, overloaded, repetitive, or difficult to render.
-Output only the strongest surviving concepts.
+        return f"""Generate exactly {count} original video concepts.
 
-GENRE
-{genre}
+For each concept, write a single FULL generation prompt that is ready to be
+fed directly into the video model. The full prompt must contain every visual
+and every audio element in one continuous paragraph.
 
-TONE
-{self.format_bullets(tone)}
+{self.build_shared_context_sections()}
+MUSIC AND SOUND FX (derive dynamically from the concept)
+{self.format_bullets(audio_guidance)}
 
-POSSIBLE WORLDS
-{self.format_bullets(world)}
-
-POSSIBLE PROTAGONISTS
-{self.format_bullets(protagonists)}
-
-COMEDY ENGINES
-{self.format_bullets(comedy_types)}
-
-ABSURDITY FAMILIES
-{self.format_bullets(absurdity_families)}
-
-RECENT CONCEPTS TO AVOID REPEATING
-{self.get_recent_concepts_text()}
-
-RULES
-{self.format_bullets(instructions)}
-
-CREATIVE FREEDOM
-{self.format_bullets(creative_directions)}
-
-PRIORITIES
-{self.format_bullets(priorities)}
-
-VARIETY
-{self.format_bullets(diversity)}
+LTX2 PROMPT STRUCTURE (the "prompt" field, follow strictly)
+{self.format_bullets(ltx2_rules)}
 
 PROMPT LENGTH
 
-Write each prompt in approximately {minimum_words}-{maximum_words} words.
-This range is derived from the configured video duration of
-approximately {duration_seconds:g} seconds.
+Write the full "prompt" paragraph in approximately
+{minimum_words}-{maximum_words} words. This range is derived from the
+configured video duration of approximately
+{duration_seconds:g} seconds. The paragraph must be long enough to cover the
+style, the living subject, the impossible mutation, one escalation, and the
+chronologically integrated music and sound effects - and short enough that a
+single 8-second continuous shot can show all of it.
 
-Each prompt must describe ONE tightly framed but aggressively bizarre visual event
-suitable for an approximately {duration_seconds:g}-second vertical video.
-
-Use this exact visual structure:
-ordinary recognizable setup → one impossible physical mutation or behavior →
-one immediate escalation → one concrete final image
-
-Keep the action concrete and easy to visualize, but make the underlying situation
-irrational, surreal, cursed, or gloriously stupid.
-
-Do not write a normal wholesome scene, generic cartoon gag, ordinary slapstick,
-or predictable animal behavior.
-
-The prompt may contain a rapid setup, transformation, and payoff if they form
-one continuous visual gag.
-
-Prefer a strong visual contradiction: an impossible object, an inappropriate job,
-a creature behaving like a bureaucrat, a tiny world inside a normal object, or
-a mundane situation obeying a ridiculous rule.
-
-Make the first image immediately strange. Escalate once. End on the most
-unexpected clear visual consequence.
-
-Favor concepts that feel like an original internet fever dream rather than
-polished fantasy, conventional comedy, or a children's cartoon.
-
-Use specific nouns and physical verbs. Avoid vague adjectives such as "funny,"
-"weird," "crazy," or "interesting" unless paired with a concrete visual action.
-
-Every concept in this batch must use a different dominant absurdity family,
-protagonist type, setting, or payoff whenever possible.
-
-Do not make every concept an office, bureaucrat, miniature society, meeting,
-paperwork, or authority figure. Rotate radically between food, animals,
-household objects, public spaces, creatures, anatomy, and bizarre jobs.
-
-The absurdity must be visible in the first image or first physical action.
-Prefer "a spoon grows legs and sprints" over "a spoon floats" or "gravity breaks."
-
-Do not use an abstract world-ending consequence. Show one object physically
-changing, moving, opening, growing, walking, escaping, or behaving incorrectly.
-
-Do not mention duration, seconds, frames, timing instructions, dialogue,
-narration, previous clips, future clips, or instructions to the video model.
-
-Let the concept determine the number of characters and objects.
-
-The main character must be ALIVE: a person, animal, insect, sea creature,
-or monster. Inanimate objects may appear only as props for that living
-character, never as the main character.
+Use this exact narrative arc inside the full paragraph:
+recognizable everyday setup -> one impossible physical mutation or behavior ->
+one escalating action -> a concrete final image (with its final sound).
 
 OUTPUT
 
-Return exactly {count} concepts.
-
-Use exactly this JSON structure:
+Return exactly {count} concepts. Use exactly this JSON structure:
 
 [
     {{
         "title": "Short memorable title",
-        "prompt": "Short visual generation prompt"
+        "prompt": "THE COMPLETE single-paragraph video+audio prompt"
     }}
 ]
 
@@ -805,24 +368,6 @@ No commentary.
             f"Generating {count} video prompts"
         )
 
-        if self.prompt_config.get(
-            "two_stage_generation",
-            True
-        ):
-
-            prompts = self.generate_two_stage(
-                count
-            )
-
-            if prompts:
-
-                return prompts
-
-            self.log(
-                "Two-stage generation produced no final prompts. "
-                "Falling back to one-shot generation."
-            )
-
         return self.generate_single_stage(
             count
         )
@@ -836,337 +381,24 @@ No commentary.
             count
         )
 
-        for attempt in range(2):
-
-            response = self.llm.generate(
-                prompt,
-                response_format=self.get_response_schema()
-            )
-
-            prompts = self.parse_response(
-                response,
-                count
-            )
-
-            if prompts or attempt == 1:
-
-                return prompts
-
-            self.log(
-                "No fresh concepts survived validation. "
-                "Requesting a diversity retry."
-            )
-
-            prompt = self.build_prompt(
-                count
-            )
-
-        return []
-
-    def generate_two_stage(
-        self,
-        count
-    ):
-
-        candidate_count = int(
-            self.prompt_config.get(
-                "candidate_pool_size",
-                8
-            )
+        response = self.llm.generate(
+            prompt,
+            response_format=self.get_response_schema()
         )
 
-        threshold = int(
-            self.prompt_config.get(
-                "minimum_total_score",
-                8
-            )
+        prompts = self.parse_response(
+            response,
+            count
         )
 
-        minimum_dimension = int(
-            self.prompt_config.get(
-                "minimum_dimension_score",
-                1
-            )
-        )
+        if not prompts:
 
-        for attempt in range(2):
-
-            candidates = self.parse_candidates(
-                self.llm.generate(
-                    self.build_brainstorm_prompt(
-                        candidate_count
-                    ),
-                    response_format=self.get_brainstorm_schema()
-                )
+            raise RuntimeError(
+                "Prompt generator returned no usable prompts. "
+                f"Raw response: {str(response)[:500]}"
             )
 
-            if not candidates:
-
-                self.log(
-                    "Stage one (brainstorm) returned no candidates. "
-                    "Retrying."
-                )
-
-                continue
-
-            prompts = self.parse_response(
-                self.llm.generate(
-                    self.build_selection_prompt(
-                        candidates,
-                        count,
-                        threshold,
-                        minimum_dimension
-                    ),
-                    response_format=self.get_selection_schema()
-                ),
-                count
-            )
-
-            if prompts:
-
-                return prompts
-
-            self.log(
-                "Stage two (scoring/selection) produced no survivors. "
-                "Retrying with a fresh brainstorm."
-            )
-
-        return []
-
-    def build_brainstorm_prompt(
-        self,
-        candidate_count
-    ):
-
-        word_range = self.get_prompt_word_range()
-
-        minimum_words = word_range["minimum_words"]
-
-        maximum_words = word_range["maximum_words"]
-
-        duration_seconds = word_range["duration_seconds"]
-
-        return f"""STAGE ONE - BRAINSTORMING
-
-Generate exactly {candidate_count} raw candidate concepts for Brainrot
-short-form vertical videos.
-
-This is ONLY a brainstorming stage. Do NOT filter, refine, score, or reject
-any candidate here. Maximize raw variety and rotate across completely
-different domains: food, animals, insects, household objects, public spaces,
-anatomy, weather, vehicles, clothing, and bizarre professions.
-
-{self.build_shared_context_sections()}
-CANDIDATE QUALITY BAR
-- Every candidate must have one immediately absurd visual idea.
-- Prefer a concrete impossible mutation: unexpected legs, eyes, hands, mouths,
-  inside-out bodies, tiny worlds, or objects performing impossible jobs.
-- Avoid generic floating, flying, or gravity-breaking unless paired with a
-  stronger mutation.
-- Avoid offices, bureaucratic meetings, paperwork-only ideas, and miniature
-  civilisations.
-- Keep each candidate to a single visual beat.
-- Make the main character a LIVING being; inanimate objects are props only.
-
-PROMPT LENGTH
-Write each candidate in approximately {minimum_words}-{maximum_words} words
-for a ~{duration_seconds:g}-second vertical video.
-
-OUTPUT
-Return exactly {candidate_count} candidates as JSON:
-[{{"title": "Short title", "prompt": "Candidate prompt"}}]
-
-Return ONLY the JSON array. No markdown. No code block. No explanations.
-"""
-
-    def build_selection_prompt(
-        self,
-        candidates,
-        final_count,
-        threshold,
-        minimum_dimension
-    ):
-
-        word_range = self.get_prompt_word_range()
-
-        minimum_words = word_range["minimum_words"]
-
-        maximum_words = word_range["maximum_words"]
-
-        duration_seconds = word_range["duration_seconds"]
-
-        candidate_list = json.dumps(
-            candidates,
-            ensure_ascii=False,
-            indent=2
-        )
-
-        return f"""STAGE TWO - SCORING, SELECTION, AND FINAL REWRITING
-
-You are an expert editor for Brainrot short-form AI videos. Below are
-{len(candidates)} raw candidate concepts.
-
-{self.build_shared_context_sections()}
-SCORING RUBRIC - score each candidate 0-2 per dimension:
-1. visual_hook: 2 = the very first image is immediately absurd and stop-scrolling.
-2. physical_clarity: 2 = one dominant subject, concrete action, easy to picture.
-3. eight_second_feasibility: 2 = one continuous shot suitable for
-   ~{duration_seconds:g} seconds, not overloaded.
-4. novelty: 2 = fresh and unexpected, not a rehash of the recent concepts.
-5. final_image: 2 = ends on a concrete object, pose, or location that is clearly renderable.
-
-Accept ONLY candidates where:
-- total score >= {threshold}/10
-- every dimension >= {minimum_dimension}
-- the prompt has no abstract phrasing (world collapse, reality breaks,
-  does not exist, sentient charts).
-- the prompt is not purely floating / flying / gravity-breaking spectacle.
-- there is one dominant subject and at most one or two supporting objects.
-- the MAIN subject is a LIVING being (person, animal, insect, sea creature,
-  or monster); inanimate objects only as props.
-
-REWRITE each surviving candidate into the final form:
-ordinary recognizable setup -> one impossible physical mutation ->
-one immediate visual action -> one concrete final image.
-
-Keep it {minimum_words}-{maximum_words} words. One sentence is preferred.
-
-RECENT CONCEPTS TO AVOID REPEATING
-{self.get_recent_concepts_text()}
-
-CANDIDATES TO SCORE
-{candidate_list}
-
-OUTPUT
-Return ONLY the accepted, rewritten concepts as JSON:
-[{{"title": "...", "prompt": "...", "reason": "one short line on why it passes the rubric"}}]
-Select at most {final_count} of the strongest. An empty array is allowed when none pass.
-
-Return ONLY the JSON array. No markdown. No code block. No commentary.
-"""
-
-    def parse_candidates(
-        self,
-        response
-    ):
-
-        if not response:
-
-            return []
-
-        response = self.clean_response(
-            response
-        )
-
-        if not response:
-
-            return []
-
-        try:
-
-            data = json.loads(
-                response
-            )
-
-        except (
-            json.JSONDecodeError,
-            TypeError
-        ):
-
-            data = self.extract_json_array(
-                response
-            )
-
-        if not isinstance(
-            data,
-            list
-        ):
-
-            return []
-
-        candidates = []
-
-        for item in data:
-
-            if not isinstance(
-                item,
-                dict
-            ):
-
-                continue
-
-            title = str(
-                item.get(
-                    "title",
-                    ""
-                )
-            ).strip()
-
-            prompt = str(
-                item.get(
-                    "prompt",
-                    ""
-                )
-            ).strip()
-
-            if title and prompt:
-
-                candidates.append(
-                    {
-                        "title": title,
-                        "prompt": prompt
-                    }
-                )
-
-        return candidates
-
-    def get_brainstorm_schema(self):
-
-        return {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "prompt": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "title",
-                    "prompt"
-                ],
-                "additionalProperties": False
-            }
-        }
-
-    def get_selection_schema(self):
-
-        return {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "prompt": {
-                        "type": "string"
-                    },
-                    "reason": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "title",
-                    "prompt",
-                    "reason"
-                ],
-                "additionalProperties": False
-            }
-        }
+        return prompts
 
     def get_response_schema(self):
 
@@ -1285,72 +517,20 @@ Return ONLY the JSON array. No markdown. No code block. No commentary.
 
             if not title:
 
-                self.log(
-                    "Skipping generated concept with no title."
-                )
+                title = " ".join(
+                    prompt.split()[:6]
+                ).strip(" ,.-") or "Untitled Concept"
 
-                continue
+                self.log(
+                    "Concept had no title; "
+                    "derived one from the prompt."
+                )
 
             if not prompt:
 
                 self.log(
                     f"Skipping '{title}' because "
                     "the prompt is empty."
-                )
-
-                continue
-
-            living_valid, reason = self.validate_living_subject(
-                prompt
-            )
-
-            if not living_valid:
-
-                self.log(
-                    f"Skipping '{title}' because the main subject "
-                    f"is not a living being ({reason})."
-                )
-
-                continue
-
-            visually_valid, reason = self.validate_visual_prompt(
-                prompt
-            )
-
-            if not visually_valid:
-
-                self.log(
-                    f"Skipping '{title}' because it is difficult "
-                    f"to film clearly ({reason})."
-                )
-
-                continue
-
-            repetitive, reason = self.is_repetitive_concept(
-                title,
-                prompt
-            )
-
-            if repetitive:
-
-                self.log(
-                    f"Skipping '{title}' because it repeats "
-                    f"a recent concept ({reason})."
-                )
-
-                continue
-
-            repetitive, reason = self.is_repetitive_concept(
-                title,
-                prompt,
-                history=self.recent_concepts + prompts
-            )
-
-            if repetitive:
-
-                self.log(
-                    f"Skipping '{title}' because it repeats "
-                    f"a recent concept ({reason})."
                 )
 
                 continue

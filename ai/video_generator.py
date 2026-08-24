@@ -981,166 +981,6 @@ class VideoGenerator(
 
         return parsed_blocks
 
-    def build_audio_prompt(
-        self
-    ):
-
-        if not self.audio_config.get(
-            "enabled",
-            False
-        ):
-
-            return ""
-
-        model_audio_config = (
-            self.video_config.get(
-                "audio",
-                {}
-            )
-        )
-
-        if not model_audio_config.get(
-            "enabled",
-            True
-        ):
-
-            return ""
-
-        music_config = (
-            self.audio_config.get(
-                "music",
-                {}
-            )
-        )
-
-        if not music_config.get(
-            "enabled",
-            False
-        ):
-
-            return ""
-
-        parts = []
-
-        style = (
-            music_config.get(
-                "style"
-            )
-        )
-
-        if style:
-
-            parts.append(
-                str(
-                    style
-                ).strip()
-            )
-
-        mood = (
-            music_config.get(
-                "mood",
-                []
-            )
-        )
-
-        if mood:
-
-            mood_text = ", ".join(
-                str(
-                    value
-                ).strip()
-                for value in mood
-                if str(
-                    value
-                ).strip()
-            )
-
-            if mood_text:
-
-                parts.append(
-                    f"mood: {mood_text}"
-                )
-
-        instruments = (
-            music_config.get(
-                "instruments",
-                []
-            )
-        )
-
-        if instruments:
-
-            instrument_text = ", ".join(
-                str(
-                    value
-                ).strip()
-                for value in instruments
-                if str(
-                    value
-                ).strip()
-            )
-
-            if instrument_text:
-
-                parts.append(
-                    f"instruments: {instrument_text}"
-                )
-
-        vocals = (
-            music_config.get(
-                "vocals"
-            )
-        )
-
-        if vocals is False:
-
-            parts.append(
-                "instrumental only, no vocals"
-            )
-
-        if not parts:
-
-            return ""
-
-        return (
-            "Background music: "
-            +
-            "; ".join(
-                parts
-            )
-            +
-            "."
-        )
-
-    def build_ltx_prompt(
-        self,
-        prompt
-    ):
-
-        audio_prompt = (
-            self.build_audio_prompt()
-        )
-
-        if not audio_prompt:
-
-            return prompt
-
-        prompt = str(
-            prompt
-        ).strip()
-
-        if not prompt:
-
-            return audio_prompt
-
-        return (
-            prompt
-            +
-            "\n\n"
-            +
-            audio_prompt
-        )
-
     def load_pipeline(
         self
     ):
@@ -1440,9 +1280,9 @@ class VideoGenerator(
     ):
 
         ltx_prompt = (
-            self.build_ltx_prompt(
+            str(
                 prompt
-            )
+            ).strip()
         )
 
         self.log(
@@ -1627,16 +1467,20 @@ class VideoGenerator(
                 "STG block indices: not applied"
             )
 
-        if self.build_audio_prompt():
+        if self.audio_config.get(
+            "enabled",
+            False
+        ):
 
             self.log(
-                "LTX background music: enabled"
+                "LTX integrated audio: enabled "
+                "(music and SFX derived from prompt)"
             )
 
         else:
 
             self.log(
-                "LTX background music: disabled"
+                "LTX integrated audio: disabled"
             )
 
         self.update_progress(
