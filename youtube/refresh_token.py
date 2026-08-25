@@ -1,7 +1,5 @@
 import argparse
 
-import os
-
 import threading
 
 import webbrowser
@@ -24,6 +22,10 @@ import requests
 from dotenv import (
     load_dotenv,
     set_key
+)
+
+from youtube.config import (
+    load_youtube_config
 )
 
 
@@ -345,42 +347,57 @@ def main():
 
     parser.add_argument(
         "--scope",
-        default=DEFAULT_SCOPE,
+        default="",
         help=(
-            "OAuth scopes (default: youtube.upload + "
-            "youtube.readonly)."
+            "OAuth scopes, space separated (default: the scopes in "
+            "config/youtube.json)."
         )
     )
 
     args = parser.parse_args()
 
+    config = load_youtube_config()
+
+    account = config.get("account") or {}
+
     client_id = str(
         args.client_id
-        or os.getenv("YOUTUBE_CLIENT_ID")
-        or os.getenv("youtube_client_id")
+        or account.get("client_id")
         or ""
     ).strip()
 
     client_secret = str(
         args.client_secret
-        or os.getenv("YOUTUBE_CLIENT_SECRET")
-        or os.getenv("youtube_client_secret")
+        or account.get("client_secret")
         or ""
     ).strip()
+
+    api = config.get("api") or {}
+
+    scopes = list(
+        api.get("scope")
+        or []
+    )
+
+    scope = str(
+        args.scope
+        or " ".join(scopes)
+    ).strip() or DEFAULT_SCOPE
 
     if not client_id or not client_secret:
 
         raise SystemExit(
             "[OAUTH] Client ID and Client Secret were not found. "
             "Add youtube_client_id and youtube_client_secret to "
-            f"{env_path}, or pass --client-id/--client-secret."
+            "your .env, put them in config/youtube.json, "
+            "or pass --client-id/--client-secret."
         )
 
     tokens = run_authorization_flow(
         client_id,
         client_secret,
         args.port,
-        args.scope
+        scope
     )
 
     access_token = str(

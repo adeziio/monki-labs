@@ -3733,6 +3733,116 @@
     </div>
 
 
+    <!-- ==================================================
+             INSTAGRAM UPLOAD MODAL
+        ================================================== -->
+
+    <div id="instagramModal" class="youtube-modal" hidden>
+
+        <div class="youtube-modal-backdrop" onclick="closeInstagramUploadModal()"></div>
+
+
+        <div class="youtube-modal-panel" role="dialog" aria-modal="true" aria-labelledby="instagramModalTitle">
+
+            <div class="youtube-modal-header">
+
+                <div>
+
+                    <div class="youtube-modal-title" id="instagramModalTitle">
+                        Upload to Instagram
+                    </div>
+
+
+                    <div class="youtube-modal-subtitle" id="instagramModalEpisode">
+                        Loading episode…
+                    </div>
+
+                </div>
+
+
+                <button type="button" class="youtube-modal-close" aria-label="Close"
+                    onclick="closeInstagramUploadModal()">
+                    ✕
+                </button>
+
+            </div>
+
+
+            <form class="youtube-form" id="instagramUploadForm" autocomplete="off">
+
+                <div class="youtube-form-section">
+
+                    <div class="youtube-form-heading">
+                        Account
+                    </div>
+
+
+                    <div class="youtube-form-grid">
+
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="instagramAccessToken">Access Token</label>
+                            <input id="instagramAccessToken" type="password" />
+                            <div class="youtube-hint">Long-lived Meta user token with instagram_content_publish.</div>
+                        </div>
+
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="instagramUserId">Instagram User ID</label>
+                            <input id="instagramUserId" type="text" placeholder="17841400000000000" />
+                            <div class="youtube-hint">ID of the Business/Creator account to publish to.</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="youtube-form-section">
+
+                    <div class="youtube-form-heading">
+                        Post
+                    </div>
+
+
+                    <div class="youtube-form-grid">
+
+
+                        <div class="youtube-field youtube-field-full">
+                            <label for="instagramCaption">Caption</label>
+                            <textarea id="instagramCaption" rows="7"></textarea>
+                            <div class="youtube-hint">Prefilled with title, summary and hashtags. Editable before posting.</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div id="instagramModalResult" class="youtube-modal-result" hidden></div>
+
+
+                <div class="youtube-actions">
+
+                    <button type="button" class="secondary" onclick="closeInstagramUploadModal()">
+                        Cancel
+                    </button>
+
+
+                    <button type="button" class="primary-button" id="instagramSubmitButton"
+                        onclick="submitInstagramPublish()">
+                        Publish Reel
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
     <script>
 
         let statusTimer =
@@ -5550,6 +5660,15 @@
 
                         <button
                             class="secondary"
+                            onclick="openInstagramUploadModal(
+                                '${escapeJs(episode.path)}'
+                            )"
+                        >
+                            Upload to Instagram
+                        </button>
+
+                        <button
+                            class="secondary"
                             onclick="openYoutubeUploadModal(
                                 '${escapeJs(episode.path)}'
                             )"
@@ -6394,6 +6513,231 @@
 
                 button.textContent =
                     "Upload Short";
+
+            }
+
+        }
+
+
+        /* ==================================================
+             INSTAGRAM UPLOAD
+        ================================================== */
+
+        let instagramConfig =
+            {};
+
+        let instagramEpisode =
+            null;
+
+
+        function setInstagramFieldValue(
+            id,
+            value
+        ) {
+
+            const field =
+                document.getElementById(id);
+
+            if (field) {
+
+                field.value =
+                    value || "";
+
+            }
+
+        }
+
+
+        async function openInstagramUploadModal(
+            episodeId
+        ) {
+
+            try {
+
+                const data =
+                    await api(
+                        "/api/instagram/form?episode_id=" +
+                        encodeURIComponent(
+                            episodeId
+                        )
+                    );
+
+
+                instagramConfig =
+                    data.config ||
+                    {};
+
+
+                instagramEpisode =
+                    data.episode ||
+                    {
+                        id: episodeId
+                    };
+
+
+                document.getElementById(
+                    "instagramModalEpisode"
+                ).textContent =
+                    episodeId;
+
+                document.getElementById(
+                    "instagramModalResult"
+                ).hidden =
+                    true;
+
+
+                const account =
+                    instagramConfig.account ||
+                    {};
+
+                setInstagramFieldValue(
+                    "instagramAccessToken",
+                    account.access_token
+                );
+
+                setInstagramFieldValue(
+                    "instagramUserId",
+                    account.user_id
+                );
+
+                setInstagramFieldValue(
+                    "instagramCaption",
+                    data.caption
+                );
+
+
+                document.getElementById(
+                    "instagramModal"
+                ).hidden =
+                    false;
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        function closeInstagramUploadModal() {
+
+            document.getElementById(
+                "instagramModal"
+            ).hidden =
+                true;
+
+        }
+
+
+        async function submitInstagramPublish() {
+
+            if (
+                !instagramEpisode ||
+                !instagramEpisode.id
+            ) {
+
+                return;
+
+            }
+
+
+            const button =
+                document.getElementById(
+                    "instagramSubmitButton"
+                );
+
+
+            const result =
+                document.getElementById(
+                    "instagramModalResult"
+                );
+
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "Publishing…";
+
+
+            result.hidden =
+                false;
+
+            result.className =
+                "youtube-modal-result";
+
+            result.textContent =
+                "Uploading to Instagram… Processing can take a few minutes.";
+
+
+            try {
+
+                const data =
+                    await api(
+                        "/api/instagram/publish",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        episode_id:
+                                            instagramEpisode.id,
+
+                                        account: {
+                                            access_token:
+                                                document.getElementById("instagramAccessToken").value.trim(),
+
+                                            ig_user_id:
+                                                document.getElementById("instagramUserId").value.trim()
+                                        },
+
+                                        caption:
+                                            document.getElementById("instagramCaption").value.trim()
+                                    }
+                                )
+                        }
+                    );
+
+
+                result.className =
+                    "youtube-modal-result success";
+
+                result.innerHTML =
+                    "✅ Published: " +
+                    '<a href="' +
+                    escapeHtml(
+                        data.permalink ||
+                        "#"
+                    ) +
+                    '" target="_blank" rel="noopener">' +
+                    "View on Instagram" +
+                    "</a>";
+
+            } catch (error) {
+
+                result.className =
+                    "youtube-modal-result error";
+
+                result.textContent =
+                    "Publish failed: " +
+                    error.message;
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "Publish Reel";
 
             }
 

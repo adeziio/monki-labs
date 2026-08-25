@@ -44,8 +44,8 @@ def resolve_channel_by_name(
             raise YouTubeChannelError(
                 "Could not look up the authenticated YouTube channel. "
                 "The OAuth token is missing the youtube.readonly scope. "
-                "Run youtube.oauth_helper again and approve the new "
-                "permissions."
+                "Run python -m youtube.refresh_token again and approve the "
+                "new permissions."
             )
 
         raise YouTubeChannelError(

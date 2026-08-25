@@ -19,6 +19,15 @@ from youtube import (
     uploader
 )
 
+from instagram import (
+    auth as instagram_auth,
+    publisher as instagram_publisher
+)
+
+from instagram import (
+    config as instagram_config_module
+)
+
 
 HOST = "0.0.0.0"
 PORT = 8000
@@ -1803,6 +1812,141 @@ class RequestHandler(
 
             return
 
+        if path == "/api/instagram/form":
+
+            params = parse_qs(
+                parsed.query
+            )
+
+            episode_ids = (
+                params.get(
+                    "episode_id",
+                    []
+                )
+            )
+
+            if not episode_ids:
+
+                self.send_json(
+                    {
+                        "error":
+                        "Missing episode ID."
+                    },
+                    400
+                )
+
+                return
+
+            episode_id = (
+                episode_ids[0]
+            )
+
+            try:
+
+                prompt_item = (
+                    get_episode_prompt(
+                        episode_id
+                    )
+                )
+
+                identity = (
+                    get_episode_identity(
+                        episode_id
+                    )
+                )
+
+                instagram_config = (
+                    instagram_config_module.get_account(
+                        instagram_config_module.load_instagram_config()
+                    )
+                )
+
+                caption_defaults = (
+                    instagram_config_module.get_caption_defaults(
+                        instagram_config_module.load_instagram_config()
+                    )
+                )
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(
+                            error
+                        )
+                    },
+                    400
+                )
+
+                return
+
+            title = str(
+                prompt_item.get(
+                    "title",
+                    ""
+                )
+            ).strip()
+
+            summary = str(
+                prompt_item.get(
+                    "summary",
+                    ""
+                ).strip()
+                or prompt_item.get(
+                    "prompt",
+                    ""
+                ).strip()
+            )
+
+            tags = list(
+                caption_defaults.get(
+                    "default_hashtags"
+                )
+                or ["#Shorts", "#AI"]
+            )
+
+            caption_parts = [
+                part
+                for part in (
+                    title,
+                    summary,
+                    " ".join(tags)
+                )
+                if part.strip()
+            ]
+
+            self.send_json(
+                {
+                    "config": {
+                        "account": {
+                            "access_token": instagram_config.get(
+                                "access_token",
+                                ""
+                            ),
+                            "user_id": instagram_config.get(
+                                "user_id",
+                                ""
+                            )
+                        }
+                    },
+                    "episode": {
+                        "id": episode_id,
+                        "category": identity[
+                            "category"
+                        ],
+                        "number": identity[
+                            "number"
+                        ],
+                        "title": title
+                    },
+                    "caption": "\n\n".join(
+                        caption_parts
+                    )
+                }
+            )
+
+            return
+
         if path.startswith(
             "/media/"
         ):
@@ -2007,6 +2151,210 @@ class RequestHandler(
                     "video_id": result.video_id,
                     "video_url": result.video_url,
                     "title": result.title
+                }
+            )
+
+            return
+
+        if parsed.path == "/api/instagram/publish":
+
+            try:
+
+                data = self.read_json()
+
+                episode_id = str(
+                    data.get(
+                        "episode_id",
+                        ""
+                    )
+                ).strip()
+
+                if not episode_id:
+
+                    raise ValueError(
+                        "Missing episode ID."
+                    )
+
+                video_path = (
+                    resolve_episode_video_path(
+                        episode_id
+                    )
+                )
+
+                account = (
+                    data.get("account")
+                    or {}
+                )
+
+                if not isinstance(account, dict):
+
+                    raise ValueError(
+                        "Account must be a dictionary."
+                    )
+
+                caption = str(
+                    data.get("caption") or ""
+                ).strip()
+
+                if not caption:
+
+                    raise ValueError(
+                        "Caption is required."
+                    )
+
+                access_token = str(
+                    account.get(
+                        "access_token"
+                    ) or ""
+                ).strip()
+
+                ig_user_id = str(
+                    account.get(
+                        "ig_user_id"
+                    ) or account.get(
+                        "user_id"
+                    ) or ""
+                ).strip()
+
+                # Derive the publicly reachable base URL from the
+                # incoming request itself (e.g. a cloudflared/ngrok
+                # tunnel that the user opened the app through), so it
+                # does not need to be configured anywhere.
+
+                host = str(
+                    self.headers.get("Host") or ""
+                ).strip()
+
+                if not host:
+
+                    host = f"localhost:{PORT}"
+
+                forwarded_proto = str(
+                    self.headers.get(
+                        "X-Forwarded-Proto"
+                    ) or ""
+                ).strip().lower()
+
+                if forwarded_proto in (
+                    "http",
+                    "https"
+                ):
+
+                    scheme = forwarded_proto
+
+                elif (
+                    host.startswith("localhost")
+                    or host.startswith("127.0.0.1")
+                ):
+
+                    scheme = "http"
+
+                else:
+
+                    scheme = "https"
+
+                public_base_url = (
+                    f"{scheme}://{host}"
+                )
+
+                relative_media = str(
+                    video_path.relative_to(
+                        MEDIA_ROOT
+                    )
+                ).replace(
+                    "\\",
+                    "/"
+                )
+
+                public_video_url = (
+                    public_base_url.rstrip("/")
+                    + "/media/"
+                    + relative_media
+                )
+
+                # Instagram's servers fetch the video themselves, so
+                # they cannot reach loopback addresses. Warn early and
+                # loudly instead of failing later with a cryptic
+                # processing error.
+
+                is_loopback = (
+                    host.startswith("localhost")
+                    or host.startswith("127.0.0.1")
+                )
+
+                if is_loopback:
+
+                    print(
+                        "[INSTAGRAM] WARNING: The video URL uses "
+                        f"'{host}', which Instagram's servers cannot "
+                        "reach. Open this app through your public "
+                        "tunnel (cloudflared/ngrok) and publish from "
+                        "that URL instead."
+                    )
+
+                (
+                    resolved_token,
+                    resolved_user_id,
+                    username
+                ) = instagram_auth.resolve_account(
+                    {
+                        "access_token": access_token,
+                        "ig_user_id": ig_user_id
+                    }
+                )
+
+                print(
+                    f"[INSTAGRAM] Publishing as @{username}: "
+                    f"{public_video_url}"
+                )
+
+                def progress_callback(message):
+                    print(
+                        f"[INSTAGRAM] {message}"
+                    )
+
+                result = (
+                    instagram_publisher.publish_reel(
+                        public_video_url,
+                        caption,
+                        resolved_token,
+                        resolved_user_id,
+                        progress_callback=(
+                            progress_callback
+                        )
+                    )
+                )
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(
+                            error
+                        )
+                    },
+                    400
+                )
+
+                return
+
+            permalink = (
+                result.get("permalink")
+                or ""
+            )
+
+            print(
+                f"[INSTAGRAM] Published: {permalink}"
+            )
+
+            self.send_json(
+                {
+                    "success": True,
+                    "permalink": permalink,
+                    "media_id": result.get(
+                        "media_id",
+                        ""
+                    )
                 }
             )
 

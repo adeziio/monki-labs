@@ -111,6 +111,122 @@ if not errorlevel 1 (
 
 echo.
 
+REM ---------------------------------------------------------------------------
+REM Optional: auto-start a Cloudflare quick tunnel so Instagram uploads
+REM work out of the box. Instagram's servers fetch the video from a
+REM public URL, so publishing must be done through a publicly reachable
+REM address. If cloudflared is not installed, Monki Labs still starts
+REM normally in local-only mode (YouTube uploads are unaffected).
+
+set "SERVER_PORT=8000"
+set "TUNNEL_LOG=%TEMP%\monki_cloudflared.log"
+
+set "CLOUDFLARED_EXE="
+
+where cloudflared >nul 2>&1
+
+if not errorlevel 1 (
+    set "CLOUDFLARED_EXE=cloudflared"
+    goto :cloudflared_found
+)
+
+if exist "%LOCALAPPDATA%\Microsoft\WinGet\Links\cloudflared.exe" (
+    set "CLOUDFLARED_EXE=%LOCALAPPDATA%\Microsoft\WinGet\Links\cloudflared.exe"
+    goto :cloudflared_found
+)
+
+if exist "C:\Program Files (x86)\cloudflared\cloudflared.exe" (
+    set "CLOUDFLARED_EXE=C:\Program Files (x86)\cloudflared\cloudflared.exe"
+    goto :cloudflared_found
+)
+
+if exist "C:\Program Files\cloudflared\cloudflared.exe" (
+    set "CLOUDFLARED_EXE=C:\Program Files\cloudflared\cloudflared.exe"
+    goto :cloudflared_found
+)
+
+if exist "C:\Tools\cloudflared.exe" (
+    set "CLOUDFLARED_EXE=C:\Tools\cloudflared.exe"
+    goto :cloudflared_found
+)
+
+if exist "%USERPROFILE%\cloudflared.exe" (
+    set "CLOUDFLARED_EXE=%USERPROFILE%\cloudflared.exe"
+    goto :cloudflared_found
+)
+
+:cloudflared_found
+
+if "%CLOUDFLARED_EXE%"=="" (
+
+    echo WARNING: cloudflared not found - running local-only.
+    echo Instagram publishing needs a public URL; install cloudflared
+    echo ^(winget install Cloudflare.cloudflared^) and rerun this script,
+    echo or expose the port another way ^(e.g. RunPod HTTP proxy^).
+    echo.
+
+    goto :start_server
+
+)
+
+echo Starting Cloudflare tunnel...
+
+del "%TUNNEL_LOG%" >nul 2>&1
+
+start "monki-cloudflared" /MIN cmd /c ""%CLOUDFLARED_EXE%" tunnel --url http://localhost:%SERVER_PORT% > "%TUNNEL_LOG%" 2>&1"
+
+echo Waiting for the public tunnel URL...
+
+set "PUBLIC_URL="
+set "TUNNEL_LINE_FILE=%TEMP%\monki_tunnel_line.txt"
+
+for /L %%i in (1,1,30) do (
+
+    if "!PUBLIC_URL!"=="" (
+
+        timeout /t 1 /nobreak >nul
+
+        findstr /R /C:"https://[a-zA-Z0-9-]*\.trycloudflare\.com" "%TUNNEL_LOG%" > "%TUNNEL_LINE_FILE%" 2>nul
+
+        set /p CANDIDATE_LINE=<"!TUNNEL_LINE_FILE!"
+
+        if not "!CANDIDATE_LINE!"=="" (
+
+            REM Strip anything before the URL, then cut at the first
+            REM space so trailing log decoration does not leak in.
+
+            set "CANDIDATE_LINE=!CANDIDATE_LINE:*https://=https://!"
+
+            for /f "tokens=1 delims= " %%u in ("!CANDIDATE_LINE!") do (
+                set "PUBLIC_URL=%%u"
+            )
+
+        )
+
+    )
+
+)
+
+del "%TUNNEL_LINE_FILE%" >nul 2>&1
+
+if "%PUBLIC_URL%"=="" (
+
+    echo WARNING: Tunnel did not report a URL yet - continuing anyway.
+    echo Check "%TUNNEL_LOG%" if Instagram publishing fails.
+    echo.
+
+) else (
+
+    echo ==========================================================
+    echo   Public URL ^(browse the app here for Instagram^):
+    echo   %PUBLIC_URL%
+    echo ==========================================================
+    echo.
+
+)
+
+:start_server
+
 REM Ollama is already running separately in CPU-only mode.
 REM Clear the Ollama-specific environment variables before
 REM launching Monki Labs so the video pipeline can use its GPU.
@@ -122,6 +238,10 @@ set "OLLAMA_NO_CLOUD="
 python -m web.server
 
 set "EXIT_CODE=%errorlevel%"
+
+REM Stop the tunnel started earlier (harmless if none was started).
+
+taskkill /F /IM cloudflared.exe >nul 2>&1
 
 echo.
 

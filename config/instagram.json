@@ -1,0 +1,16 @@
+{
+    "api": {
+        "graph_base_url": "https://graph.instagram.com",
+        "api_version": "v21.0",
+        "poll_interval_seconds": 5,
+        "processing_timeout_seconds": 600
+    },
+    "metadata": {
+        "defaults": {
+            "default_hashtags": [
+                "#shorts",
+                "#ai"
+            ]
+        }
+    }
+}
