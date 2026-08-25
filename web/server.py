@@ -729,6 +729,14 @@ def discover_episodes():
                         if prompt_item
                         else ""
                     ),
+                    "summary": (
+                        prompt_item.get(
+                            "summary",
+                            ""
+                        )
+                        if prompt_item
+                        else ""
+                    ),
                     "video_exists": video_exists,
                     "video_path": video_relative_path,
                     "generating": is_episode_generating(

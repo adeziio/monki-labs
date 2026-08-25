@@ -2198,6 +2198,135 @@
         }
 
 
+        .section-label {
+
+            margin-top:
+                13px;
+
+            color:
+                #6e7783;
+
+            font-size:
+                9px;
+
+            font-weight:
+                900;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.8px;
+
+        }
+
+
+        .summary {
+
+            margin-top:
+                6px;
+
+            color:
+                #c3cad4;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.55;
+
+        }
+
+
+        .prompt-toggle {
+
+            margin-top:
+                11px;
+
+        }
+
+
+        .prompt-toggle > summary {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                5px;
+
+            cursor:
+                pointer;
+
+            color:
+                #6e7783;
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.6px;
+
+            list-style:
+                none;
+
+            user-select:
+                none;
+
+        }
+
+
+        .prompt-toggle > summary::-webkit-details-marker {
+
+            display:
+                none;
+
+        }
+
+
+        .prompt-toggle > summary::before {
+
+            content:
+                "+";
+
+            font-weight:
+                900;
+
+        }
+
+
+        .prompt-toggle[open] > summary {
+
+            color:
+                #9ba3ae;
+
+        }
+
+
+        .prompt-toggle[open] > summary::before {
+
+            content:
+                "\2212";
+
+        }
+
+
+        .prompt-toggle > summary:hover {
+
+            color:
+                #b8c0cb;
+
+        }
+
+
         .prompt-empty {
 
             margin-top:
@@ -5350,6 +5479,13 @@
                 );
 
 
+            const summary =
+                escapeHtml(
+                    episode.summary ||
+                    ""
+                );
+
+
             const episodeId =
                 escapeHtml(
                     episode.path
@@ -5501,7 +5637,7 @@
                         <div>
 
                             <div class="label">
-                                Prompt
+                                Title
                             </div>
 
 
@@ -5513,11 +5649,6 @@
                                             ${title}
                                         </div>
 
-
-                                        <div class="prompt">
-                                            ${prompt}
-                                        </div>
-
                                     `
                     :
                     `
@@ -5527,6 +5658,44 @@
                                         </div>
 
                                     `
+                }
+
+                            ${episode.prompt_exists
+                    ?
+                    `
+
+                                        <div class="section-label">
+                                            Summary
+                                        </div>
+
+
+                                        <div class="summary">
+                                            ${summary ||
+                    "Summary not available for this episode."}
+                                        </div>
+
+
+                                        <details class="prompt-toggle">
+
+                                            <summary>
+                                                View full prompt
+                                            </summary>
+
+
+                                            <div class="section-label">
+                                                Prompt
+                                            </div>
+
+
+                                            <div class="prompt">
+                                                ${prompt}
+                                            </div>
+
+                                        </details>
+
+                                    `
+                    :
+                    ""
                 }
 
                         </div>
