@@ -2,7 +2,7 @@
 
 Monki Labs is an AI video generation studio for creating short-form vertical videos with minimal human interaction.
 
-The project supports local and cloud GPU execution, with a web UI for generation, episode management, replay automation, and YouTube uploads.
+The project supports local and cloud GPU execution, with a web UI for generation, episode management, replay automation, and direct publishing to YouTube and Instagram.
 
 ---
 
@@ -41,19 +41,15 @@ Content Configuration
 
         ↓
 
-Local LLM
+Local LLM (Ollama)
 
         ↓
 
-AI Video Prompt
+Structured Video Prompt (LTX-2 format)
 
         ↓
 
-LTX-2.3 Video Generation
-
-        ↓
-
-Video + Background Music + Sound Effects
+LTX-2.3 Video Generation (video + audio in one pass)
 
         ↓
 
@@ -61,7 +57,11 @@ Final MP4
 
         ↓
 
-Organized Output
+Organized Output (media/output/<category>/<episode>/)
+
+        ↓
+
+Publish: YouTube Shorts / Instagram Reels
 ```
 
 The application is **configuration-driven**, allowing content and AI settings to be changed without modifying the core pipeline.
@@ -133,6 +133,8 @@ monki-labs/
 
 │   ├── base_ai_service.py
 
+│   ├── memory_utils.py
+
 │   ├── prompt_generator.py
 
 │   ├── video_generator.py
@@ -150,6 +152,8 @@ monki-labs/
 │   ├── ai_models.json
 
 │   ├── content.json
+
+│   ├── instagram.json
 
 │   ├── youtube.json
 
@@ -173,7 +177,23 @@ monki-labs/
 
 │   ├── job_worker.py
 
+│   ├── screenshots/
+
 │   └── server.py
+
+│
+
+├── instagram/
+
+│   ├── __init__.py
+
+│   ├── auth.py
+
+│   ├── config.py
+
+│   ├── publisher.py
+
+│   └── refresh_token.py
 
 │
 
@@ -700,9 +720,11 @@ Configuration covers areas such as:
 
 * Audio generation behavior
 
-* YouTube configuration
+* YouTube configuration (`config/youtube.json`)
 
-* Studio-level settings
+* Instagram configuration (`config/instagram.json`)
+
+* Publishing credentials (`.env`, never committed)
 
 The application reads the appropriate configuration at runtime.
 
@@ -748,66 +770,70 @@ This keeps output requirements and model-specific generation settings configurab
 
 # 📝 Prompt Generation
 
-Video concepts are generated using a local Ollama language model.
+Video concepts are generated in a **single pass** by a local Ollama language
+model (Qwen 3 8B). There is no scoring system, retry cascade, or rejection
+filter chain — the structured prompt contract and generation guidance get it
+right the first time, and whatever the model returns is what gets used.
 
-The prompt generator creates visual concepts designed specifically for AI video generation.
+## LTX-2.3 prompt structure
 
-Prompts prioritize:
+The generator produces prompts that follow the official LTX-2.3 prompting
+guide so they plug directly into video generation:
 
-* Clear physical movement
+* A single flowing paragraph starting with `Style: <style>, <shot scale>…`
+* Scene setting: lighting source, color palette, textures, atmosphere
+* One living protagonist defined by physical traits; emotion expressed
+  through physical cues, never abstract labels
+* Chronological action flow with connectors (`as`, `then`, `while`)
+* At most one deliberate camera move, described relative to the subject
+* Background music and sound effects derived from the concept and woven into
+  the paragraph chronologically (never hardcoded)
 
-* Movement through the environment
+## Dynamic length
 
-* Environmental interaction
+Prompt word count is derived from `content.json` →
+`video.duration_seconds` (currently 12–20 words per second), so changing the
+episode duration automatically rescales prompt size.
 
-* Camera movement
+## Diversity rotation
 
-* Visual comedy
+Two shuffled-playlist rotations keep consecutive episodes varied. Both are
+plain lists in `config/content.json` and persist their position per category
+in `media/output/.prompt_state.json`:
 
-* Escalation
+* **`style_rotation`** — visual styles (cinematic-realistic, claymation,
+  retro anime, Pixar-style 3D, film noir, …). The generated paragraph must
+  open with the selected style.
+* **`setting_rotation`** — locations (laundromat at night, rooftop garden,
+  arcade after closing, …). Every concept must take place in the selected
+  setting, preventing repetitive defaults.
 
-* Strong visual payoff
+No location or style repeats until the whole list has been used, and never
+back-to-back across cycle boundaries.
 
-* Clear and concise visual descriptions
+## Guidance (not filtering)
 
-The system does not rely on preconfigured characters or character references.
+Living protagonists ("the main character must be ALIVE"), uncanny-not-gory
+mutations, and stop-scrolling WOW-factor hooks are injected as guidance into
+every request. The parser only performs structural cleanup (JSON repair,
+title derivation) — a truly unparseable response raises a loud error rather
+than silently producing nothing.
 
-The video model is free to generate the visual subjects based entirely on the generated prompt.
+## Episode files
 
----
+Each episode writes:
 
-# 🎞️ Prompt and Episode Generation
+```text
+media/output/<category>/<episode>/prompt.txt
 
-Every episode starts with a generated Brainrot concept. The prompt generator
-uses a two-stage process to improve concept quality and 8-second feasibility:
+TITLE: The Escalator Race
+PROMPT: Style: retro anime, low-angle shot… (full paragraph incl. music/SFX)
+SUMMARY: A pigeon in a conductor hat races a stalled escalator.
+```
 
-1. **Brainstorm** — Ollama produces a pool of raw candidate concepts with
-   maximum variety across absurdity families (object agency, broken physics,
-   role mismatch, scale violations, and more).
-2. **Score, select, rewrite** — the model scores each candidate on a 0–2 rubric
-   across `visual_hook`, `physical_clarity`, `eight_second_feasibility`,
-   `novelty`, and `final_image`. Only candidates with a total score of 8/10 or
-   higher and no dimension below 1 are rewritten into the final form:
-
-   ```text
-   ordinary recognizable setup → one impossible physical mutation →
-   one immediate visual action → one concrete final image
-   ```
-
-The system also:
-
-- Keeps a rolling history of recent accepted concepts to avoid repeats.
-- Rejects generic physics spectacle (floating, flying, gravity tricks) when it
-  lacks a concrete absurdity hook.
-- Rejects abstract, difficult-to-render phrasing (world collapse, sentient
-  charts, ambiguous actions).
-- Requires a LIVING main character — a person, animal, insect, sea creature,
-  or monster. Inanimate objects are props only, never the protagonist.
-- Derives the suggested word count from the configured `video.duration_seconds`.
-- Falls back to a single-shot generation mode if the two-stage path produces
-  no survivors.
-
-The pipeline remains fully configurable through `config/content.json`.
+`SUMMARY` is a 1–3 sentence plain-language description written by the same
+LLM call, used to prefill YouTube/Instagram descriptions without exposing
+camera jargon.
 
 # 📺 YouTube Uploads
 
@@ -824,7 +850,7 @@ The modal allows the following video fields to be reviewed and changed before up
 
 * **Title** — prefilled from the `TITLE:` value in the episode's `prompt.txt`.
 
-* **Description** — prefilled from the episode title and `PROMPT:` text.
+* **Description** — prefilled from the episode `TITLE:` and short `SUMMARY:` (not the long generation prompt), followed by default hashtags from `config/youtube.json`.
 
 * **Tags** — comma-separated YouTube tags.
 
@@ -866,6 +892,62 @@ The backend exchanges the refresh token for a temporary access token, verifies t
 
 For Google accounts managing multiple Brand channels, authorize the intended channel/account context and test the first upload with `private` visibility. YouTube's standard `videos.insert` endpoint does not provide a normal target-channel parameter, so the application rejects channel-name mismatches instead of guessing.
 
+# 📸 Instagram Uploads
+
+Completed episodes can also be published as Instagram **Reels** directly from the web UI. Each episode card with a finished `episode.mp4` includes an **Upload to Instagram** button next to the YouTube button.
+
+![Instagram upload modal](web/screenshots/instagram.png)
+
+## Modal fields
+
+The form keeps only what is required:
+
+**Account** (prefilled from `.env`, editable per publish):
+
+* **Access Token** — long-lived Instagram API token (~60 days)
+* **Instagram User ID** — numeric ID of the Instagram professional account
+
+**Post:**
+
+* **Caption** — prefilled as `TITLE` + `SUMMARY` + default hashtags from `config/instagram.json`, fully editable
+
+## Public URL requirement
+
+Instagram's servers fetch the video themselves, so publishing requires a **publicly reachable HTTPS URL** for the episode MP4. The application derives it automatically from however you are browsing the UI:
+
+* Locally: run `run_windows.bat` with cloudflared installed — the script auto-starts a quick tunnel and prints the public URL. Browse the app through that URL.
+* On RunPod: expose port 8000 as an HTTP port and browse through the provided `https://<pod-id>-8000.proxy.runpod.net` URL.
+
+If the derived host is `localhost`, the server logs a warning and publish failures include the exact unreachable URL for diagnosis.
+
+## Credentials and token refresh
+
+Credentials live only in `.env` (never in JSON config):
+
+```env
+instagram_access_token=...
+instagram_user_id=...
+```
+
+Optional, only needed when `config/instagram.json` points at `graph.facebook.com` instead of the default `graph.instagram.com`:
+
+```env
+instagram_app_id=...
+instagram_app_secret=...
+```
+
+Refresh the ~60-day token before it expires — no arguments needed:
+
+```powershell
+python -m instagram.refresh_token
+```
+
+The helper exchanges the current still-valid token via the appropriate grant (`ig_refresh_token` on `graph.instagram.com`, `fb_exchange_token` on `graph.facebook.com`) and writes the new token back to `.env` automatically.
+
+## Publish process
+
+The backend validates the account, builds the public video URL, then follows Instagram's container flow: create a media container pointing at the video URL → poll until Meta finishes processing → publish the container → resolve the post permalink. Processing can take a few minutes; keep both the server and tunnel/proxy alive until it completes.
+
 # 💰 Cost Philosophy
 
 Monki Labs follows a **free-only philosophy**.
@@ -899,26 +981,26 @@ Idea
 
   ↓
 
-AI Prompt
+Structured AI Prompt (style + setting rotation)
 
   ↓
 
-AI Video + Audio
+AI Video + Integrated Audio (LTX-2.3)
 
   ↓
 
-Final Video
+Final Video (media/output/<category>/<episode>/)
 
   ↓
 
-YouTube
+Publish: YouTube Shorts / Instagram Reels
 
   ↓
 
-Optional Replay Toggle
+Optional Replay Toggle (continuous auto-generation)
 ```
 
-The developer configures the content and generation settings, starts an episode from the web UI, and can optionally enable replay to continue generating episodes automatically.
+The developer configures the content and generation settings, starts an episode from the web UI, and can optionally enable replay to continue generating episodes automatically. Finished episodes can be published to YouTube Shorts and Instagram Reels directly from each episode card.
 
 ---
 
