@@ -417,6 +417,7 @@ def parse_prompt_file(
 
         title_marker = "TITLE:"
         prompt_marker = "PROMPT:"
+        summary_marker = "SUMMARY:"
 
         title_index = part.find(
             title_marker
@@ -434,24 +435,68 @@ def parse_prompt_file(
 
             continue
 
-        title = (
-            part[
-                title_index
-                +
-                len(title_marker):
-                prompt_index
-            ]
-            .strip()
+        summary_index = part.find(
+            summary_marker,
+            prompt_index
+            +
+            len(prompt_marker)
         )
 
-        prompt = (
-            part[
-                prompt_index
-                +
-                len(prompt_marker):
-            ]
-            .strip()
-        )
+        if summary_index == -1:
+
+            # Older prompt files have no SUMMARY section.
+
+            title = (
+                part[
+                    title_index
+                    +
+                    len(title_marker):
+                    prompt_index
+                ]
+                .strip()
+            )
+
+            prompt = (
+                part[
+                    prompt_index
+                    +
+                    len(prompt_marker):
+                ]
+                .strip()
+            )
+
+            summary = ""
+
+        else:
+
+            title = (
+                part[
+                    title_index
+                    +
+                    len(title_marker):
+                    prompt_index
+                ]
+                .strip()
+            )
+
+            prompt = (
+                part[
+                    prompt_index
+                    +
+                    len(prompt_marker):
+                    summary_index
+                ]
+                .strip()
+            )
+
+            summary = (
+                part[
+                    summary_index
+                    +
+                    len(summary_marker):
+                ]
+                .strip()
+            )
 
         if not title or not prompt:
 
@@ -460,7 +505,8 @@ def parse_prompt_file(
         prompts.append(
             {
                 "title": title,
-                "prompt": prompt
+                "prompt": prompt,
+                "summary": summary
             }
         )
 
@@ -1188,7 +1234,7 @@ def run_job(
                     else:
                         stage = "video"
                 except Exception:
-                    # If any problem reading state occurs, leave stage unchanged
+                    # If reading state fails, leave stage unchanged
                     pass
 
             process.join(

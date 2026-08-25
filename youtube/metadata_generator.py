@@ -55,6 +55,14 @@ def generate_metadata_from_prompt(
         prompt_item.get("prompt") or ""
     ).strip()
 
+    # The generated full prompt is too long for a platform
+    # description. Prefer the model-written short summary and
+    # fall back to the raw prompt only for older episodes.
+
+    description_text = str(
+        prompt_item.get("summary") or ""
+    ).strip() or prompt_text
+
     tags = list(
         defaults.get("tags") or DEFAULT_TAGS
     )
@@ -73,9 +81,9 @@ def generate_metadata_from_prompt(
 
         lines.append(base_title)
 
-    if prompt_text:
+    if description_text:
 
-        lines.append(prompt_text)
+        lines.append(description_text)
 
     lines.extend(
         list(

@@ -1698,16 +1698,33 @@ class VideoGenerator(
                 ).strip()
             )
 
+            summary = (
+                str(
+                    item.get(
+                        "summary",
+                        ""
+                    )
+                ).strip()
+            )
+
             if not title or not prompt:
 
                 continue
 
+            section_lines = [
+                f"TITLE: {title}",
+                f"PROMPT: {prompt}"
+            ]
+
+            if summary:
+
+                section_lines.append(
+                    f"SUMMARY: {summary}"
+                )
+
             sections.append(
                 "\n".join(
-                    [
-                        f"TITLE: {title}",
-                        f"PROMPT: {prompt}"
-                    ]
+                    section_lines
                 )
             )
 

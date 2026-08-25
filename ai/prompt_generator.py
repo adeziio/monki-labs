@@ -51,24 +51,18 @@ class PromptGenerator(
 
         self.recent_concepts = []
 
-    def pick_episode_setting(self):
+    def _pick_rotated(
+        self,
+        settings,
+        prefix
+    ):
         """
-        Picks the next setting from the configured setting_rotation
-        list in shuffled order - like a shuffled playlist. Every setting
-        is used once per cycle before any repeats, the shuffle order is
-        re-randomized at the start of each cycle, and the state is
-        persisted per category because each episode job runs in a
-        fresh process.
+        Picks the next entry from `settings` in shuffled order - like a
+        shuffled playlist. Every entry is used once per cycle before any
+        repeats, the shuffle order is re-randomized at the start of each
+        cycle, and the state is persisted per category under `prefix`
+        because each episode job runs in a fresh process.
         """
-
-        settings = [
-            str(value).strip()
-            for value in self.prompt_config.get(
-                "setting_rotation",
-                []
-            )
-            if str(value).strip()
-        ]
 
         if not settings:
 
@@ -100,15 +94,15 @@ class PromptGenerator(
             state = {}
 
         order_key = (
-            f"setting_order:{self.category_name}"
+            f"{prefix}_order:{self.category_name}"
         )
 
         position_key = (
-            f"setting_position:{self.category_name}"
+            f"{prefix}_position:{self.category_name}"
         )
 
         last_key = (
-            f"setting_last:{self.category_name}"
+            f"{prefix}_last:{self.category_name}"
         )
 
         try:
@@ -131,7 +125,7 @@ class PromptGenerator(
             position = 0
 
         # (Re)shuffle when there is no saved order yet or when the
-        # configured settings list has changed since it was saved.
+        # configured list has changed since it was saved.
 
         if (
             not order
@@ -193,16 +187,44 @@ class PromptGenerator(
 
             self.log(
                 "Could not persist prompt "
-                "setting rotation state."
+                "rotation state."
             )
 
-        setting = settings[chosen_index]
+        chosen = settings[chosen_index]
 
         self.log(
-            f"Episode setting rotated to: {setting}"
+            f"Rotated {prefix} to: {chosen}"
         )
 
-        return setting
+        return chosen
+
+    def pick_episode_setting(self):
+
+        return self._pick_rotated(
+            [
+                str(value).strip()
+                for value in self.prompt_config.get(
+                    "setting_rotation",
+                    []
+                )
+                if str(value).strip()
+            ],
+            "setting"
+        )
+
+    def pick_episode_style(self):
+
+        return self._pick_rotated(
+            [
+                str(value).strip()
+                for value in self.prompt_config.get(
+                    "style_rotation",
+                    []
+                )
+                if str(value).strip()
+            ],
+            "style"
+        )
 
     def format_bullets(
         self,
@@ -486,6 +508,21 @@ different location and do not default to an office, kitchen, or any
 other familiar indoor space.
 """
 
+        episode_style = self.pick_episode_style()
+
+        style_section = ""
+
+        if episode_style:
+
+            style_section = f"""
+THIS EPISODE'S VISUAL STYLE
+
+Every concept in this batch must be rendered as: {episode_style}.
+The paragraph MUST begin exactly with "Style: {episode_style}," and
+all visuals (characters, textures, motion, lighting) must match that
+style throughout. Do not use any other visual style.
+"""
+
         return f"""Generate exactly {count} original video concepts.
 
 For each concept, write a single FULL generation prompt that is ready to be
@@ -494,6 +531,7 @@ and every audio element in one continuous paragraph.
 
 {self.build_shared_context_sections()}
 {setting_section}
+{style_section}
 MUSIC AND SOUND FX (derive dynamically from the concept)
 {self.format_bullets(audio_guidance)}
 
@@ -521,9 +559,15 @@ Return exactly {count} concepts. Use exactly this JSON structure:
 [
     {{
         "title": "Short memorable title",
-        "prompt": "THE COMPLETE single-paragraph video+audio prompt"
+        "prompt": "THE COMPLETE single-paragraph video+audio prompt",
+        "summary": "1-3 short sentences describing the video for a
+            viewer-facing description"
     }}
 ]
+
+The "summary" is for a video platform description: plain language, no
+camera or style jargon, no mention of prompts or AI. Describe what
+happens and why it is wild in at most 3 short sentences.
 
 Return ONLY the JSON array.
 No markdown.
@@ -585,11 +629,15 @@ No commentary.
                     },
                     "prompt": {
                         "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
                     }
                 },
                 "required": [
                     "title",
-                    "prompt"
+                    "prompt",
+                    "summary"
                 ],
                 "additionalProperties": False
             }
@@ -708,10 +756,40 @@ No commentary.
 
                 continue
 
+            summary = str(
+                item.get(
+                    "summary",
+                    ""
+                )
+            ).strip()
+
+            if not summary:
+
+                # Fallback for responses without a summary: derive a
+                # short one from the opening of the full prompt,
+                # dropping the Style clause.
+
+                body = re.sub(
+                    r"^Style:[^,]*,\s*",
+                    "",
+                    prompt,
+                    flags=re.IGNORECASE
+                )
+
+                sentences = re.split(
+                    r"(?<=[.!?])\s+",
+                    body
+                )
+
+                summary = " ".join(
+                    sentences[:2]
+                ).strip()
+
             prompts.append(
                 {
                     "title": title,
-                    "prompt": prompt
+                    "prompt": prompt,
+                    "summary": summary
                 }
             )
 
