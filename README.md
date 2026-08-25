@@ -18,7 +18,7 @@ Monki Labs aims to:
 
 * 📱 Produce vertical 9:16 videos optimized for short-form platforms
 
-* 📦 Organize generated content automatically by category and run
+* 📦 Organize generated episodes automatically under media/output/
 
 * ☁️ Support GPU-based cloud execution
 
@@ -57,7 +57,7 @@ Final MP4
 
         ↓
 
-Organized Output (media/output/<category>/<episode>/)
+Organized Output (media/output/<episode>/)
 
         ↓
 
@@ -370,7 +370,7 @@ Generated videos are stored under:
 media/output/
 ```
 
-Output runs are automatically organized by content category and run number.
+Output runs are automatically numbered sequentially.
 
 For example:
 
@@ -379,25 +379,23 @@ media/
 
 └── output/
 
-    └── brainrot/
+    ├── 001/
 
-        ├── 001/
+    │   ├── episode.mp4
 
-        │   ├── episode.mp4
+    │   └── prompt.txt
 
-        │   └── prompt.txt
+    ├── 002/
 
-        ├── 002/
+    │   ├── episode.mp4
 
-        │   ├── episode.mp4
+    │   └── prompt.txt
 
-        │   └── prompt.txt
+    └── 003/
 
-        └── 003/
+        ├── episode.mp4
 
-            ├── episode.mp4
-
-            └── prompt.txt
+        └── prompt.txt
 ```
 
 Each run retains only the **final video** and the **prompt used to generate it**.
@@ -704,7 +702,7 @@ This allows the pipeline to evolve without repeatedly modifying Python code.
 
 Configuration covers areas such as:
 
-* Content categories
+* Channel-level content direction (tone, environments, subjects)
 
 * Video duration and output requirements
 
@@ -775,6 +773,32 @@ model (Qwen 3 8B). There is no scoring system, retry cascade, or rejection
 filter chain — the structured prompt contract and generation guidance get it
 right the first time, and whatever the model returns is what gets used.
 
+## Visual-first entertainment philosophy
+
+The channel produces **visually compelling short-form entertainment**, not a
+single genre such as comedy or brainrot. The only hard goal:
+
+> Create something visually compelling enough to make someone stop scrolling
+> and keep watching.
+
+Every concept is built around this priority order:
+
+1. Immediate visual hook
+2. Strong environment/background
+3. Visually interesting subject
+4. Clear physical action
+5. Novelty and curiosity
+6. Escalation/progression
+7. Satisfying or surprising payoff
+8. Simple, understandable premise
+
+Comedy, absurdity, surrealism, cuteness, spectacle, mystery, creepiness, and
+satisfying visuals are all valid directions. The **environment is treated as
+critical** — every setting must actively add depth, atmosphere, scale, color,
+or spectacle rather than exist behind the subject. Concepts avoid dialogue,
+on-screen text, complex narratives, large crowds, and multi-step
+interactions so LTX can render them as one continuous sequence.
+
 ## LTX-2.3 prompt structure
 
 The generator produces prompts that follow the official LTX-2.3 prompting
@@ -797,24 +821,23 @@ episode duration automatically rescales prompt size.
 
 ## Diversity rotation
 
-Two shuffled-playlist rotations keep consecutive episodes varied. Both are
-plain lists in `config/content.json` and persist their position per category
-in `media/output/.prompt_state.json`:
+A shuffled-playlist rotation of visual styles keeps consecutive episodes
+varied. It is a plain list in `config/content.json` (`style_rotation`) and
+persists its position in `media/output/.prompt_state.json`:
 
 * **`style_rotation`** — visual styles (cinematic-realistic, claymation,
   retro anime, Pixar-style 3D, film noir, …). The generated paragraph must
   open with the selected style.
-* **`setting_rotation`** — locations (laundromat at night, rooftop garden,
-  arcade after closing, …). Every concept must take place in the selected
-  setting, preventing repetitive defaults.
 
-No location or style repeats until the whole list has been used, and never
-back-to-back across cycle boundaries.
+No style repeats until the whole list has been used, and never back-to-back
+across cycle boundaries. Settings are chosen freely by the model from the
+environment guidance (the `world` list and the visual-first instructions),
+with soft anti-repetition via the variety rules and recent-concept memory.
 
 ## Guidance (not filtering)
 
 Living protagonists ("the main character must be ALIVE"), uncanny-not-gory
-mutations, and stop-scrolling WOW-factor hooks are injected as guidance into
+mutations, unexpected behavior, and stop-scrolling visual hooks are injected as guidance into
 every request. The parser only performs structural cleanup (JSON repair,
 title derivation) — a truly unparseable response raises a loud error rather
 than silently producing nothing.
@@ -824,7 +847,7 @@ than silently producing nothing.
 Each episode writes:
 
 ```text
-media/output/<category>/<episode>/prompt.txt
+media/output/<episode>/prompt.txt
 
 TITLE: The Escalator Race
 PROMPT: Style: retro anime, low-angle shot… (full paragraph incl. music/SFX)
@@ -989,7 +1012,7 @@ AI Video + Integrated Audio (LTX-2.3)
 
   ↓
 
-Final Video (media/output/<category>/<episode>/)
+Final Video (media/output/<episode>/)
 
   ↓
 

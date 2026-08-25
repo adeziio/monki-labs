@@ -1,258 +1,174 @@
 {
-    "active_category": "brainrot",
-    "categories": {
-        "brainrot": {
-            "name": "brainrot",
-            "genre": "short-form visual comedy",
-            "tone": [
-                "unhinged",
-                "surreal",
-                "cursed",
-                "deadpan",
-                "chaotic",
-                "anti-logic",
-                "meme-like",
-                "unexpectedly intense"
-            ],
-            "world": [
-                "ordinary public places with one impossible rule",
-                "tiny miniature worlds hidden inside normal objects",
-                "overly serious workplaces for ridiculous creatures",
-                "surreal kitchens, bathrooms, bedrooms, and convenience stores",
-                "dramatic fantasy environments used for trivial problems",
-                "liminal spaces that behave like broken reality"
-            ],
-            "protagonists": [
-                "a completely ordinary person trapped in an impossible situation",
-                "an animal acting with eerie human intelligence",
-                "an animal with an absurd human job",
-                "a creature that cannot exist, behaving with total confidence",
-                "a person whose shadow, reflection, or body part acts independently",
-                "an animal that becomes enormous or tiny while the world stays normal",
-                "a swarm of identical living things moving as one",
-                "a badly disguised monster trying to act normal"
-            ],
-            "comedy_types": [
-                "deadpan absurdity",
-                "visual contradiction",
-                "an impossible transformation",
-                "a mundane task treated like an extreme emergency",
-                "a tiny consequence becoming visually enormous",
-                "an object behaving according to a ridiculous hidden law",
-                "an inappropriate creature-object combination",
-                "a bizarre reveal that reinterprets the entire shot",
-                "physical comedy with surreal cause and effect",
-                "a normal person reacting calmly to impossible nonsense"
-            ],
-            "prompt_guidance": [
-                "Start with a recognizable situation, then corrupt one fundamental rule of reality.",
-                "Make the first visual readable but immediately wrong in a specific way.",
-                "Use one dominant absurd premise and escalate it into a clear visual payoff.",
-                "Favor concrete, filmable actions over abstract weirdness.",
-                "Use deadpan seriousness for ridiculous events whenever possible.",
-                "End on an image that is stranger than the setup, not merely louder or more violent.",
-                "Make the idea feel like a lost internet meme from a universe with broken physics."
-            ],
-            "video": {
-                "duration_seconds": 8,
-                "aspect_ratio": "9:16",
-                "fps": 30,
-                "format": "mp4",
-                "resolution": {
-                    "width": 1080,
-                    "height": 1920
-                }
-            },
-            "audio": {
-                "enabled": true
-            },
-            "generation": {
-                "clip_count": 1
-            },
-            "prompt_generation": {
-                "instructions": [
-                    "Generate one original Brainrot concept suitable for a short vertical video.",
-                    "Every concept must contain a concrete visual hook that is strange within the first image.",
-                    "Use one dominant impossible premise, then escalate it once into a memorable payoff.",
-                    "The result should be easy to visualize but difficult to explain logically.",
-                    "Make the concept feel unhinged, cursed, surreal, and meme-worthy rather than merely silly.",
-                    "Do not reuse familiar gravity-defying cats, generic dancing animals, or standard cartoon accidents.",
-                    "The main character must be ALIVE: a person, animal, insect, sea creature, or monster. Never make an inanimate object the main character.",
-                    "Push every idea for genuine WOW factor: the viewer should gasp or laugh out loud within the first second."
-                ],
-                "creative_directions": [
-                    "Combine unrelated domains: bureaucracy with monsters, fine dining with household objects, sports with food, surgery with toys, or luxury fashion with trash.",
-                    "Use scale violations, impossible anatomy, objects with jobs, creatures with official titles, and environments with personalities.",
-                    "Let a completely normal character calmly accept something visually impossible.",
-                    "Use realistic cinematic detail to make the nonsense feel more serious and funnier.",
-                    "Prefer a premise that can be summarized as: 'Why is that thing doing that?'",
-                    "Use physically filmable wording: name what is visible, what moves, and where it ends.",
-                    "Avoid abstract labels such as sentient charts, world collapse, or emotional concepts without a visible action.",
-                    "Avoid ambiguous actions such as processing a paper cut; show the character stamping, carrying, opening, folding, or physically manipulating a concrete object.",
-                    "Keep the prompt to one dominant subject and no more than one or two supporting objects.",
-                    "Use only one transformation or one physical escalation; do not chain multiple transformations in the same shot.",
-                    "End with a concrete final pose, object, or location that the video model can clearly render.",
-                    "Prioritize stop-scrolling visual absurdity: unexpected legs, eyes, mouths, hands, anatomy, jobs, or behavior are better than merely floating, flying, levitating, or breaking gravity.",
-                    "Objects may appear, but only as props, clothing, food, or the absurd element a LIVING main character interacts with.",
-                    "Chase genuine WOW factor: impossible biology, living swarms, body parts with their own agendas, or reveals that recontextualize the whole shot."
-                ],
-                "absurdity_families": [
-                    "impossible biology: a living body grows, opens, splits, or produces something impossible",
-                    "living scale violation: an animal or person becomes enormous or tiny while everything else stays normal",
-                    "body-part independence: a shadow, reflection, hand, or smile detaches and follows its own agenda",
-                    "animal intelligence: an animal calmly performs a complex human ritual, job, or ceremony",
-                    "creature cameo: an impossible creature appears in public and everyone reacts normally",
-                    "living swarm: one living thing multiplies into dozens of identical copies that act together",
-                    "broken physics around a living subject: gravity, reflections, doors, or weather obey a ridiculous rule affecting them",
-                    "reality reveal: something ordinary opens to reveal an impossible living world",
-                    "mundane escalation: a trivial task by a living character spirals into a physically impossible emergency"
-                ],
-                "creative_priorities": [
-                    "Instant visual weirdness",
-                    "Originality",
-                    "Memeability",
-                    "Escalation",
-                    "Clear physical readability",
-                    "Unexpected payoff",
-                    "Variety"
-                ],
-                "diversity_guidance": [
-                    "Avoid repeating the same subject.",
-                    "Avoid repeating the same setting.",
-                    "Avoid repeating the same action.",
-                    "Avoid repeating the same joke structure.",
-                    "Avoid repeating gravity tricks, dancing animals, falling objects, and generic popping or exploding gags.",
-                    "Do not use the same subject-object pairing twice.",
-                    "Change the emotional tone, scale, setting, and type of impossible rule between concepts."
-                ],
-                "wow_factor_guidance": [
-                    "The concept should make a viewer gasp, laugh out loud, or ask 'what am I watching' within the first second.",
-                    "Escalate until the final image is ten times stranger than the setup.",
-                    "Combine two things nobody would ever put together, then treat the combination as completely normal.",
-                    "Use dramatic cinematic energy for something utterly ridiculous.",
-                    "End on a twist image that makes the viewer want to rewatch immediately."
-                ],
-                "living_subject_rules": [
-                    "The main character must be ALIVE: a person, animal, insect, sea creature, or monster.",
-                    "Inanimate objects may never be the main character; they can only appear as props, clothing, food, or the absurd element the living character interacts with.",
-                    "When an object misbehaves, show a living character noticing or reacting to it.",
-                    "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
-                ],
-                "style_rotation": [
-                    "cinematic realistic",
-                    "stylized 3D cartoon animation",
-                    "low-poly 3D animation",
-                    "classic 2D cartoon animation",
-                    "Saturday morning cartoon",
-                    "1960s rubber-hose cartoon",
-                    "comic-book animation",
-                    "anime",
-                    "retro 90s anime",
-                    "chibi anime",
-                    "cel-shaded animation",
-                    "claymation stop-motion",
-                    "handmade felt puppet animation",
-                    "paper cutout animation",
-                    "LEGO-style stop-motion animation",
-                    "hand-drawn pencil animation",
-                    "watercolor storybook animation",
-                    "8-bit pixel art",
-                    "retro 16-bit pixel art",
-                    "black-and-white film noir",
-                    "grainy VHS home-video aesthetic",
-                    "retro 1980s television animation",
-                    "stylized miniature photography",
-                    "photorealistic creature animation",
-                    "dark surreal animation"
-                ],
-                "setting_rotation": [
-                    "a laundromat late at night",
-                    "a rooftop garden in the middle of a city",
-                    "a 24-hour supermarket",
-                    "a public swimming pool",
-                    "a long-haul bus on an empty highway",
-                    "a dentist waiting room",
-                    "a foggy fishing pier at dawn",
-                    "an arcade after closing time",
-                    "a mountain hiking trail",
-                    "a crowded subway platform",
-                    "a drive-in movie theater",
-                    "a bowling alley during a league night",
-                    "a botanical garden greenhouse",
-                    "a roadside diner in the desert",
-                    "a library during final exams",
-                    "a beach boardwalk in the off-season",
-                    "a busy airport baggage claim",
-                    "a hotel lobby during a wedding",
-                    "a small-town gas station at midnight",
-                    "a crowded food court during lunch",
-                    "a quiet museum just before closing",
-                    "a public park during a heatwave",
-                    "a farmer's market on a rainy morning",
-                    "a construction site during a lunch break",
-                    "a parking garage with flickering lights",
-                    "a convenience store during a power outage",
-                    "a city bus stuck in traffic",
-                    "a ferry crossing a foggy harbor",
-                    "a pet grooming salon",
-                    "a crowded wedding reception",
-                    "a motel hallway late at night",
-                    "a school gym during a tournament",
-                    "a community center during a chaotic event",
-                    "a train station during rush hour",
-                    "a snowy mountain ski lodge",
-                    "a campground beside a dark forest",
-                    "a public restroom at a busy highway stop",
-                    "a warehouse during an overnight shift",
-                    "a small-town town hall meeting",
-                    "a rooftop restaurant during a thunderstorm",
-                    "a cruise ship buffet during dinner",
-                    "a busy coffee shop during the morning rush",
-                    "a children's playground just before sunset",
-                    "a local mechanic's garage",
-                    "a veterinary clinic waiting room",
-                    "a farmer's barn during feeding time",
-                    "a city intersection during a sudden rainstorm",
-                    "a motel parking lot at 3 a.m.",
-                    "a frozen lake during a winter festival",
-                    "a fireworks viewing area packed with spectators",
-                    "a public elevator in a crowded office building",
-                    "a quiet suburban street during a neighborhood blackout"
-                ],
-                "ltx2_prompt_rules": [
-                    "Write ONE continuous natural-language paragraph in English. No titles, headings, code fences, or markdown.",
-                    "Start directly with: Style: <visual style>, <rest of the paragraph>. Use the exact visual style given in THIS EPISODE'S VISUAL STYLE.",
-                    "ESTABLISH THE SHOT: open right after Style with shot scale and framing in cinematic terms the model understands (macro close-up, medium two-shot, low-angle wide, over-the-shoulder, shallow depth of field).",
-                    "SET THE SCENE: establish the lighting source, color palette, surface textures, and atmosphere as the subject acts.",
-                    "DEFINE THE CHARACTER: give the living subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing - and show emotion through visible physical cues, never abstract labels.",
-                    "DESCRIBE THE ACTION as a natural chronological sequence flowing from setup to payoff, told through what is visibly happening.",
-                    "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the gag plays better still.",
-                    "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
-                    "Maintain strict chronological flow using temporal connectors: as, then, while, when, until.",
-                    "Describe the complete soundscape inside the same paragraph, integrated chronologically alongside the actions: background music, ambient sounds, and specific sound effects. Name the exact source and texture of every sound, never vague descriptions such as ambient sound is present.",
-                    "Music must be derived from the concept itself: name the actual mood, tempo, and instruments the absurd situation suggests. Never copy a template of fixed instruments and never reuse a music cue from a previous episode.",
-                    "Visuals and audio only: do not include smell, taste, or touch.",
-                    "Do NOT use timestamps, scene cuts, or phrases such as The scene opens with. Start directly with Style.",
-                    "No dialogue unless speech is essential; if speech is included, put the exact words in quotes with a voice description.",
-                    "Match detail density to shot scale: close-ups need fine texture and facial detail, wide shots stay simpler.",
-                    "Be specific but restrained: concrete details such as neon reflections on wet pavement are good; intensifiers such as vibrant, blinding, breathtaking, or massive are not.",
-                    "The final paragraph is the full prompt that will be fed directly to the video model, so every visual and every sound must be present in this single paragraph."
-                ],
-                "audio_guidance": [
-                    "Audio (music and sound effects) must be derived dynamically from the absurd concept and escalate together with the action.",
-                    "EVERY concept must include a named background-music cue woven into the paragraph. Silence or a bare hum is not acceptable.",
-                    "Name concrete music: identify the actual energy, instruments, or rhythm the premise suggests. Avoid generic cartoon-style drums or fixed comedic accents.",
-                    "Layer the sounds chronologically: the setup sound, a rising musical cue during the mutation, a popping/creaking/whistling payoff sound, and the final lingering tone.",
-                    "If the scene implies a hidden-world reveal, include a muffled interior hum or echo; if it implies scale, use deep booms or tinkling miniature sounds.",
-                    "Keep every sound source referenced to something visible or implied in the scene."
-                ],
-                "prompt_format": {
-                    "minimum_words_per_second": 12,
-                    "maximum_words_per_second": 20,
-                    "minimum_words_floor": 60,
-                    "maximum_words_cap": 300
-                }
-            }
+    "genre": "visually striking short-form AI entertainment",
+    "tone": [
+        "awe-inspiring",
+        "surreal",
+        "playful",
+        "mysterious",
+        "cozy",
+        "cinematic",
+        "cute",
+        "eery",
+        "satisfying",
+        "larger-than-life"
+    ],
+    "world": [
+        "richly detailed environments with strong atmosphere and depth",
+        "vast scale contrasts: tiny subjects in enormous spaces",
+        "vivid color palettes that make the frame instantly readable",
+        "weather and light doing something visually dramatic",
+        "familiar places transformed into something extraordinary",
+        "hidden worlds revealed inside ordinary locations",
+        "nature at its most spectacular: bioluminescence, storms, migrations",
+        "intimate cozy interiors glowing against dark backgrounds"
+    ],
+    "protagonists": [
+        "an expressive animal in a striking situation",
+        "a person experiencing something wonderful or impossible",
+        "a creature that cannot exist, rendered beautifully",
+        "a tiny character facing something enormous",
+        "a swarm, flock, or school moving as one mesmerizing shape",
+        "a character whose shadow or reflection acts independently",
+        "an animal showing eerie intelligence",
+        "a person calmly interacting with the impossible"
+    ],
+    "video": {
+        "duration_seconds": 8,
+        "aspect_ratio": "9:16",
+        "fps": 30,
+        "format": "mp4",
+        "resolution": {
+            "width": 1080,
+            "height": 1920
         }
-    }
+    },
+    "audio": {
+        "enabled": true
+    },
+    "generation": {
+        "clip_count": 1
+    },
+    "prompt_generation": {
+        "instructions": [
+            "Generate one original concept for a short vertical video whose only goal is to make someone stop scrolling.",
+            "The environment is critical: choose a visually interesting setting that adds depth, atmosphere, scale, color, or spectacle.",
+            "Every concept must have an immediate visual hook within the first moment of the shot.",
+            "Prioritize a clear physical action that progresses visibly across the shot.",
+            "Favor novelty and curiosity over jokes: the video does not need to be funny.",
+            "Build one escalation into a satisfying or surprising final image.",
+            "Keep the premise simple enough to understand within a couple of seconds.",
+            "Minimize dialogue, on-screen text, verbal humor, complex narratives, large crowds, and precise multi-step interactions.",
+            "The main character should be ALIVE: a person, animal, insect, sea creature, or monster renders most reliably."
+        ],
+        "creative_directions": [
+            "Let the environment actively participate: reflections, weather, lighting shifts, crowds, or terrain reacting to the subject.",
+            "Use cinematic detail to make the scene feel tangible: textures, depth of field, atmospheric haze, practical light sources.",
+            "Contrast scale, color, or mood between subject and background to create visual tension.",
+            "Prefer premises that can be summarized as: why does this place look like that, or what is that thing doing?",
+            "Use physically filmable wording: name what is visible, what moves, and where the action ends.",
+            "Avoid abstract phrasing that cannot be filmed; show concrete objects and visible change.",
+            "Keep the prompt to one dominant subject and at most one or two supporting elements.",
+            "Use only one transformation or escalation; do not chain multiple events in the same shot.",
+            "End with a concrete, memorable final image the video model can clearly render.",
+            "Do not force comedy: wonder, beauty, tension, cuteness, and unease are equally valid reactions."
+        ],
+        "creative_priorities": [
+            "Immediate visual hook in the first moment.",
+            "Strong, visually interesting environment or background.",
+            "Visually interesting subject.",
+            "Clear physical action.",
+            "Novelty and curiosity.",
+            "Escalation or progression across the shot.",
+            "Satisfying or surprising payoff.",
+            "Simple, understandable premise."
+        ],
+        "diversity_guidance": [
+            "Rotate emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
+            "Do not repeat the same subject type, environment type, or payoff style in consecutive ideas.",
+            "Vary shot scale between close-ups and wide establishing shots.",
+            "Vary pacing: some concepts slow and atmospheric, others fast and surprising."
+        ],
+        "wow_factor_guidance": [
+            "Aim for a reaction in the first seconds: a gasp, a laugh, an aww, a chill, or a how-did-they-do-that.",
+            "The final image should be more striking than the setup, never merely louder.",
+            "Combine two things nobody combines, or reveal something that recontextualizes the whole frame.",
+            "Beauty and satisfaction count as WOW just as much as shock does."
+        ],
+        "living_subject_rules": [
+            "The main character must be ALIVE: a person, animal, insect, sea creature, or monster.",
+            "Inanimate objects may never be the main character; they can only appear as props, clothing, food, or the absurd element the living character interacts with.",
+            "When an object misbehaves, show a living character noticing or reacting to it.",
+            "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
+        ],
+        "style_rotation": [
+            "cinematic realistic",
+            "stylized 3D cartoon animation",
+            "low-poly 3D animation",
+            "classic 2D cartoon animation",
+            "Saturday morning cartoon",
+            "1960s rubber-hose cartoon",
+            "comic-book animation",
+            "anime",
+            "retro 90s anime",
+            "chibi anime",
+            "cel-shaded animation",
+            "claymation stop-motion",
+            "handmade felt puppet animation",
+            "paper cutout animation",
+            "LEGO-style stop-motion animation",
+            "hand-drawn pencil animation",
+            "watercolor storybook animation",
+            "8-bit pixel art",
+            "retro 16-bit pixel art",
+            "black-and-white film noir",
+            "grainy VHS home-video aesthetic",
+            "retro 1980s television animation",
+            "stylized miniature photography",
+            "photorealistic creature animation",
+            "dark surreal animation"
+        ],
+        "ltx2_prompt_rules": [
+            "Write ONE continuous natural-language paragraph in English. No titles, headings, code fences, or markdown.",
+            "Start directly with: Style: <visual style>, <rest of the paragraph>. Use the exact visual style given in THIS EPISODE'S VISUAL STYLE.",
+            "ESTABLISH THE SHOT: open right after Style with shot scale and framing in cinematic terms the model understands (macro close-up, medium two-shot, low-angle wide, over-the-shoulder, shallow depth of field).",
+            "SET THE SCENE: establish the lighting source, color palette, surface textures, and atmosphere as the subject acts.",
+            "DEFINE THE CHARACTER: give the living subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing - and show emotion through visible physical cues, never abstract labels.",
+            "DESCRIBE THE ACTION as a natural chronological sequence flowing from setup to payoff, told through what is visibly happening.",
+            "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the gag plays better still.",
+            "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
+            "Maintain strict chronological flow using temporal connectors: as, then, while, when, until.",
+            "Describe the complete soundscape inside the same paragraph, integrated chronologically alongside the actions: background music, ambient sounds, and specific sound effects. Name the exact source and texture of every sound, never vague descriptions such as ambient sound is present.",
+            "Music must be derived from the concept itself: name the actual mood, tempo, and instruments the absurd situation suggests. Never copy a template of fixed instruments and never reuse a music cue from a previous episode.",
+            "Visuals and audio only: do not include smell, taste, or touch.",
+            "Do NOT use timestamps, scene cuts, or phrases such as The scene opens with. Start directly with Style.",
+            "No dialogue unless speech is essential; if speech is included, put the exact words in quotes with a voice description.",
+            "Match detail density to shot scale: close-ups need fine texture and facial detail, wide shots stay simpler.",
+            "Be specific but restrained: concrete details such as neon reflections on wet pavement are good; intensifiers such as vibrant, blinding, breathtaking, or massive are not.",
+            "The final paragraph is the full prompt that will be fed directly to the video model, so every visual and every sound must be present in this single paragraph."
+        ],
+        "audio_guidance": [
+            "Audio (music and sound effects) must be derived dynamically from the concept and escalate together with the action.",
+            "EVERY concept must include a named background-music cue woven into the paragraph. Silence or a bare hum is not acceptable.",
+            "Name concrete music: identify the actual energy, instruments, or rhythm the scene suggests. Never reuse a fixed template.",
+            "Layer sounds chronologically: an establishing ambience, a rising musical cue as the moment builds, and a distinct sound for the payoff.",
+            "If the scene implies a hidden-world reveal, include a muffled interior hum or echo; if it implies scale, use deep booms or tinkling miniature sounds.",
+            "Keep every sound source referenced to something visible or implied in the scene."
+        ],
+        "prompt_format": {
+            "minimum_words_per_second": 12,
+            "maximum_words_per_second": 20,
+            "minimum_words_floor": 60,
+            "maximum_words_cap": 300
+        }
+    },
+    "creative_engines": [
+        "spectacle: scale, color, weather, or light creating instant awe",
+        "satisfying motion: perfect loops, transformations, or chain reactions",
+        "mystery: something intriguing revealed or half-revealed",
+        "cuteness: an adorable subject doing something surprising",
+        "gentle absurdity: one impossible thing treated as completely normal",
+        "tension and release: anticipation building to a delightful payoff",
+        "impossible coexistence of two worlds in one frame",
+        "a quiet emotional moment in an extraordinary setting"
+    ]
 }

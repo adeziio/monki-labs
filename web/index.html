@@ -2080,38 +2080,6 @@
         }
 
 
-        .episode-category {
-
-            max-width:
-                58%;
-
-            overflow:
-                hidden;
-
-            text-overflow:
-                ellipsis;
-
-            white-space:
-                nowrap;
-
-            color:
-                #69717d;
-
-            font-size:
-                9px;
-
-            font-weight:
-                850;
-
-            text-transform:
-                uppercase;
-
-            letter-spacing:
-                0.9px;
-
-        }
-
-
         .episode-content {
 
             position:
@@ -5570,12 +5538,6 @@
                 );
 
 
-            const category =
-                escapeHtml(
-                    episode.category
-                );
-
-
             const title =
                 escapeHtml(
                     episode.title ||
@@ -5743,11 +5705,6 @@
                             #${number}
                         </div>
 
-
-                        <div class="episode-category">
-                            ${category}
-                        </div>
-
                     </div>
 
 
@@ -5846,9 +5803,9 @@
              * clicks "Create New Episode".
              *
              * The backend assigns episode directories sequentially
-             * (highest existing number + 1) inside the active
-             * category, so this matches as long as an episode list
-             * has been loaded.
+             * (highest existing number + 1) under media/output/,
+             * so this matches as long as an episode list has been
+             * loaded.
              */
 
             if (
@@ -5876,13 +5833,8 @@
                 ).padStart(3, "0");
 
 
-            const category =
-                latestEpisodes[0].category;
-
-
             return {
-                id: `media/output/${category}/${nextNumber}`,
-                category: category,
+                id: `media/output/${nextNumber}`,
                 number: nextNumber
             };
 
@@ -5948,9 +5900,6 @@
                     <div class="episode-header">
                         <div class="episode-number">
                             #${optimisticEpisode.number}
-                        </div>
-                        <div class="episode-category">
-                            ${escapeHtml(optimisticEpisode.category)}
                         </div>
                     </div>
 

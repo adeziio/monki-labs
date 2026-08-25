@@ -28,22 +28,12 @@ class PromptGenerator(
 
         content_config = config["content"]
 
-        active_category = (
-            content_config["active_category"]
-        )
-
-        self.category_name = active_category
-
-        self.category_config = (
-            content_config[
-                "categories"
-            ][
-                active_category
-            ]
+        self.channel_config = (
+            content_config
         )
 
         self.prompt_config = (
-            self.category_config.get(
+            content_config.get(
                 "prompt_generation",
                 {}
             )
@@ -60,8 +50,8 @@ class PromptGenerator(
         Picks the next entry from `settings` in shuffled order - like a
         shuffled playlist. Every entry is used once per cycle before any
         repeats, the shuffle order is re-randomized at the start of each
-        cycle, and the state is persisted per category under `prefix`
-        because each episode job runs in a fresh process.
+        cycle, and the state is persisted under `prefix` because each
+        episode job runs in a fresh process.
         """
 
         if not settings:
@@ -94,15 +84,15 @@ class PromptGenerator(
             state = {}
 
         order_key = (
-            f"{prefix}_order:{self.category_name}"
+            f"{prefix}_order"
         )
 
         position_key = (
-            f"{prefix}_position:{self.category_name}"
+            f"{prefix}_position"
         )
 
         last_key = (
-            f"{prefix}_last:{self.category_name}"
+            f"{prefix}_last"
         )
 
         try:
@@ -198,20 +188,6 @@ class PromptGenerator(
 
         return chosen
 
-    def pick_episode_setting(self):
-
-        return self._pick_rotated(
-            [
-                str(value).strip()
-                for value in self.prompt_config.get(
-                    "setting_rotation",
-                    []
-                )
-                if str(value).strip()
-            ],
-            "setting"
-        )
-
     def pick_episode_style(self):
 
         return self._pick_rotated(
@@ -246,33 +222,28 @@ class PromptGenerator(
 
     def build_shared_context_sections(self):
 
-        genre = self.category_config.get(
+        genre = self.channel_config.get(
             "genre",
-            "short-form visual comedy"
+            "visually striking short-form entertainment"
         )
 
-        tone = self.category_config.get(
+        tone = self.channel_config.get(
             "tone",
             []
         )
 
-        world = self.category_config.get(
+        world = self.channel_config.get(
             "world",
             []
         )
 
-        protagonists = self.category_config.get(
+        protagonists = self.channel_config.get(
             "protagonists",
             []
         )
 
-        comedy_types = self.category_config.get(
-            "comedy_types",
-            []
-        )
-
-        absurdity_families = self.prompt_config.get(
-            "absurdity_families",
+        creative_engines = self.channel_config.get(
+            "creative_engines",
             []
         )
 
@@ -299,20 +270,17 @@ class PromptGenerator(
         return f"""GENRE
 {genre}
 
-TONE
+MOOD AND TONE (rotate between concepts - never force comedy)
 {self.format_bullets(tone)}
 
-POSSIBLE WORLDS
+ENVIRONMENTS (critical - the setting must add visual appeal)
 {self.format_bullets(world)}
 
-POSSIBLE PROTAGONISTS
+POSSIBLE SUBJECTS
 {self.format_bullets(protagonists)}
 
-COMEDY ENGINES
-{self.format_bullets(comedy_types)}
-
-ABSURDITY FAMILIES
-{self.format_bullets(absurdity_families)}
+CREATIVE ENGINES
+{self.format_bullets(creative_engines)}
 
 RECENT CONCEPTS TO AVOID REPEATING
 {self.get_recent_concepts_text()}
@@ -366,7 +334,7 @@ WOW FACTOR
     def get_prompt_word_range(self):
 
         video_config = (
-            self.category_config.get(
+            self.channel_config.get(
                 "video",
                 {}
             )
@@ -493,21 +461,6 @@ WOW FACTOR
             []
         )
 
-        episode_setting = self.pick_episode_setting()
-
-        setting_section = ""
-
-        if episode_setting:
-
-            setting_section = f"""
-THIS EPISODE'S SETTING
-
-Every concept in this batch must take place in: {episode_setting}.
-State the setting explicitly inside the paragraph. Do not choose a
-different location and do not default to an office, kitchen, or any
-other familiar indoor space.
-"""
-
         episode_style = self.pick_episode_style()
 
         style_section = ""
@@ -530,7 +483,6 @@ fed directly into the video model. The full prompt must contain every visual
 and every audio element in one continuous paragraph.
 
 {self.build_shared_context_sections()}
-{setting_section}
 {style_section}
 MUSIC AND SOUND FX (derive dynamically from the concept)
 {self.format_bullets(audio_guidance)}
@@ -544,13 +496,14 @@ Write the full "prompt" paragraph in approximately
 {minimum_words}-{maximum_words} words. This range is derived from the
 configured video duration of approximately
 {duration_seconds:g} seconds. The paragraph must be long enough to cover the
-style, the living subject, the impossible mutation, one escalation, and the
+style, the environment, the subject, one escalation, and the
 chronologically integrated music and sound effects - and short enough that a
-single 8-second continuous shot can show all of it.
+single continuous shot of this duration can show all of it.
 
 Use this exact narrative arc inside the full paragraph:
-recognizable everyday setup -> one impossible physical mutation or behavior ->
-one escalating action -> a concrete final image (with its final sound).
+a visually striking environment -> an interesting living subject ->
+one clear physical action that escalates -> a satisfying, concrete
+final image (with its final sound).
 
 OUTPUT
 

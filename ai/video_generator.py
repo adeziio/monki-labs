@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 import time
 
 import torch
@@ -65,35 +64,21 @@ class VideoGenerator(
             config["content"]
         )
 
-        self.active_category = (
-            content_config[
-                "active_category"
-            ]
-        )
-
-        self.category_config = (
-            content_config[
-                "categories"
-            ][
-                self.active_category
-            ]
-        )
-
         self.video_output_config = (
-            self.category_config[
+            content_config[
                 "video"
             ]
         )
 
         self.audio_config = (
-            self.category_config.get(
+            content_config.get(
                 "audio",
                 {}
             )
         )
 
         self.generation_config = (
-            self.category_config[
+            content_config[
                 "generation"
             ]
         )
@@ -110,12 +95,6 @@ class VideoGenerator(
 
         self.output_root = Path(
             "media/output"
-        )
-
-        self.category_output_directory = (
-            self.output_root
-            /
-            self.get_category_directory_name()
         )
 
         self.run_directory = None
@@ -307,47 +286,11 @@ class VideoGenerator(
 
                 pass
 
-    def get_category_directory_name(
-        self
-    ):
-
-        category_name = (
-            self.category_config
-            .get(
-                "name",
-                self.active_category
-            )
-        )
-
-        category_name = str(
-            category_name
-        ).strip()
-
-        if not category_name:
-
-            category_name = (
-                self.active_category
-            )
-
-        category_name = re.sub(
-            r'[<>:"/\\|?*]',
-            "_",
-            category_name
-        )
-
-        category_name = re.sub(
-            r"\s+",
-            " ",
-            category_name
-        )
-
-        return category_name
-
     def create_run_directory(
         self
     ):
 
-        self.category_output_directory.mkdir(
+        self.output_root.mkdir(
             parents=True,
             exist_ok=True
         )
@@ -355,7 +298,7 @@ class VideoGenerator(
         existing_numbers = []
 
         for path in (
-            self.category_output_directory.iterdir()
+            self.output_root.iterdir()
         ):
 
             if not path.is_dir():
@@ -387,7 +330,7 @@ class VideoGenerator(
             next_number = 1
 
         run_directory = (
-            self.category_output_directory
+            self.output_root
             /
             f"{next_number:03}"
         )
@@ -436,8 +379,8 @@ class VideoGenerator(
             .resolve()
         )
 
-        category_path = (
-            self.category_output_directory
+        output_path = (
+            self.output_root
             .resolve()
         )
 
@@ -458,12 +401,12 @@ class VideoGenerator(
         if (
             episode_path.parent
             !=
-            category_path
+            output_path
         ):
 
             raise ValueError(
-                "Episode does not belong to "
-                "the active category."
+                "Episode directory must live "
+                "directly under the output root."
             )
 
         if not episode_path.is_dir():

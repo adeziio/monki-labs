@@ -12,15 +12,14 @@ DEFAULT_TAGS = ["#Shorts", "#AI"]
 
 def generate_metadata_from_prompt(
     prompt_item,
-    category="",
     episode_number="",
     config=None
 ):
 
     """
     Builds the prefill metadata for an episode from:
-    - the episode prompt.txt (TITLE: / PROMPT:),
-    - the category + episode number directory,
+    - the episode prompt.txt (TITLE: / PROMPT: / SUMMARY:),
+    - the episode number directory,
     - the config/youtube.json defaults.
 
     The result is only a starting point - every field is editable
@@ -66,14 +65,6 @@ def generate_metadata_from_prompt(
     tags = list(
         defaults.get("tags") or DEFAULT_TAGS
     )
-
-    category_tag = (
-        f"#{category}"
-    ).replace(" ", "")
-
-    if category and category_tag not in tags:
-
-        tags.append(category_tag)
 
     lines = []
 

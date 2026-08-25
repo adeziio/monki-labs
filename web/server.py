@@ -537,47 +537,39 @@ def scan_episode_ids():
 
         return ids
 
-    for category_directory in sorted(
+    for episode_directory in sorted(
         MEDIA_ROOT.iterdir()
     ):
 
-        if not category_directory.is_dir():
+        if not episode_directory.is_dir():
 
             continue
 
-        for episode_directory in sorted(
-            category_directory.iterdir()
-        ):
+        if not episode_directory.name.isdigit():
 
-            if not episode_directory.is_dir():
+            continue
 
-                continue
+        try:
 
-            if not episode_directory.name.isdigit():
-
-                continue
-
-            try:
-
-                relative_directory = (
-                    episode_directory
-                    .relative_to(
-                        PROJECT_ROOT
-                    )
-                )
-
-            except ValueError:
-
-                continue
-
-            ids.add(
-                str(
-                    relative_directory
-                ).replace(
-                    "\\",
-                    "/"
+            relative_directory = (
+                episode_directory
+                .relative_to(
+                    PROJECT_ROOT
                 )
             )
+
+        except ValueError:
+
+            continue
+
+        ids.add(
+            str(
+                relative_directory
+            ).replace(
+                "\\",
+                "/"
+            )
+        )
 
     return ids
 
@@ -622,142 +614,132 @@ def discover_episodes():
 
         return results
 
-    for category_directory in sorted(
-        MEDIA_ROOT.iterdir()
+    for episode_directory in sorted(
+        MEDIA_ROOT.iterdir(),
+        reverse=True
     ):
 
-        if not category_directory.is_dir():
+        if not episode_directory.is_dir():
 
             continue
 
-        for episode_directory in sorted(
-            category_directory.iterdir(),
-            reverse=True
-        ):
+        if not episode_directory.name.isdigit():
 
-            if not episode_directory.is_dir():
+            continue
 
-                continue
+        prompt_path = (
+            episode_directory
+            /
+            "prompt.txt"
+        )
 
-            if not episode_directory.name.isdigit():
+        video_path = (
+            episode_directory
+            /
+            "episode.mp4"
+        )
 
-                continue
+        prompts = []
 
-            prompt_path = (
-                episode_directory
-                /
-                "prompt.txt"
-            )
-
-            video_path = (
-                episode_directory
-                /
-                "episode.mp4"
-            )
-
-            prompts = []
-
-            if prompt_path.is_file():
-
-                try:
-
-                    prompts = parse_prompt_file(
-                        prompt_path
-                    )
-
-                except Exception:
-
-                    prompts = []
-
-            prompt_item = (
-                prompts[0]
-                if prompts
-                else None
-            )
+        if prompt_path.is_file():
 
             try:
 
-                relative_directory = (
-                    episode_directory
+                prompts = parse_prompt_file(
+                    prompt_path
+                )
+
+            except Exception:
+
+                prompts = []
+
+        prompt_item = (
+            prompts[0]
+            if prompts
+            else None
+        )
+
+        try:
+
+            relative_directory = (
+                episode_directory
+                .relative_to(
+                    PROJECT_ROOT
+                )
+            )
+
+        except ValueError:
+
+            continue
+
+        episode_id = str(
+            relative_directory
+        ).replace(
+            "\\",
+            "/"
+        )
+
+        video_exists = (
+            video_path.is_file()
+        )
+
+        video_relative_path = None
+
+        if video_exists:
+
+            try:
+
+                video_relative_path = str(
+                    video_path
                     .relative_to(
-                        PROJECT_ROOT
+                        MEDIA_ROOT
                     )
+                ).replace(
+                    "\\",
+                    "/"
                 )
 
             except ValueError:
 
-                continue
+                video_relative_path = None
 
-            episode_id = str(
-                relative_directory
-            ).replace(
-                "\\",
-                "/"
-            )
-
-            video_exists = (
-                video_path.is_file()
-            )
-
-            video_relative_path = None
-
-            if video_exists:
-
-                try:
-
-                    video_relative_path = str(
-                        video_path
-                        .relative_to(
-                            MEDIA_ROOT
-                        )
-                    ).replace(
-                        "\\",
-                        "/"
+        results.append(
+            {
+                "id": episode_id,
+                "number": episode_directory.name,
+                "path": episode_id,
+                "prompt_exists": bool(
+                    prompt_item
+                ),
+                "title": (
+                    prompt_item["title"]
+                    if prompt_item
+                    else ""
+                ),
+                "prompt": (
+                    prompt_item["prompt"]
+                    if prompt_item
+                    else ""
+                ),
+                "summary": (
+                    prompt_item.get(
+                        "summary",
+                        ""
                     )
-
-                except ValueError:
-
-                    video_relative_path = None
-
-            results.append(
-                {
-                    "id": episode_id,
-                    "number": episode_directory.name,
-                    "category": category_directory.name,
-                    "path": episode_id,
-                    "prompt_exists": bool(
-                        prompt_item
-                    ),
-                    "title": (
-                        prompt_item["title"]
-                        if prompt_item
-                        else ""
-                    ),
-                    "prompt": (
-                        prompt_item["prompt"]
-                        if prompt_item
-                        else ""
-                    ),
-                    "summary": (
-                        prompt_item.get(
-                            "summary",
-                            ""
-                        )
-                        if prompt_item
-                        else ""
-                    ),
-                    "video_exists": video_exists,
-                    "video_path": video_relative_path,
-                    "generating": is_episode_generating(
-                        episode_id
-                    )
-                }
-            )
+                    if prompt_item
+                    else ""
+                ),
+                "video_exists": video_exists,
+                "video_path": video_relative_path,
+                "generating": is_episode_generating(
+                    episode_id
+                )
+            }
+        )
 
     results.sort(
-        key=lambda item: (
-            item["category"],
-            int(item["number"])
+        key=lambda item: int(
+            item["number"]
         ),
         reverse=True
     )
@@ -939,7 +921,7 @@ def get_episode_identity(
 ):
 
     """
-    Returns the category and episode number from an episode id.
+    Returns the episode number from an episode id.
     """
 
     episode_path = (
@@ -957,15 +939,14 @@ def get_episode_identity(
 
     parts = relative.parts
 
-    if len(parts) < 2:
+    if len(parts) < 1:
 
         raise ValueError(
             "Invalid episode directory structure."
         )
 
     return {
-        "category": parts[0],
-        "number": parts[1]
+        "number": parts[-1]
     }
 
 
@@ -1784,7 +1765,6 @@ class RequestHandler(
             metadata = (
                 metadata_generator.generate_metadata_from_prompt(
                     prompt_item,
-                    category=identity["category"],
                     episode_number=identity["number"],
                     config=config
                 )
@@ -1795,7 +1775,6 @@ class RequestHandler(
                     "config": config,
                     "episode": {
                         "id": episode_id,
-                        "category": identity["category"],
                         "number": identity["number"],
                         "title": prompt_item.get(
                             "title",
@@ -1931,9 +1910,6 @@ class RequestHandler(
                     },
                     "episode": {
                         "id": episode_id,
-                        "category": identity[
-                            "category"
-                        ],
                         "number": identity[
                             "number"
                         ],
