@@ -22,7 +22,7 @@
         "video_model": {
             "enabled": true,
             "provider": "ltx",
-            "model": "diffusers/LTX-2.3-Distilled-Diffusers",
+            "model": "diffusers/LTX-2.3-Diffusers",
             "generation_retry_attempts": 5,
             "generation_retry_backoff_seconds": 20,
             "device_allocation": {
@@ -38,14 +38,14 @@
             "generation_fps": 24,
             "steps": {
                 "cpu": 8,
-                "cuda": 8
+                "cuda": 30
             },
             "stg_blocks": {
                 "indices": [
                     28
                 ]
             },
-            "guidance_scale": 1.0,
+            "guidance_scale": 3.0,
             "audio_guidance_scale": 7.0,
             "stg_scale": 1.0,
             "audio_stg_scale": 1.0,
