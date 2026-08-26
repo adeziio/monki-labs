@@ -740,8 +740,6 @@ switchable backends:
 | `"local"` (default) | Local LTX-2.3 diffusers pipeline | Runs on your own GPU; unchanged behavior |
 | `"api"` | LTX-2.3 Fast API | Submits the same prompt to the hosted API, polls until finished, downloads the result |
 
-The legacy value `"ltx"` is still accepted as an alias for `"local"`.
-
 The switch lives in `config/ai_models.json` →
 `models.video_model.provider`. The provider choice happens entirely at the
 video-generation layer — prompt generation, episode folders, job progress,
@@ -856,14 +854,12 @@ This keeps output requirements and model-specific generation settings configurab
 # 📝 Prompt Generation
 
 Video concepts are generated in a **single pass** by a local Ollama language
-model (Qwen 3 8B). There is no scoring system, retry cascade, or rejection
-filter chain — the structured prompt contract and generation guidance get it
-right the first time, and whatever the model returns is what gets used.
+model (Qwen 3 8B).
 
 ## Visual-first entertainment philosophy
 
-The channel produces **visually compelling short-form entertainment**, not a
-single genre such as comedy or brainrot. The only hard goal:
+The channel produces **visually compelling short-form entertainment**.
+The only hard goal:
 
 > Create something visually compelling enough to make someone stop scrolling
 > and keep watching.
