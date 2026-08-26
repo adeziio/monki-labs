@@ -120,8 +120,8 @@
             "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the gag plays better still.",
             "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
             "Maintain strict chronological flow using temporal connectors: as, then, while, when, until.",
-            "Describe the complete soundscape inside the same paragraph, integrated chronologically alongside the actions: background music, ambient sounds, and specific sound effects. Name the exact source and texture of every sound, never vague descriptions such as ambient sound is present.",
-            "Music must be derived from the concept itself: name the actual mood, tempo, and instruments the absurd situation suggests. Never copy a template of fixed instruments and never reuse a music cue from a previous episode.",
+            "Describe the complete soundtrack within the single paragraph, integrated chronologically with the action: a clean background music score using simple recognizable instruments, subtle ambient sounds, and specific effects. Name the exact instrument, mood, and source of every sound, never vague descriptions such as ambient sound is present.",
+            "Background music is always required when the scene supports it: derive the mood, tempo, and specific instruments from the concept. Keep the score simple with one or two instruments carrying a single motif. Avoid buzzing, humming, static, distortion, or noise-like textures.",
             "Visuals and audio only: do not include smell, taste, or touch.",
             "Do NOT use timestamps, scene cuts, or phrases such as The scene opens with. Start directly with Style.",
             "No dialogue unless speech is essential; if speech is included, put the exact words in quotes with a voice description.",
@@ -130,12 +130,12 @@
             "The final paragraph is the full prompt that will be fed directly to the video model, so every visual and every sound must be present in this single paragraph."
         ],
         "audio_guidance": [
-            "Compose the audio as one cohesive score for the scene: a background music bed, the environment ambience, and a few fitting effects working together - not isolated or disconnected sounds.",
-            "EVERY concept must include a named background-music direction inside the paragraph. Silence, a bare hum, or an untreated empty scene is not acceptable.",
-            "Match the music to the scene's mood and motion: name concrete energy, tempo, instrumentation, or texture the lighting and action suggest. Never copy a fixed template or reuse a prior cue.",
-            "Layer the soundtrack with time: sustain the music and ambient, let them swell as the moment builds, and land a distinct, meaningful sound at the payoff.",
-            "Anchor every sound to something visible or implied in the frame so the audio belongs to the environment rather than just being layered on top.",
-            "Let the music sustain the scene, then give the final frame its one strong accent rather than covering the whole shot with noise."
+            "Background music is always required when the scene supports it. Name concrete, recognizable instruments (e.g., piano, acoustic guitar, warm strings, soft brass, light percussion, gentle woodwinds) and a clear mood.",
+            "Keep the musical score simple: one or two instruments carrying a single melodic or rhythmic motif. Avoid dense layering, competing melodies, or heavy orchestration.",
+            "Describe how the music moves with the action: a gentle pulse at rest, building softly as the payoff approaches, then resolving on the final image. Let the tempo follow the motion.",
+            "Ambient and environmental sounds must be subtle and secondary to the music — never louder or more complex than the score. Name specific, natural sources (footsteps on wood, distant wind, soft fabric rustle, gentle water drip).",
+            "Avoid audio that produces static, buzzing, humming, grinding, or distortion-like textures. Keep every sound clean, musical, and natural-sounding.",
+            "At the payoff, use one clear, satisfying sound accent — not a wall of noise. Let the music resolve quietly on the final frame."
         ],
         "prompt_format": {
             "minimum_words_per_second": 12,
