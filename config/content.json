@@ -23,14 +23,16 @@
         "intimate cozy interiors glowing against dark backgrounds"
     ],
     "protagonists": [
-        "an expressive animal in a striking situation",
-        "a person experiencing something wonderful or impossible",
-        "a creature that cannot exist, rendered beautifully",
-        "a tiny character facing something enormous",
-        "a swarm, flock, or school moving as one mesmerizing shape",
-        "a character whose shadow or reflection acts independently",
-        "an animal showing eerie intelligence",
-        "a person calmly interacting with the impossible"
+        "a visually striking animal in an extraordinary environment",
+        "a small but clearly visible character against an enormous environment",
+        "a beautiful creature that could not exist in nature",
+        "a person witnessing something impossible or breathtaking",
+        "a swarm, flock, or school moving as one mesmerizing form",
+        "an animal displaying uncanny intelligence",
+        "a solitary figure moving through a surreal environment",
+        "an unusual creature with distinctive visual features",
+        "an ordinary subject placed in an extraordinary world",
+        "a mysterious figure whose presence creates visual intrigue"
     ],
     "video": {
         "duration_seconds": 8,
@@ -51,8 +53,9 @@
     "prompt_generation": {
         "instructions": [
             "Generate one original concept for a short vertical video whose first job is a visually striking, emotionally readable moment.",
-            "Lead with the ENVIRONMENT and setting: build a scene worth looking at - with atmosphere, depth, color, and light - before deciding what happens in it.",
-            "Place one clear, identifiable living subject (person, animal, insect, creature) inside that setting, acting with purpose.",
+            "Lead with the ENVIRONMENT and setting: build a scene worth looking at - with atmosphere, depth, color, light, and distinctive visual character - before deciding what happens in it.",
+            "The environment is the visual foundation, not a backdrop. Make the setting itself unusual, beautiful, atmospheric, or visually mesmerizing; the subject should enhance the environment rather than carry the entire concept.",
+            "Build an environment that is visually compelling on its own, then place one clear, identifiable living subject inside it, acting with purpose.",
             "Give the frame distinctive visual detail: materials, lighting source and quality, atmosphere, and a coherent color and mood palette.",
             "Keep the action simple, legible, and physically coherent so it fits cleanly within one continuous ~8 second shot.",
             "Let the ENVIRONMENT respond to the subject's action - moving reflections, drifting dust or light, stirring water or fabric, shifting atmosphere - so the setting feels alive.",
@@ -63,27 +66,29 @@
         "creative_directions": [
             "Let the environment do heavy lifting: reflections, weather, light, dust, water, or shifting surfaces that respond gently to the subject.",
             "Use light and atmosphere deliberately - a lighting source, its shadows, haze, and depth of field - to give the frame tangible detail.",
-            "Let a strongly defined palette and mood carry the scene without relying the verbal or narrative cues.",
+            "Let a strongly defined palette and mood carry the scene without relying on verbal or narrative cues.",
             "Create scale, contrast, or atmospheric tension between the subject and its setting to add visual interest.",
-            "Describe precisely what is visible, what moves, and where the still lands; active physical verbs and concrete visual nouns.",
-            "Keep the frame to one primary subject and one clearly legible change of state - avoid crowded backgrounds and muddled casts.",
+            "Describe precisely what is visible, what moves, and where the still lands; use active physical verbs and concrete visual nouns.",
+            "Keep the frame to one primary living subject. Secondary living subjects should be rare and only appear when they materially improve the visual composition.",
             "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
-            "Make the payoff readable in a single image - something that works on its own without needing dialogue or on-screen text."
+            "Make the payoff readable in a single image - something that works on its own without needing dialogue or on-screen text.",
+            "Vary visual composition across concepts: centered symmetry, strong foreground framing, leading lines, layered depth, negative space, and immersive close perspectives."
         ],
         "creative_priorities": [
             "Immediate visual hook in the first moment.",
             "Strong, visually interesting environment or background.",
             "Visually interesting subject.",
             "Clear physical action.",
+            "Satisfying or surprising payoff.",
             "Novelty and curiosity.",
             "Escalation or progression across the shot.",
-            "Satisfying or surprising payoff.",
             "Simple, understandable premise."
         ],
         "diversity_guidance": [
             "Rotate emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
             "Do not repeat the same subject type, environment type, or payoff style in consecutive ideas.",
             "Vary shot scale between close-ups and wide establishing shots.",
+            "Vary visual composition between concepts: symmetry, foreground framing, leading lines, layered depth, negative space, and immersive perspectives.",
             "Vary pacing: some concepts slow and atmospheric, others fast and surprising."
         ],
         "wow_factor_guidance": [
@@ -117,11 +122,11 @@
             "SET THE SCENE: establish the lighting source, color palette, surface textures, and atmosphere as the subject acts.",
             "DEFINE THE CHARACTER: give the living subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing - and show emotion through visible physical cues, never abstract labels.",
             "DESCRIBE THE ACTION as a natural chronological sequence flowing from setup to payoff, told through what is visibly happening.",
-            "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the gag plays better still.",
+            "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the moment plays better still.",
             "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
             "Maintain strict chronological flow using temporal connectors: as, then, while, when, until.",
             "Describe the complete soundtrack within the single paragraph, integrated chronologically with the action: a clean background music score using simple recognizable instruments, subtle ambient sounds, and specific effects. Name the exact instrument, mood, and source of every sound, never vague descriptions such as ambient sound is present.",
-            "Background music is always required when the scene supports it: derive the mood, tempo, and specific instruments from the concept. Keep the score simple with one or two instruments carrying a single motif. Avoid buzzing, humming, static, distortion, or noise-like textures.",
+            "Background music is always required. Derive the mood, tempo, and specific instruments from the concept. Keep the score simple with one or two instruments carrying a single motif. Avoid buzzing, humming, static, distortion, or noise-like textures.",
             "Visuals and audio only: do not include smell, taste, or touch.",
             "Do NOT use timestamps, scene cuts, or phrases such as The scene opens with. Start directly with Style.",
             "No dialogue unless speech is essential; if speech is included, put the exact words in quotes with a voice description.",
@@ -130,18 +135,18 @@
             "The final paragraph is the full prompt that will be fed directly to the video model, so every visual and every sound must be present in this single paragraph."
         ],
         "audio_guidance": [
-            "Background music is always required when the scene supports it. Name concrete, recognizable instruments (e.g., piano, acoustic guitar, warm strings, soft brass, light percussion, gentle woodwinds) and a clear mood.",
+            "Background music is always required. Name concrete, recognizable instruments (e.g., piano, acoustic guitar, warm strings, soft brass, light percussion, gentle woodwinds) and a clear mood.",
             "Keep the musical score simple: one or two instruments carrying a single melodic or rhythmic motif. Avoid dense layering, competing melodies, or heavy orchestration.",
             "Describe how the music moves with the action: a gentle pulse at rest, building softly as the payoff approaches, then resolving on the final image. Let the tempo follow the motion.",
-            "Ambient and environmental sounds must be subtle and secondary to the music — never louder or more complex than the score. Name specific, natural sources (footsteps on wood, distant wind, soft fabric rustle, gentle water drip).",
+            "Ambient and environmental sounds must be subtle and secondary to the music - never louder or more complex than the score. Name specific, natural sources (footsteps on wood, distant wind, soft fabric rustle, gentle water drip).",
             "Avoid audio that produces static, buzzing, humming, grinding, or distortion-like textures. Keep every sound clean, musical, and natural-sounding.",
-            "At the payoff, use one clear, satisfying sound accent — not a wall of noise. Let the music resolve quietly on the final frame."
+            "At the payoff, use one clear, satisfying sound accent - not a wall of noise. Let the music resolve quietly on the final frame."
         ],
         "prompt_format": {
             "minimum_words_per_second": 12,
             "maximum_words_per_second": 20,
-            "minimum_words_floor": 60,
-            "maximum_words_cap": 300
+            "minimum_words_floor": 90,
+            "maximum_words_cap": 170
         }
     },
     "creative_engines": [
