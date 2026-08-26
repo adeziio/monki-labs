@@ -1130,4 +1130,4 @@ The developer configures the content and generation settings, starts an episode 
 
 Copyright © 2026 Aden Tran. All rights reserved.
 
-This repository is publicly available for viewing and reference only. No permission is granted to use, copy, modify, distribute, sublicense, or commercially exploit the code without explicit written permission from the copyright holder.
+This repository is publicly available for viewing and reference purposes only. No permission is granted to use, copy, modify, distribute, sublicense, or commercially exploit this code without explicit written permission from the copyright holder.
