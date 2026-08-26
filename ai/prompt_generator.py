@@ -2,7 +2,6 @@ import json
 import math
 import random
 import re
-from pathlib import Path
 
 from ai.base_ai_service import BaseAIService
 from ai.providers.ollama_provider import OllamaProvider
@@ -41,166 +40,22 @@ class PromptGenerator(
 
         self.recent_concepts = []
 
-    def _pick_rotated(
-        self,
-        settings,
-        prefix
-    ):
-        """
-        Picks the next entry from `settings` in shuffled order - like a
-        shuffled playlist. Every entry is used once per cycle before any
-        repeats, the shuffle order is re-randomized at the start of each
-        cycle, and the state is persisted under `prefix` because each
-        episode job runs in a fresh process.
-        """
+    def pick_episode_style(self):
 
-        if not settings:
+        styles = [
+            str(value).strip()
+            for value in self.prompt_config.get(
+                "style_rotation",
+                []
+            )
+            if str(value).strip()
+        ]
+
+        if not styles:
 
             return ""
 
-        state_path = (
-            Path("media")
-            / "output"
-            / ".prompt_state.json"
-        )
-
-        state = {}
-
-        try:
-
-            if state_path.exists():
-
-                state = json.loads(
-                    state_path.read_text(
-                        encoding="utf-8"
-                    )
-                )
-
-        except (
-            json.JSONDecodeError,
-            OSError
-        ):
-
-            state = {}
-
-        order_key = (
-            f"{prefix}_order"
-        )
-
-        position_key = (
-            f"{prefix}_position"
-        )
-
-        last_key = (
-            f"{prefix}_last"
-        )
-
-        try:
-
-            order = list(
-                state.get(order_key, [])
-            )
-
-            position = int(
-                state.get(position_key, 0)
-            )
-
-        except (
-            TypeError,
-            ValueError
-        ):
-
-            order = []
-
-            position = 0
-
-        # (Re)shuffle when there is no saved order yet or when the
-        # configured list has changed since it was saved.
-
-        if (
-            not order
-            or sorted(order) != list(range(len(settings)))
-        ):
-
-            order = list(range(len(settings)))
-
-            random.shuffle(order)
-
-            position = 0
-
-        if position >= len(order):
-
-            # Cycle complete: reshuffle for a fresh random order and
-            # avoid repeating whatever played last.
-
-            previous_last = state.get(last_key)
-
-            order = list(range(len(settings)))
-
-            random.shuffle(order)
-
-            if (
-                len(order) > 1
-                and str(order[0]) == str(previous_last)
-            ):
-                order[0], order[-1] = (
-                    order[-1],
-                    order[0]
-                )
-
-            position = 0
-
-        chosen_index = order[position]
-
-        state[order_key] = order
-
-        state[position_key] = position + 1
-
-        state[last_key] = chosen_index
-
-        try:
-
-            state_path.parent.mkdir(
-                parents=True,
-                exist_ok=True
-            )
-
-            state_path.write_text(
-                json.dumps(
-                    state,
-                    indent=4
-                ),
-                encoding="utf-8"
-            )
-
-        except OSError:
-
-            self.log(
-                "Could not persist prompt "
-                "rotation state."
-            )
-
-        chosen = settings[chosen_index]
-
-        self.log(
-            f"Rotated {prefix} to: {chosen}"
-        )
-
-        return chosen
-
-    def pick_episode_style(self):
-
-        return self._pick_rotated(
-            [
-                str(value).strip()
-                for value in self.prompt_config.get(
-                    "style_rotation",
-                    []
-                )
-                if str(value).strip()
-            ],
-            "style"
-        )
+        return random.choice(styles)
 
     def format_bullets(
         self,
@@ -476,11 +331,15 @@ all visuals (characters, textures, motion, lighting) must match that
 style throughout. Do not use any other visual style.
 """
 
-        return f"""Generate exactly {count} original video concepts.
+        return f"""Generate exactly {count} original visual concepts.
 
-For each concept, write a single FULL generation prompt that is ready to be
-fed directly into the video model. The full prompt must contain every visual
-and every audio element in one continuous paragraph.
+For each concept, write a single FULL generation prompt that can be passed
+directly to the video model. Aim for a visually striking scene: lead with the
+environment and setting, place one interesting living subject within it, and
+build toward a satisfying payoff. Keep the action simple and physically
+coherent, and let the environment respond naturally to what the subject does.
+The full prompt must contain every visual and every audio element in one
+continuous paragraph.
 
 {self.build_shared_context_sections()}
 {style_section}
@@ -490,20 +349,29 @@ MUSIC AND SOUND FX (derive dynamically from the concept)
 LTX2 PROMPT STRUCTURE (the "prompt" field, follow strictly)
 {self.format_bullets(ltx2_rules)}
 
+PROMPT COMPOSITION
+
+While writing the paragraph keep these priorities in mind (arrange them in
+your own creative order, not a rigid template):
+- a visually striking setting with rich environment, light, materials,
+  atmosphere, and color;
+- one clear, interesting living subject within that setting;
+- a simple, physically coherent action that lets the environment respond;
+- a complete, cohesive soundtrack (music + ambient + effects) woven with
+  the scene;
+- a single, satisfying payoff or final image.
+
+Keep the concept short and uncluttered so it fits one continuous shot.
+
 PROMPT LENGTH
 
 Write the full "prompt" paragraph in approximately
 {minimum_words}-{maximum_words} words. This range is derived from the
 configured video duration of approximately
-{duration_seconds:g} seconds. The paragraph must be long enough to cover the
-style, the environment, the subject, one escalation, and the
-chronologically integrated music and sound effects - and short enough that a
-single continuous shot of this duration can show all of it.
-
-Use this exact narrative arc inside the full paragraph:
-a visually striking environment -> an interesting living subject ->
-one clear physical action that escalates -> a satisfying, concrete
-final image (with its final sound).
+{duration_seconds:g} seconds. The paragraph must be long enough to establish
+the setting, the subject, a simple action, the environment response, a
+cohesive soundtrack, and a final image - and short enough that a single
+continuous shot of this duration can show it all without clutter.
 
 OUTPUT
 

@@ -21,7 +21,7 @@
         },
         "video_model": {
             "enabled": true,
-            "provider": "api",
+            "provider": "local",
             "model": "diffusers/LTX-2.3-Diffusers",
             "api": {
                 "base_url": "https://api.ltx.io",

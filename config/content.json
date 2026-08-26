@@ -50,27 +50,25 @@
     },
     "prompt_generation": {
         "instructions": [
-            "Generate one original concept for a short vertical video whose only goal is to make someone stop scrolling.",
-            "The environment is critical: choose a visually interesting setting that adds depth, atmosphere, scale, color, or spectacle.",
-            "Every concept must have an immediate visual hook within the first moment of the shot.",
-            "Prioritize a clear physical action that progresses visibly across the shot.",
-            "Favor novelty and curiosity over jokes: the video does not need to be funny.",
-            "Build one escalation into a satisfying or surprising final image.",
-            "Keep the premise simple enough to understand within a couple of seconds.",
-            "Minimize dialogue, on-screen text, verbal humor, complex narratives, large crowds, and precise multi-step interactions.",
-            "The main character should be ALIVE: a person, animal, insect, sea creature, or monster renders most reliably."
+            "Generate one original concept for a short vertical video whose first job is a visually striking, emotionally readable moment.",
+            "Lead with the ENVIRONMENT and setting: build a scene worth looking at - with atmosphere, depth, color, and light - before deciding what happens in it.",
+            "Place one clear, identifiable living subject (person, animal, insect, creature) inside that setting, acting with purpose.",
+            "Give the frame distinctive visual detail: materials, lighting source and quality, atmosphere, and a coherent color and mood palette.",
+            "Keep the action simple, legible, and physically coherent so it fits cleanly within one continuous ~8 second shot.",
+            "Let the ENVIRONMENT respond to the subject's action - moving reflections, drifting dust or light, stirring water or fabric, shifting atmosphere - so the setting feels alive.",
+            "Build toward a single satisfying payoff or final image that resolves the setup - more striking than the start, never merely louder or busier.",
+            "Include background music direction suited to the scene, layered with natural ambient and audio effects, so the soundtrack feels complete and integrated.",
+            "Prioritize the visual moment over storytelling; keep the concept concise and focused, and do not cram many actions into the short runtime."
         ],
         "creative_directions": [
-            "Let the environment actively participate: reflections, weather, lighting shifts, crowds, or terrain reacting to the subject.",
-            "Use cinematic detail to make the scene feel tangible: textures, depth of field, atmospheric haze, practical light sources.",
-            "Contrast scale, color, or mood between subject and background to create visual tension.",
-            "Prefer premises that can be summarized as: why does this place look like that, or what is that thing doing?",
-            "Use physically filmable wording: name what is visible, what moves, and where the action ends.",
-            "Avoid abstract phrasing that cannot be filmed; show concrete objects and visible change.",
-            "Keep the prompt to one dominant subject and at most one or two supporting elements.",
-            "Use only one transformation or escalation; do not chain multiple events in the same shot.",
-            "End with a concrete, memorable final image the video model can clearly render.",
-            "Do not force comedy: wonder, beauty, tension, cuteness, and unease are equally valid reactions."
+            "Let the environment do heavy lifting: reflections, weather, light, dust, water, or shifting surfaces that respond gently to the subject.",
+            "Use light and atmosphere deliberately - a lighting source, its shadows, haze, and depth of field - to give the frame tangible detail.",
+            "Let a strongly defined palette and mood carry the scene without relying the verbal or narrative cues.",
+            "Create scale, contrast, or atmospheric tension between the subject and its setting to add visual interest.",
+            "Describe precisely what is visible, what moves, and where the still lands; active physical verbs and concrete visual nouns.",
+            "Keep the frame to one primary subject and one clearly legible change of state - avoid crowded backgrounds and muddled casts.",
+            "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
+            "Make the payoff readable in a single image - something that works on its own without needing dialogue or on-screen text."
         ],
         "creative_priorities": [
             "Immediate visual hook in the first moment.",
@@ -89,10 +87,10 @@
             "Vary pacing: some concepts slow and atmospheric, others fast and surprising."
         ],
         "wow_factor_guidance": [
-            "Aim for a reaction in the first seconds: a gasp, a laugh, an aww, a chill, or a how-did-they-do-that.",
-            "The final image should be more striking than the setup, never merely louder.",
-            "Combine two things nobody combines, or reveal something that recontextualizes the whole frame.",
-            "Beauty and satisfaction count as WOW just as much as shock does."
+            "Open with a visible image that holds the eye within the first second - through light, shape, atmosphere, color, or a striking subject.",
+            "Make the final image distinctly more striking than the setup - a satisfying landing, never a louder or busier one.",
+            "Let the environment and its look carry the weight; an atmospherically rich or unusual setting with a strong subject already commands attention.",
+            "Beauty, scale, light, and satisfying motion count every bit as much as surprise - aim for an arresting, coherent image rather than a gimmick."
         ],
         "living_subject_rules": [
             "The main character must be ALIVE: a person, animal, insect, sea creature, or monster.",
@@ -101,31 +99,16 @@
             "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
         ],
         "style_rotation": [
-            "cinematic realistic",
-            "stylized 3D cartoon animation",
-            "low-poly 3D animation",
-            "classic 2D cartoon animation",
-            "Saturday morning cartoon",
-            "1960s rubber-hose cartoon",
-            "comic-book animation",
-            "anime",
-            "retro 90s anime",
-            "chibi anime",
-            "cel-shaded animation",
-            "claymation stop-motion",
+            "cinematic photorealism",
+            "stylized 3D animation",
+            "cinematic macro photography",
             "handmade felt puppet animation",
-            "paper cutout animation",
-            "LEGO-style stop-motion animation",
-            "hand-drawn pencil animation",
-            "watercolor storybook animation",
-            "8-bit pixel art",
-            "retro 16-bit pixel art",
-            "black-and-white film noir",
-            "grainy VHS home-video aesthetic",
-            "retro 1980s television animation",
-            "stylized miniature photography",
-            "photorealistic creature animation",
-            "dark surreal animation"
+            "claymation stop-motion",
+            "storybook 3D animation",
+            "surreal photorealism",
+            "dark fantasy animation",
+            "bioluminescent fantasy",
+            "miniature practical-effects aesthetic"
         ],
         "ltx2_prompt_rules": [
             "Write ONE continuous natural-language paragraph in English. No titles, headings, code fences, or markdown.",
@@ -147,12 +130,12 @@
             "The final paragraph is the full prompt that will be fed directly to the video model, so every visual and every sound must be present in this single paragraph."
         ],
         "audio_guidance": [
-            "Audio (music and sound effects) must be derived dynamically from the concept and escalate together with the action.",
-            "EVERY concept must include a named background-music cue woven into the paragraph. Silence or a bare hum is not acceptable.",
-            "Name concrete music: identify the actual energy, instruments, or rhythm the scene suggests. Never reuse a fixed template.",
-            "Layer sounds chronologically: an establishing ambience, a rising musical cue as the moment builds, and a distinct sound for the payoff.",
-            "If the scene implies a hidden-world reveal, include a muffled interior hum or echo; if it implies scale, use deep booms or tinkling miniature sounds.",
-            "Keep every sound source referenced to something visible or implied in the scene."
+            "Compose the audio as one cohesive score for the scene: a background music bed, the environment ambience, and a few fitting effects working together - not isolated or disconnected sounds.",
+            "EVERY concept must include a named background-music direction inside the paragraph. Silence, a bare hum, or an untreated empty scene is not acceptable.",
+            "Match the music to the scene's mood and motion: name concrete energy, tempo, instrumentation, or texture the lighting and action suggest. Never copy a fixed template or reuse a prior cue.",
+            "Layer the soundtrack with time: sustain the music and ambient, let them swell as the moment builds, and land a distinct, meaningful sound at the payoff.",
+            "Anchor every sound to something visible or implied in the frame so the audio belongs to the environment rather than just being layered on top.",
+            "Let the music sustain the scene, then give the final frame its one strong accent rather than covering the whole shot with noise."
         ],
         "prompt_format": {
             "minimum_words_per_second": 12,

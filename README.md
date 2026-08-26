@@ -907,8 +907,7 @@ episode duration automatically rescales prompt size.
 ## Diversity rotation
 
 A shuffled-playlist rotation of visual styles keeps consecutive episodes
-varied. It is a plain list in `config/content.json` (`style_rotation`) and
-persists its position in `media/output/.prompt_state.json`:
+varied. It is a plain list in `config/content.json` (`style_rotation`)
 
 * **`style_rotation`** — visual styles (cinematic-realistic, claymation,
   retro anime, Pixar-style 3D, film noir, …). The generated paragraph must
