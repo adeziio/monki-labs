@@ -1128,4 +1128,6 @@ The developer configures the content and generation settings, starts an episode 
 
 ## 📜 License
 
-Private project.
+Copyright © 2026 Aden Tran. All rights reserved.
+
+This repository is publicly available for viewing and reference only. No permission is granted to use, copy, modify, distribute, sublicense, or commercially exploit the code without explicit written permission from the copyright holder.
