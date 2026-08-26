@@ -21,8 +21,25 @@
         },
         "video_model": {
             "enabled": true,
-            "provider": "ltx",
+            "provider": "api",
             "model": "diffusers/LTX-2.3-Diffusers",
+            "api": {
+                "base_url": "https://api.ltx.io",
+                "submit_path": "/v2/text-to-video",
+                "status_path": "/v2/text-to-video/{job_id}",
+                "prompt_field": "prompt",
+                "send_duration_and_resolution": true,
+                "model": "ltx-2-3-fast",
+                "extra_params": {},
+                "auth_header": "Authorization",
+                "auth_scheme": "Bearer",
+                "accept_header": "",
+                "api_key_env": "LTX_API_KEY",
+                "status_field": "status",
+                "poll_interval_seconds": 5,
+                "timeout_seconds": 900,
+                "request_timeout_seconds": 30
+            },
             "generation_retry_attempts": 5,
             "generation_retry_backoff_seconds": 20,
             "device_allocation": {

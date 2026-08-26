@@ -730,6 +730,91 @@ The application reads the appropriate configuration at runtime.
 
 # 🎥 Video Generation
 
+Monki Labs currently uses **LTX-2.3** for AI video generation, with two
+switchable backends:
+
+| `provider` value | Backend | Notes |
+| --- | --- | --- |
+| `"local"` (default) | Local LTX-2.3 diffusers pipeline | Runs on your own GPU; unchanged behavior |
+| `"api"` | LTX-2.3 Fast API | Submits the same prompt to the hosted API, polls until finished, downloads the result |
+
+The legacy value `"ltx"` is still accepted as an alias for `"local"`.
+
+The switch lives in `config/ai_models.json` →
+`models.video_model.provider`. The provider choice happens entirely at the
+video-generation layer — prompt generation, episode folders, job progress,
+and the final `episode.mp4` output contract are identical for both.
+
+## API backend workflow
+
+When `provider` is `"api"`:
+
+1. The exact same generated video prompt is submitted to the API.
+2. The submission returns a generation/job ID.
+3. The application polls the status endpoint until the job completes,
+   fails, or times out. The web server is never blocked — this runs inside
+   the existing background job worker, and progress messages stream to the
+   UI through the standard progress callback.
+4. The finished video (with generated audio) is downloaded and saved as the
+   episode's `_clip_001.mp4`, then finalized into `episode.mp4` exactly as
+   in local mode.
+
+Failures (submission errors, failed jobs, timeouts, network problems,
+malformed responses) surface cleanly through the normal job error state;
+the web server stays alive.
+
+## API configuration
+
+```json
+"video_model": {
+    "provider": "api",
+    "api": {
+        "base_url": "https://api.ltx.io",
+        "submit_path": "/v2/text-to-video",
+        "status_path": "/v2/text-to-video/{job_id}",
+        "model": "ltx-2-3-fast",
+        "send_duration_and_resolution": true,
+        "extra_params": {},
+        "auth_header": "Authorization",
+        "auth_scheme": "Bearer",
+        "api_key_env": "LTX_API_KEY",
+        "status_field": "status",
+        "poll_interval_seconds": 5,
+        "timeout_seconds": 900,
+        "request_timeout_seconds": 30
+    },
+    ...
+}
+```
+
+* `base_url`, `submit_path`, `status_path` — endpoint layout of the
+  LTX async API. `{job_id}` in `status_path` is replaced with the
+  returned ID.
+* `model` — `"ltx-2-3-fast"` or `"ltx-2-3-pro"`.
+* `send_duration_and_resolution` — sends `duration` and
+  `resolution` (`"widthxheight"`) from `content.json` so API output
+  matches local output settings.
+* `auth_header` / `auth_scheme` / `api_key_env` — how the API key is sent.
+  The key itself is read from `.env` (`LTX_API_KEY=...`) and never stored
+  in configuration.
+* `extra_params` — optional request-body additions merged into every
+  submission.
+* `status_field`, `completed_statuses`, `failed_statuses`,
+  `result_url_fields`, `job_id_fields` — response-shape overrides for
+  providers that use different field names.
+* `poll_interval_seconds` / `timeout_seconds` — polling cadence and the
+  overall give-up time (LTX recommends 5-second polling).
+* `request_timeout_seconds` — per-HTTP-request timeout.
+
+These defaults follow the official LTX async (V2) contract:
+`POST /v2/text-to-video` returns `202` with a job `id`;
+`GET /v2/text-to-video/{id}` reports `pending | processing | completed |
+failed`; a completed job contains `result.video_url`; failures carry
+`error.message`. Transient network errors and HTTP 5xx are retried within
+the polling window; auth/validation errors and failed jobs are not
+retried. Adjust any value if your account uses a different contract; no
+code changes are needed.
+
 Monki Labs currently uses **LTX-2.3** for AI video generation.
 
 The video model generates the visual content and associated audio in the same generation process.

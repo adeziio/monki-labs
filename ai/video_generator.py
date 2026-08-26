@@ -30,6 +30,9 @@ from ai.memory_utils import (
     release_memory
 )
 from ai.prompt_generator import PromptGenerator
+from ai.providers.ltx_api_provider import (
+    LtxApiProvider
+)
 
 
 class VideoGenerator(
@@ -93,6 +96,18 @@ class VideoGenerator(
 
         self.progress_callback = None
 
+        # "local" runs the on-GPU diffusers pipeline; "api" delegates
+        # generation to the LTX-2.3 Fast API instead.
+
+        self.provider = str(
+            self.video_config.get(
+                "provider",
+                "local"
+            )
+        ).strip().lower()
+
+        self.api_provider = None
+
         self.output_root = Path(
             "media/output"
         )
@@ -100,6 +115,53 @@ class VideoGenerator(
         self.run_directory = None
 
         self.clip_output_directory = None
+
+    def _uses_api_backend(self):
+
+        return self.provider == "api"
+
+    def _get_api_provider(self):
+
+        if self.api_provider is None:
+
+            self.api_provider = LtxApiProvider(
+                self.config,
+                progress_callback=self._api_progress
+            )
+
+        return self.api_provider
+
+    def _api_progress(
+        self,
+        message
+    ):
+
+        """
+        Converts provider notifications into job progress updates.
+        Poll ticks nudge the bar upward between the submit (15%)
+        and download (88%) phases.
+        """
+
+        self.api_poll_count = getattr(
+            self,
+            "api_poll_count",
+            0
+        ) + 1
+
+        if not message:
+
+            return
+
+        percent = min(
+            85,
+            15 + self.api_poll_count * 2
+        )
+
+        self.update_progress(
+            percent,
+            str(message),
+            stage="video"
+        )
 
     def set_progress_callback(
         self,
@@ -193,7 +255,16 @@ class VideoGenerator(
 
             except Exception as error:
 
-                if attempt >= max_retries:
+                # Provider errors flagged as non-retryable (bad API
+                # key, invalid configuration, content-policy
+                # rejections) fail immediately - resubmitting the
+                # identical request would fail again.
+
+                if getattr(
+                    error,
+                    "retryable",
+                    True
+                ) is False or attempt >= max_retries:
 
                     self.log(
                         f"{description} failed after "
@@ -932,6 +1003,32 @@ class VideoGenerator(
 
             return
 
+        if self._uses_api_backend():
+
+            self.log(
+                "API provider selected - skipping local "
+                "video model load."
+            )
+
+            return
+
+        provider = (
+            self.video_config[
+                "provider"
+            ]
+        )
+
+        if provider.lower() not in (
+            "local",
+            "ltx"
+        ):
+
+            raise RuntimeError(
+                "Unsupported local video provider: "
+                f"{provider}. Use \"local\" for the on-GPU "
+                "pipeline or set provider to \"api\"."
+            )
+
         self.update_progress(
             5,
             "Loading video model...",
@@ -953,19 +1050,6 @@ class VideoGenerator(
                 "model"
             ]
         )
-
-        provider = (
-            self.video_config[
-                "provider"
-            ]
-        )
-
-        if provider.lower() != "ltx":
-
-            raise RuntimeError(
-                "Unsupported video provider: "
-                f"{provider}"
-            )
 
         self.log(
             f"Loading video model: "
@@ -1227,6 +1311,31 @@ class VideoGenerator(
                 prompt
             ).strip()
         )
+
+        if self._uses_api_backend():
+
+            # API mode: submit -> poll -> download. Reuses the same
+            # retry wrapper so transient provider/network failures
+            # retry through the existing job architecture.
+
+            self.log(
+                "Generating audio-video clip via "
+                "LTX-2.3 Fast API."
+            )
+
+            self.update_progress(
+                12,
+                "Submitting generation request...",
+                stage="video"
+            )
+
+            return self.run_with_generation_retries(
+                "API clip generation",
+                lambda: self._get_api_provider().generate_clip(
+                    ltx_prompt,
+                    output_path
+                )
+            )
 
         self.log(
             f"Generating audio-video clip: "
