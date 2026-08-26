@@ -35,9 +35,9 @@
         "a mysterious figure whose presence creates visual intrigue"
     ],
     "video": {
-        "duration_seconds": 8,
+        "duration_seconds": 12,
         "aspect_ratio": "9:16",
-        "fps": 30,
+        "fps": 25,
         "format": "mp4",
         "resolution": {
             "width": 1080,
