@@ -731,6 +731,9 @@ def discover_episodes():
                 ),
                 "video_exists": video_exists,
                 "video_path": video_relative_path,
+                "uploaded": read_upload_status(
+                    episode_directory
+                ),
                 "generating": is_episode_generating(
                     episode_id
                 )
@@ -948,6 +951,153 @@ def get_episode_identity(
     return {
         "number": parts[-1]
     }
+
+
+UPLOAD_STATUS_FILE = "upload.txt"
+
+
+def read_upload_status(
+    episode_directory
+):
+
+    """
+    Reads per-platform upload completion flags from an episode's
+    upload.txt file. Missing file or keys mean "not uploaded".
+    """
+
+    status = {
+        "youtube": False,
+        "instagram": False
+    }
+
+    path = (
+        episode_directory
+        /
+        UPLOAD_STATUS_FILE
+    )
+
+    if not path.is_file():
+
+        return status
+
+    try:
+
+        text = path.read_text(
+            encoding="utf-8"
+        )
+
+    except OSError:
+
+        return status
+
+    for line in text.splitlines():
+
+        line = line.strip()
+
+        if not line or "=" not in line:
+
+            continue
+
+        key, _, value = line.partition("=")
+
+        key = key.strip().lower()
+
+        if key in status:
+
+            status[key] = (
+                value.strip().lower()
+                in ("true", "1", "yes", "done")
+            )
+
+    return status
+
+
+def write_upload_status(
+    episode_directory,
+    platform,
+    done
+):
+
+    """
+    Updates one platform flag inside an episode's upload.txt while
+    preserving the other platform's value.
+    """
+
+    platform = str(platform).strip().lower()
+
+    if platform not in (
+        "youtube",
+        "instagram"
+    ):
+
+        raise ValueError(
+            "Unknown upload platform: "
+            f"{platform}"
+        )
+
+    status = read_upload_status(
+        episode_directory
+    )
+
+    status[platform] = bool(done)
+
+    newline = "\n"
+
+    lines = [
+        "youtube={}".format(
+            "true"
+            if status["youtube"]
+            else "false"
+        ),
+        "instagram={}".format(
+            "true"
+            if status["instagram"]
+            else "false"
+        )
+    ]
+
+    (
+        episode_directory
+        / UPLOAD_STATUS_FILE
+    ).write_text(
+        newline.join(lines) + newline,
+        encoding="utf-8"
+    )
+
+    return status
+
+
+def resolve_episode_directory(
+    episode_id
+):
+
+    """
+    Resolves and validates an episode directory under media/output.
+    """
+
+    episode_path = (
+        PROJECT_ROOT
+        /
+        Path(episode_id)
+    ).resolve()
+
+    media_root = (
+        MEDIA_ROOT.resolve()
+    )
+
+    if media_root not in episode_path.parents:
+
+        raise ValueError(
+            "Invalid episode path."
+        )
+
+    if not episode_path.is_dir():
+
+        raise ValueError(
+            "Episode does not exist."
+        )
+
+    return episode_path
 
 
 def _print_upload_progress(
@@ -1776,6 +1926,11 @@ class RequestHandler(
                     "episode": {
                         "id": episode_id,
                         "number": identity["number"],
+                        "uploaded": read_upload_status(
+                            resolve_episode_directory(
+                                episode_id
+                            )
+                        ),
                         "title": prompt_item.get(
                             "title",
                             ""
@@ -1913,6 +2068,11 @@ class RequestHandler(
                         "number": identity[
                             "number"
                         ],
+                        "uploaded": read_upload_status(
+                            resolve_episode_directory(
+                                episode_id
+                            )
+                        ),
                         "title": title
                     },
                     "caption": "\n\n".join(
@@ -1949,6 +2109,71 @@ class RequestHandler(
         parsed = urlparse(
             self.path
         )
+
+        if parsed.path == "/api/upload-status":
+
+            try:
+
+                data = self.read_json()
+
+                episode_id = str(
+                    data.get("episode_id", "")
+                ).strip()
+
+                if not episode_id:
+
+                    raise ValueError(
+                        "Missing episode ID."
+                    )
+
+                platform = str(
+                    data.get("platform", "")
+                ).strip().lower()
+
+                done = bool(
+                    data.get("done")
+                )
+
+                episode_directory = (
+                    resolve_episode_directory(
+                        episode_id
+                    )
+                )
+
+                status = write_upload_status(
+                    episode_directory,
+                    platform,
+                    done
+                )
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(error)
+                    },
+                    400
+                )
+
+                return
+
+            print(
+                f"[UPLOAD-STATUS] {episode_id} "
+                f"{platform}="
+                f"{'done' if status.get(platform) else 'not done'}"
+            )
+
+            self.send_json(
+                {
+                    "success": True,
+                    "episode_id": episode_id,
+                    "platform": platform,
+                    "done": status.get(platform, False),
+                    "uploaded": status
+                }
+            )
+
+            return
 
         if parsed.path == "/api/episode":
 
@@ -2120,6 +2345,28 @@ class RequestHandler(
             print(
                 f"[YOUTUBE] Uploaded: {result.video_url}"
             )
+
+            try:
+
+                write_upload_status(
+                    resolve_episode_directory(
+                        episode_id
+                    ),
+                    "youtube",
+                    True
+                )
+
+                print(
+                    f"[YOUTUBE] Marked {episode_id} "
+                    "as uploaded."
+                )
+
+            except Exception as mark_error:
+
+                print(
+                    "[YOUTUBE] Could not write upload "
+                    f"status: {mark_error}"
+                )
 
             self.send_json(
                 {
@@ -2322,6 +2569,28 @@ class RequestHandler(
             print(
                 f"[INSTAGRAM] Published: {permalink}"
             )
+
+            try:
+
+                write_upload_status(
+                    resolve_episode_directory(
+                        episode_id
+                    ),
+                    "instagram",
+                    True
+                )
+
+                print(
+                    f"[INSTAGRAM] Marked {episode_id} "
+                    "as uploaded."
+                )
+
+            except Exception as mark_error:
+
+                print(
+                    "[INSTAGRAM] Could not write upload "
+                    f"status: {mark_error}"
+                )
 
             self.send_json(
                 {

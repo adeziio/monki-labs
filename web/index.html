@@ -2516,6 +2516,173 @@
         }
 
 
+        .episode-actions .upload-button {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                7px;
+
+        }
+
+
+        .platform-logo {
+
+            width:
+                17px;
+
+            height:
+                17px;
+
+            flex:
+                0 0 auto;
+
+            display:
+                block;
+
+        }
+
+
+        .platform-logo.instagram-logo {
+
+            color:
+                #e1306c;
+
+        }
+
+
+        .upload-button.uploaded {
+
+            border-color:
+                rgba(46, 204, 113, 0.6);
+
+            box-shadow:
+                inset 0 0 0 1px rgba(46, 204, 113, 0.3);
+
+        }
+
+
+        .upload-done-check {
+
+            display:
+                none;
+
+            width:
+                15px;
+
+            height:
+                15px;
+
+            border-radius:
+                50%;
+
+            background:
+                #2ecc71;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            margin-left:
+                auto;
+
+        }
+
+
+        .upload-button.uploaded .upload-done-check {
+
+            display:
+                inline-flex;
+
+        }
+
+
+        .upload-done-check svg {
+
+            width:
+                10px;
+
+            height:
+                10px;
+
+            fill:
+                #fff;
+
+        }
+
+
+        .upload-done-row {
+
+            margin:
+                0 22px;
+
+            padding:
+                11px 14px;
+
+            border:
+                1px solid rgba(46, 204, 113, 0.25);
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(46, 204, 113, 0.06);
+
+        }
+
+
+        .upload-done-toggle {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+            font-size:
+                12px;
+
+            color:
+                #c7ccd4;
+
+            cursor:
+                pointer;
+
+            user-select:
+                none;
+
+        }
+
+
+        .upload-done-toggle input {
+
+            accent-color:
+                #2ecc71;
+
+            width:
+                15px;
+
+            height:
+                15px;
+
+            cursor:
+                pointer;
+
+        }
+
+
         /* ==================================================
            EMPTY STATE
         ================================================== */
@@ -3577,6 +3744,20 @@
             </div>
 
 
+            <div class="upload-done-row">
+
+                <label class="upload-done-toggle">
+
+                    <input type="checkbox" id="youtubeMarkedDone"
+                        onchange="toggleUploadDone('youtube', this)" />
+
+                    <span>Mark as Done (already uploaded to YouTube)</span>
+
+                </label>
+
+            </div>
+
+
             <form class="youtube-form" id="youtubeUploadForm" autocomplete="off">
 
                 <div class="youtube-form-section">
@@ -3732,6 +3913,20 @@
                     onclick="closeInstagramUploadModal()">
                     ✕
                 </button>
+
+            </div>
+
+
+            <div class="upload-done-row">
+
+                <label class="upload-done-toggle">
+
+                    <input type="checkbox" id="instagramMarkedDone"
+                        onchange="toggleUploadDone('instagram', this)" />
+
+                    <span>Mark as Done (already uploaded to Instagram)</span>
+
+                </label>
 
             </div>
 
@@ -5477,42 +5672,8 @@
                     count;
 
 
-                if (
-                    episodes.length
-                ) {
+                renderEpisodeGrid();
 
-                    container.innerHTML =
-                        episodes
-                            .map(
-                                renderEpisode
-                            )
-                            .join("");
-
-                } else {
-
-                    container.innerHTML =
-                        (
-                            optimisticEpisode
-                                ?
-                                ""
-                                :
-                                '<div class="empty">' +
-                                'No episodes yet. Create your first one!' +
-                                '</div>'
-                        );
-
-                }
-
-
-                renderOptimisticEpisode();
-
-
-                setGenerationButtonsDisabled(
-                    jobRunning
-                );
-
-
-                highlightEpisodeCards();
 
             } catch (error) {
 
@@ -5524,6 +5685,54 @@
                     '</div>';
 
             }
+
+        }
+
+
+        function renderEpisodeGrid() {
+
+            const container =
+                document.getElementById(
+                    "episodes"
+                );
+
+
+            if (
+                latestEpisodes.length
+            ) {
+
+                container.innerHTML =
+                    latestEpisodes
+                        .map(
+                            renderEpisode
+                        )
+                        .join("");
+
+            } else {
+
+                container.innerHTML =
+                    (
+                        optimisticEpisode
+                            ?
+                            ""
+                            :
+                            '<div class="empty">' +
+                            'No episodes yet. Create your first one!' +
+                            '</div>'
+                    );
+
+            }
+
+
+            renderOptimisticEpisode();
+
+
+            setGenerationButtonsDisabled(
+                jobRunning
+            );
+
+
+            highlightEpisodeCards();
 
         }
 
@@ -5621,21 +5830,27 @@
                     <div class="episode-actions">
 
                         <button
-                            class="secondary"
+                            class="secondary upload-button ${episode.uploaded && episode.uploaded.instagram ? "uploaded" : ""}"
+                            title="${episode.uploaded && episode.uploaded.instagram ? "Uploaded to Instagram" : "Upload to Instagram"}"
                             onclick="openInstagramUploadModal(
                                 '${escapeJs(episode.path)}'
                             )"
                         >
-                            Upload to Instagram
+                            <svg class="platform-logo instagram-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.6" cy="6.4" r="1.3" fill="currentColor" stroke="none"/></svg>
+                            <span>Instagram</span>
+                            <span class="upload-done-check"><svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/></svg></span>
                         </button>
 
                         <button
-                            class="secondary"
+                            class="secondary upload-button ${episode.uploaded && episode.uploaded.youtube ? "uploaded" : ""}"
+                            title="${episode.uploaded && episode.uploaded.youtube ? "Uploaded to YouTube" : "Upload to YouTube"}"
                             onclick="openYoutubeUploadModal(
                                 '${escapeJs(episode.path)}'
                             )"
                         >
-                            Upload to YouTube
+                            <svg class="platform-logo youtube-logo" viewBox="0 0 28 20"><path fill="#FF0000" d="M27.4 3.1A3.5 3.5 0 0 0 25 .7C22.8 0 14 0 14 0S5.2 0 3 .7A3.5 3.5 0 0 0 .6 3.1C0 5.3 0 10 0 10s0 4.7.6 6.9A3.5 3.5 0 0 0 3 19.3c2.2.7 11 .7 11 .7s8.8 0 11-.7a3.5 3.5 0 0 0 2.4-2.4c.6-2.2.6-6.9.6-6.9s0-4.7-.6-6.9z"/><path fill="#fff" d="M11.2 14.3V5.7L18.5 10z"/></svg>
+                            <span>YouTube</span>
+                            <span class="upload-done-check"><svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/></svg></span>
                         </button>
 
                     </div>
@@ -6149,6 +6364,22 @@
                     true;
 
 
+                const youtubeDoneCheckbox =
+                    document.getElementById(
+                        "youtubeMarkedDone"
+                    );
+
+                if (youtubeDoneCheckbox) {
+
+                    youtubeDoneCheckbox.checked =
+                        Boolean(
+                            youtubeEpisode.uploaded &&
+                            youtubeEpisode.uploaded.youtube
+                        );
+
+                }
+
+
                 populateYoutubeAccountFields();
                 populateYoutubeMetadataFields();
 
@@ -6349,6 +6580,140 @@
         }
 
 
+        /* ==================================================
+             UPLOAD STATUS TRACKING
+        ================================================== */
+
+        function findEpisodeById(
+            episodeId
+        ) {
+
+            const normalized =
+                String(episodeId || "")
+                    .replace(/\\/g, "/")
+                    .replace(/\/+$/, "")
+                    .toLowerCase();
+
+            return latestEpisodes.find(
+                episode =>
+                    String(episode.id || episode.path || "")
+                        .replace(/\\/g, "/")
+                        .replace(/\/+$/, "")
+                        .toLowerCase() === normalized
+            );
+
+        }
+
+
+        function applyUploadStateLocally(
+            episodeId,
+            platform,
+            done
+        ) {
+
+            const episode =
+                findEpisodeById(episodeId);
+
+            if (!episode) {
+
+                return;
+
+            }
+
+            if (!episode.uploaded) {
+
+                episode.uploaded = {};
+
+            }
+
+            episode.uploaded[platform] =
+                Boolean(done);
+
+            renderEpisodeGrid();
+
+        }
+
+
+        async function setUploadDone(
+            platform,
+            episodeId,
+            done
+        ) {
+
+            await api(
+                "/api/upload-status",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify(
+                        {
+                            episode_id: episodeId,
+
+                            platform: platform,
+
+                            done: Boolean(done)
+                        }
+                    )
+                }
+            );
+
+            applyUploadStateLocally(
+                episodeId,
+                platform,
+                done
+            );
+
+        }
+
+
+        async function toggleUploadDone(
+            platform,
+            checkbox
+        ) {
+
+            const episode =
+                platform === "youtube"
+                    ? youtubeEpisode
+                    : instagramEpisode;
+
+            if (
+                !episode ||
+                !episode.id
+            ) {
+
+                checkbox.checked = false;
+
+                return;
+
+            }
+
+            try {
+
+                await setUploadDone(
+                    platform,
+                    episode.id,
+                    checkbox.checked
+                );
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+                checkbox.checked =
+                    !checkbox.checked;
+
+            }
+
+        }
+
+
         async function submitYoutubeUpload() {
 
             if (
@@ -6446,6 +6811,35 @@
                             : ""
                     );
 
+                try {
+
+                    await setUploadDone(
+                        "youtube",
+                        youtubeEpisode.id,
+                        true
+                    );
+
+                    const youtubeDoneCheckbox =
+                        document.getElementById(
+                            "youtubeMarkedDone"
+                        );
+
+                    if (youtubeDoneCheckbox) {
+
+                        youtubeDoneCheckbox.checked =
+                            true;
+
+                    }
+
+                } catch (markError) {
+
+                    console.warn(
+                        "Could not persist upload status:",
+                        markError
+                    );
+
+                }
+
             } catch (error) {
 
                 result.className =
@@ -6533,6 +6927,22 @@
                     "instagramModalResult"
                 ).hidden =
                     true;
+
+
+                const instagramDoneCheckbox =
+                    document.getElementById(
+                        "instagramMarkedDone"
+                    );
+
+                if (instagramDoneCheckbox) {
+
+                    instagramDoneCheckbox.checked =
+                        Boolean(
+                            instagramEpisode.uploaded &&
+                            instagramEpisode.uploaded.instagram
+                        );
+
+                }
 
 
                 const account =
@@ -6670,6 +7080,35 @@
                     '" target="_blank" rel="noopener">' +
                     "View on Instagram" +
                     "</a>";
+
+                try {
+
+                    await setUploadDone(
+                        "instagram",
+                        instagramEpisode.id,
+                        true
+                    );
+
+                    const instagramDoneCheckbox =
+                        document.getElementById(
+                            "instagramMarkedDone"
+                        );
+
+                    if (instagramDoneCheckbox) {
+
+                        instagramDoneCheckbox.checked =
+                            true;
+
+                    }
+
+                } catch (markError) {
+
+                    console.warn(
+                        "Could not persist upload status:",
+                        markError
+                    );
+
+                }
 
             } catch (error) {
 

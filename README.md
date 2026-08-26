@@ -1056,6 +1056,23 @@ The helper exchanges the current still-valid token via the appropriate grant (`i
 
 The backend validates the account, builds the public video URL, then follows Instagram's container flow: create a media container pointing at the video URL → poll until Meta finishes processing → publish the container → resolve the post permalink. Processing can take a few minutes; keep both the server and tunnel/proxy alive until it completes.
 
+## Upload tracking
+
+Every episode folder can contain an `upload.txt` file recording which
+platforms the episode has been published to:
+
+```text
+youtube=true
+instagram=false
+```
+
+The web UI keeps this file in sync automatically:
+
+* A successful YouTube or Instagram upload marks that platform as done.
+* Each upload modal includes a **"Mark as Done"** toggle for manually
+  marking (or unmarking) a platform.
+* Uploaded platforms show a green checkmark on the episode card buttons.
+
 # 💰 Cost Philosophy
 
 Monki Labs follows a **free-only philosophy**.
