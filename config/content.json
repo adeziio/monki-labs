@@ -104,16 +104,7 @@
             "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
         ],
         "style_rotation": [
-            "cinematic photorealism",
-            "stylized 3D animation",
-            "cinematic macro photography",
-            "handmade felt puppet animation",
-            "claymation stop-motion",
-            "storybook 3D animation",
-            "surreal photorealism",
-            "dark fantasy animation",
-            "bioluminescent fantasy",
-            "miniature practical-effects aesthetic"
+            "cinematic storybook 3D animation"
         ],
         "ltx2_prompt_rules": [
             "Write ONE continuous natural-language paragraph in English. No titles, headings, code fences, or markdown.",

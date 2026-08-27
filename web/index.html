@@ -888,6 +888,7 @@
                 9px;
 
         }
+
         .create-episode-group {
 
             display:
@@ -2278,7 +2279,7 @@
         }
 
 
-        .prompt-toggle > summary {
+        .prompt-toggle>summary {
 
             display:
                 inline-flex;
@@ -2316,7 +2317,7 @@
         }
 
 
-        .prompt-toggle > summary::-webkit-details-marker {
+        .prompt-toggle>summary::-webkit-details-marker {
 
             display:
                 none;
@@ -2324,7 +2325,7 @@
         }
 
 
-        .prompt-toggle > summary::before {
+        .prompt-toggle>summary::before {
 
             content:
                 "+";
@@ -2335,7 +2336,7 @@
         }
 
 
-        .prompt-toggle[open] > summary {
+        .prompt-toggle[open]>summary {
 
             color:
                 #9ba3ae;
@@ -2343,7 +2344,7 @@
         }
 
 
-        .prompt-toggle[open] > summary::before {
+        .prompt-toggle[open]>summary::before {
 
             content:
                 "\2212";
@@ -2351,7 +2352,7 @@
         }
 
 
-        .prompt-toggle > summary:hover {
+        .prompt-toggle>summary:hover {
 
             color:
                 #b8c0cb;
@@ -3631,7 +3632,7 @@
                     </button>
 
                     <label class="prompt-only-option" for="promptOnlyCheckbox">
-                        <input type="checkbox" id="promptOnlyCheckbox" />
+                        <input type="checkbox" id="promptOnlyCheckbox" checked />
                         Prompt Only
                     </label>
 
@@ -3846,8 +3847,7 @@
 
                 <label class="upload-done-toggle">
 
-                    <input type="checkbox" id="youtubeMarkedDone"
-                        onchange="toggleUploadDone('youtube', this)" />
+                    <input type="checkbox" id="youtubeMarkedDone" onchange="toggleUploadDone('youtube', this)" />
 
                     <span>Mark as Done (already uploaded to YouTube)</span>
 
@@ -4019,8 +4019,7 @@
 
                 <label class="upload-done-toggle">
 
-                    <input type="checkbox" id="instagramMarkedDone"
-                        onchange="toggleUploadDone('instagram', this)" />
+                    <input type="checkbox" id="instagramMarkedDone" onchange="toggleUploadDone('instagram', this)" />
 
                     <span>Mark as Done (already uploaded to Instagram)</span>
 
@@ -4072,7 +4071,8 @@
                         <div class="youtube-field youtube-field-full">
                             <label for="instagramCaption">Caption</label>
                             <textarea id="instagramCaption" rows="7"></textarea>
-                            <div class="youtube-hint">Prefilled with title, summary and hashtags. Editable before posting.</div>
+                            <div class="youtube-hint">Prefilled with title, summary and hashtags. Editable before
+                                posting.</div>
                         </div>
 
                     </div>
@@ -4499,8 +4499,8 @@
 
                 const promptOnly =
                     promptOnlyCheckbox
-                    ? promptOnlyCheckbox.checked
-                    : false;
+                        ? promptOnlyCheckbox.checked
+                        : false;
 
 
                 const response =
@@ -4895,7 +4895,7 @@
         }
 
 
-            function normalizeEpisodeId(
+        function normalizeEpisodeId(
             value
         ) {
 
