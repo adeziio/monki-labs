@@ -297,7 +297,8 @@ def child_run_job(
     episode_id,
     prompt_item,
     progress_queue,
-    result_queue
+    result_queue,
+    prompt_only=False
 ):
 
     """
@@ -350,7 +351,9 @@ def child_run_job(
         if job_type == "episode":
 
             result = (
-                pipeline.create_episode()
+                pipeline.create_episode(
+                    prompt_only=prompt_only
+                )
             )
 
         elif job_type == "video":
@@ -1251,7 +1254,8 @@ def initialize_job_state(
 def run_job(
     job_type,
     episode_id=None,
-    prompt_item=None
+    prompt_item=None,
+    prompt_only=False
 ):
 
     if not job_lock.acquire(
@@ -1310,7 +1314,8 @@ def run_job(
                         episode_id,
                         prompt_item,
                         progress_queue,
-                        result_queue
+                        result_queue,
+                        prompt_only
                     ),
                     daemon=False
                 )
@@ -1375,7 +1380,11 @@ def run_job(
                     state = get_job_state()
                     if job_type == "episode":
                         # If prompt is complete, next stage is video
-                        if int(state.get("prompt_progress", 0)) >= 100:
+                        # (unless running prompt-only).
+                        if (
+                            int(state.get("prompt_progress", 0)) >= 100
+                            and not prompt_only
+                        ):
                             stage = "video"
                         else:
                             stage = "prompt"
@@ -1398,7 +1407,10 @@ def run_job(
             try:
                 state = get_job_state()
                 if job_type == "episode":
-                    if int(state.get("prompt_progress", 0)) >= 100:
+                    if (
+                        int(state.get("prompt_progress", 0)) >= 100
+                        and not prompt_only
+                    ):
                         stage = "video"
                     else:
                         stage = "prompt"
@@ -2177,8 +2189,18 @@ class RequestHandler(
 
         if parsed.path == "/api/episode":
 
+            data = self.read_json()
+
+            prompt_only = bool(
+                data.get(
+                    "prompt_only",
+                    False
+                )
+            )
+
             started = run_job(
-                "episode"
+                "episode",
+                prompt_only=prompt_only
             )
 
             if not started:

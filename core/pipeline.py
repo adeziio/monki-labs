@@ -66,8 +66,15 @@ class MonkiPipeline:
         )
 
     def create_episode(
-        self
+        self,
+        prompt_only=False
     ):
+
+        if prompt_only:
+
+            return (
+                self.video.create_prompt()
+            )
 
         video = (
             self.video.generate()

@@ -888,6 +888,70 @@
                 9px;
 
         }
+        .create-episode-group {
+
+            display:
+                flex;
+
+            flex-direction:
+                row;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+        }
+
+
+        .prompt-only-option {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            font-size:
+                13px;
+
+            color:
+                #9aa3af;
+
+            cursor:
+                pointer;
+
+            user-select:
+                none;
+
+            white-space:
+                nowrap;
+
+        }
+
+
+        .prompt-only-option input {
+
+            width:
+                15px;
+
+            height:
+                15px;
+
+            accent-color:
+                var(--accent);
+
+            cursor:
+                pointer;
+
+            margin:
+                0;
+
+        }
 
 
         .replay-toggle {
@@ -3424,6 +3488,31 @@
             }
 
 
+            .topbar .create-episode-group {
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    stretch;
+
+                width:
+                    100%;
+
+            }
+
+
+            .topbar .create-episode-group .prompt-only-option {
+
+                justify-content:
+                    center;
+
+                margin-top:
+                    4px;
+
+            }
+
+
             .section-heading {
 
                 width:
@@ -3535,9 +3624,18 @@
                     ↻
                 </button>
 
-                <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
-                    ＋ Create New Episode
-                </button>
+                <div class="create-episode-group">
+
+                    <button id="createEpisodeButton" class="primary-button" onclick="createEpisode()">
+                        ＋ Create New Episode
+                    </button>
+
+                    <label class="prompt-only-option" for="promptOnlyCheckbox">
+                        <input type="checkbox" id="promptOnlyCheckbox" />
+                        Prompt Only
+                    </label>
+
+                </div>
 
             </div>
 
@@ -4393,12 +4491,37 @@
 
             try {
 
+                const promptOnlyCheckbox =
+                    document.getElementById(
+                        "promptOnlyCheckbox"
+                    );
+
+
+                const promptOnly =
+                    promptOnlyCheckbox
+                    ? promptOnlyCheckbox.checked
+                    : false;
+
+
                 const response =
                     await api(
                         "/api/episode",
                         {
                             method:
-                                "POST"
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        prompt_only:
+                                            promptOnly
+                                    }
+                                )
                         }
                     );
 

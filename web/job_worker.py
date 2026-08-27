@@ -92,8 +92,17 @@ def main():
 
         if job_type == "episode":
 
+            prompt_only = bool(
+                payload.get(
+                    "prompt_only",
+                    False
+                )
+            )
+
             result = (
-                pipeline.create_episode()
+                pipeline.create_episode(
+                    prompt_only=prompt_only
+                )
             )
 
         elif job_type == "video":
