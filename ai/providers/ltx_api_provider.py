@@ -47,7 +47,7 @@ class LtxApiProvider:
     video (with audio) to the requested output path.
 
     All connection details come from config/ai_models.json ->
-    models.video_model.api. The API key is read from the environment
+    models.video_model.ltx. The API key is read from the environment
     variable named by api_key_env (default LTX_API_KEY) and is never
     hardcoded anywhere.
     """
@@ -90,7 +90,7 @@ class LtxApiProvider:
 
         self.settings = (
             self.video_config.get(
-                "api",
+                "ltx",
                 {}
             )
         )
@@ -131,7 +131,7 @@ class LtxApiProvider:
                 retryable=False,
                 message=(
                     "LTX API base_url is not configured. "
-                    "Set models.video_model.api.base_url "
+                    "Set models.video_model.ltx.base_url "
                     "in config/ai_models.json."
                 )
             )

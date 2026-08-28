@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 import time
 
 import torch
@@ -32,6 +33,9 @@ from ai.memory_utils import (
 from ai.prompt_generator import PromptGenerator
 from ai.providers.ltx_api_provider import (
     LtxApiProvider
+)
+from ai.providers.snapgenai_provider import (
+    SnapGenAiProvider
 )
 
 
@@ -96,8 +100,10 @@ class VideoGenerator(
 
         self.progress_callback = None
 
-        # "local" runs the on-GPU diffusers pipeline; "api" delegates
-        # generation to the LTX-2.3 Fast API instead.
+        # "local" runs the on-GPU diffusers pipeline; "ltx"
+        # (legacy value "api") delegates generation to the LTX-2.3
+        # Fast API; "snapgenai" drives the SnapGenAI website in a
+        # browser and cleans the result with VeoWatermarkRemover.
 
         self.provider = str(
             self.video_config.get(
@@ -107,6 +113,8 @@ class VideoGenerator(
         ).strip().lower()
 
         self.api_provider = None
+
+        self.snapgenai_provider = None
 
         self.output_root = Path(
             "media/output"
@@ -118,7 +126,15 @@ class VideoGenerator(
 
     def _uses_api_backend(self):
 
-        return self.provider == "api"
+        # "ltx" is the documented provider value for the LTX Fast API 
+
+        return self.provider in (
+            "ltx"
+        )
+
+    def _uses_snapgenai_backend(self):
+
+        return self.provider == "snapgenai"
 
     def _get_api_provider(self):
 
@@ -130,6 +146,49 @@ class VideoGenerator(
             )
 
         return self.api_provider
+
+    def _get_snapgenai_provider(self):
+
+        if self.snapgenai_provider is None:
+
+            self.snapgenai_provider = SnapGenAiProvider(
+                self.config,
+                progress_callback=self._snapgenai_progress
+            )
+
+        return self.snapgenai_provider
+
+    def _snapgenai_progress(
+        self,
+        message
+    ):
+
+        """
+        Converts provider notifications into job progress updates.
+        Automation steps nudge the bar upward between browser
+        start (10%) and download/watermark removal (90%).
+        """
+
+        self.snapgenai_step_count = getattr(
+            self,
+            "snapgenai_step_count",
+            0
+        ) + 1
+
+        if not message:
+
+            return
+
+        percent = min(
+            90,
+            10 + self.snapgenai_step_count * 5
+        )
+
+        self.update_progress(
+            percent,
+            str(message),
+            stage="video"
+        )
 
     def _api_progress(
         self,
@@ -1012,6 +1071,15 @@ class VideoGenerator(
 
             return
 
+        if self._uses_snapgenai_backend():
+
+            self.log(
+                "SnapGenAI provider selected - skipping "
+                "local video model load."
+            )
+
+            return
+
         provider = (
             self.video_config[
                 "provider"
@@ -1020,13 +1088,16 @@ class VideoGenerator(
 
         if provider.lower() not in (
             "local",
-            "ltx"
+            "ltx",
+            "snapgenai"
         ):
 
             raise RuntimeError(
                 "Unsupported local video provider: "
                 f"{provider}. Use \"local\" for the on-GPU "
-                "pipeline or set provider to \"api\"."
+                "pipeline, \"ltx\" for the LTX API, or "
+                "\"snapgenai\" for SnapGenAI browser "
+                "automation."
             )
 
         self.update_progress(
@@ -1332,6 +1403,33 @@ class VideoGenerator(
             return self.run_with_generation_retries(
                 "API clip generation",
                 lambda: self._get_api_provider().generate_clip(
+                    ltx_prompt,
+                    output_path
+                )
+            )
+
+        if self._uses_snapgenai_backend():
+
+            # SnapGenAI mode: browser automation -> download ->
+            # Veo watermark removal -> validated cleaned video.
+            # Reuses the same retry wrapper so transient
+            # generation/download failures retry through the
+            # existing job architecture.
+
+            self.log(
+                "Generating clip via SnapGenAI "
+                "browser automation."
+            )
+
+            self.update_progress(
+                8,
+                "Starting SnapGenAI browser automation...",
+                stage="video"
+            )
+
+            return self.run_with_generation_retries(
+                "SnapGenAI clip generation",
+                lambda: self._get_snapgenai_provider().generate_clip(
                     ltx_prompt,
                     output_path
                 )
@@ -1844,6 +1942,78 @@ class VideoGenerator(
                     f"clip {path.name}: {error}"
                 )
 
+    def _finalize_snapgenai_episode(
+        self,
+        clip_paths
+    ):
+
+        """
+        SnapGenAI clips are already final videos (downloaded,
+        watermark-removed, and validated by the provider), so the
+        cleaned video is copied to episode.mp4 as-is. Re-encoding
+        through moviepy would change the FPS and re-compress the
+        audio, which the SnapGenAI workflow forbids: the original
+        resolution, FPS, duration, and audio must be preserved.
+        """
+
+        output_format = (
+            self.get_output_format()
+        )
+
+        if output_format.lower() != "mp4":
+
+            raise ValueError(
+                "The current SnapGenAI workflow "
+                "requires MP4 output."
+            )
+
+        if len(clip_paths) != 1:
+
+            raise RuntimeError(
+                "SnapGenAI generation produces one video "
+                "per episode. Set content.generation."
+                "clip_count to 1 when using the "
+                "snapgenai provider."
+            )
+
+        source_path = Path(
+            clip_paths[0]
+        )
+
+        if not source_path.is_file():
+
+            raise RuntimeError(
+                "The cleaned SnapGenAI video is "
+                f"missing: {source_path}"
+            )
+
+        output_path = (
+            self.run_directory
+            /
+            f"episode.{output_format}"
+        )
+
+        try:
+
+            shutil.copyfile(
+                source_path,
+                output_path
+            )
+
+        except OSError as error:
+
+            raise RuntimeError(
+                f"Could not write the cleaned episode "
+                f"video to {output_path}: {error}"
+            )
+
+        self.log(
+            "Cleaned episode video created: "
+            f"{output_path}"
+        )
+
+        return output_path
+
     def generate_from_prompt(
         self,
         prompt_item,
@@ -1924,6 +2094,41 @@ class VideoGenerator(
             )
 
             self.release_pipeline_memory()
+
+            if self._uses_snapgenai_backend():
+
+                # SnapGenAI delivers one cleaned final video, so
+                # it is copied to episode.mp4 untouched instead of
+                # being re-encoded through moviepy.
+
+                output_path = (
+                    self._finalize_snapgenai_episode(
+                        clip_paths
+                    )
+                )
+
+                self.cleanup_intermediate_clips(
+                    clip_paths
+                )
+
+                self.update_progress(
+                    100,
+                    "Episode generation complete.",
+                    stage="video"
+                )
+
+                return {
+                    "output": str(
+                        output_path
+                    ),
+                    "prompt_file": str(
+                        self.run_directory
+                        /
+                        "prompt.txt"
+                    ),
+                    "title": title,
+                    "prompt": prompt
+                }
 
             final_video, clips = (
                 self.combine_clips(
@@ -2142,6 +2347,40 @@ class VideoGenerator(
                 raise RuntimeError(
                     "No video clips were generated."
                 )
+
+            if self._uses_snapgenai_backend():
+
+                # SnapGenAI delivers one cleaned final video, so
+                # it is copied to episode.mp4 untouched instead of
+                # being re-encoded through moviepy.
+
+                output_path = (
+                    self._finalize_snapgenai_episode(
+                        clip_paths
+                    )
+                )
+
+                self.cleanup_intermediate_clips(
+                    clip_paths
+                )
+
+                self.update_progress(
+                    100,
+                    "Episode generation complete.",
+                    stage="video"
+                )
+
+                return {
+                    "output": str(
+                        output_path
+                    ),
+                    "prompt_file": str(
+                        self.run_directory
+                        /
+                        "prompt.txt"
+                    ),
+                    "prompts": prompts
+                }
 
             final_video, clips = (
                 self.combine_clips(

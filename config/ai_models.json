@@ -21,9 +21,9 @@
         },
         "video_model": {
             "enabled": true,
-            "provider": "local",
+            "provider": "snapgenai",
             "model": "diffusers/LTX-2.3-Diffusers",
-            "api": {
+            "ltx": {
                 "base_url": "https://api.ltx.io",
                 "submit_path": "/v2/text-to-video",
                 "status_path": "/v2/text-to-video/{job_id}",
@@ -42,6 +42,34 @@
             },
             "generation_retry_attempts": 5,
             "generation_retry_backoff_seconds": 20,
+            "snapgenai": {
+                "base_url": "https://snapgen.ai/",
+                "headless": false,
+                "profile_directory": "media/browser_profile/snapgenai",
+                "download_directory": "media/downloads/snapgenai",
+                "page_timeout_seconds": 60,
+                "submit_timeout_seconds": 30,
+                "login_popup_wait_seconds": 15,
+                "login_form_probe_seconds": 5,
+                "login_timeout_seconds": 120,
+                "generation_timeout_seconds": 1800,
+                "download_timeout_seconds": 300,
+                "poll_interval_seconds": 3,
+                "download_poll_interval_seconds": 2,
+                "prompt_selector": "",
+                "submit_selector": "",
+                "download_selector": "",
+                "failure_selector": "",
+                "login_email_selector": "",
+                "login_password_selector": "",
+                "login_submit_selector": "",
+                "watermark_remover": {
+                    "executable": "tools/GeminiWatermarkTool-Video.exe",
+                    "output_flag": "",
+                    "extra_args": [],
+                    "timeout_seconds": 3600
+                }
+            },
             "device_allocation": {
                 "mode": "model",
                 "vae_tiling": true,

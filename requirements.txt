@@ -36,6 +36,14 @@ ftfy
 
 
 # ==================================
+# Browser Automation (SnapGenAI provider)
+# ==================================
+
+# Chrome automation for the SnapGenAI browser workflow
+selenium
+
+
+# ==================================
 # Video + Audio Processing
 # ==================================
 

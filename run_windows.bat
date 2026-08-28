@@ -6,6 +6,30 @@ echo Starting Monki Labs
 echo ==========================================
 echo.
 
+REM ---------------------------------------------------------------------------
+REM Activate the project Python virtual environment.
+REM This ensures Monki Labs always uses the project's dependencies regardless
+REM of which Python environment is active in the terminal or system PATH.
+
+if not exist "%~dp0.venv\Scripts\activate.bat" (
+    echo.
+    echo ERROR: Python virtual environment not found.
+    echo Expected: %~dp0.venv
+    echo Please run install_windows.bat first.
+    exit /b 1
+)
+
+call "%~dp0.venv\Scripts\activate.bat"
+
+if errorlevel 1 (
+    echo.
+    echo ERROR: Failed to activate the Python virtual environment.
+    exit /b 1
+)
+
+echo Python virtual environment activated.
+echo.
+
 set "OLLAMA_URL=http://localhost:11434"
 
 echo Checking Ollama...

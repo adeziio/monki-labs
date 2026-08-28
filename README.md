@@ -147,6 +147,10 @@ monki-labs/
 
 │       └── ollama_provider.py
 
+│       └── snapgenai_provider.py
+
+│       └── veo_watermark_remover.py
+
 │
 
 ├── config/
@@ -659,7 +663,7 @@ The following configuration has been tested and verified to run end-to-end on an
         "resolution": { "width": 1080, "height": 1920 }
     },
     "generation": {
-        "clip_count": 2
+        "clip_count": 1
     }
 }
 ```
@@ -732,22 +736,23 @@ The application reads the appropriate configuration at runtime.
 
 # 🎥 Video Generation
 
-Monki Labs currently uses **LTX-2.3** for AI video generation, with two
+Monki Labs currently uses **LTX-2.3** for AI video generation, with three
 switchable backends:
 
 | `provider` value | Backend | Notes |
 | --- | --- | --- |
 | `"local"` (default) | Local LTX-2.3 diffusers pipeline | Runs on your own GPU; unchanged behavior |
-| `"api"` | LTX-2.3 Fast API | Submits the same prompt to the hosted API, polls until finished, downloads the result |
+| `"ltx"` | LTX-2.3 Fast API | Submits the same prompt to the hosted API, polls until finished, downloads the result (legacy value `"api"` still accepted) |
+| `"snapgenai"` | SnapGenAI browser automation | Drives https://snapgen.ai/ in Chrome, downloads the video, then removes the Veo watermark with VeoWatermarkRemover |
 
 The switch lives in `config/ai_models.json` →
 `models.video_model.provider`. The provider choice happens entirely at the
 video-generation layer — prompt generation, episode folders, job progress,
-and the final `episode.mp4` output contract are identical for both.
+and the final `episode.mp4` output contract are identical for all three.
 
 ## API backend workflow
 
-When `provider` is `"api"`:
+When `provider` is `"ltx"` (or the legacy `"api"`):
 
 1. The exact same generated video prompt is submitted to the API.
 2. The submission returns a generation/job ID.
@@ -816,6 +821,154 @@ retried. Adjust any value if your account uses a different contract; no
 code changes are needed.
 
 Monki Labs currently uses **LTX-2.3** for AI video generation.
+
+## SnapGenAI provider (browser automation + watermark removal)
+
+When `provider` is `"snapgenai"`, generation runs through the SnapGenAI
+website (https://snapgen.ai/) using **Selenium** Chrome automation, and the
+downloaded video is automatically passed through the open-source
+**[VeoWatermarkRemover](https://github.com/TrungCang165/VeoWatermarkRemover)**
+CLI before it becomes the episode video:
+
+```text
+Generate Video → SnapGenAI (browser) → download video
+              → VeoWatermarkRemover (standard CPU mode)
+              → episode.mp4
+```
+
+No local video model is loaded in this mode; everything else (prompt
+generation, episode folders, job progress, upload buttons) works exactly as
+before.
+
+### Credentials
+
+SnapGenAI credentials live only in `.env` (never committed, never logged,
+never included in error messages):
+
+```env
+snapgenai_email=...
+snapgenai_password=...
+```
+
+Missing credentials fail immediately with a clear, non-retried error.
+
+### Browser configuration
+
+All SnapGenAI settings live in `config/ai_models.json` →
+`models.video_model.snapgenai`:
+
+```json
+"snapgenai": {
+    "base_url": "https://snapgen.ai/",
+    "headless": false,
+    "profile_directory": "media/browser_profile/snapgenai",
+    "download_directory": "media/downloads/snapgenai",
+    "page_timeout_seconds": 60,
+    "submit_timeout_seconds": 30,
+    "login_popup_wait_seconds": 15,
+    "login_form_probe_seconds": 5,
+    "login_timeout_seconds": 120,
+    "generation_timeout_seconds": 1800,
+    "download_timeout_seconds": 300,
+    "poll_interval_seconds": 3,
+    "download_poll_interval_seconds": 2,
+    "watermark_remover": {
+        "executable": "tools/GeminiWatermarkTool-Video.exe",
+        "output_flag": "",
+        "extra_args": [],
+        "timeout_seconds": 3600
+    }
+}
+```
+
+* **`headless`** — runs Chrome without a window. Defaults to `false` so the
+  browser stays visible while the automation is being developed and tested;
+  set to `true` for unattended operation.
+* **`profile_directory`** — a persistent Chrome profile, so the authenticated
+  session/cookies are reused between runs instead of logging in every time.
+  Close any Chrome instance using this profile before a run starts.
+* **`download_directory`** — where Chrome saves the generated video before
+  watermark removal.
+* **Timeouts** — every wait phase (page load, submit, login, generation,
+  download) has its own deadline; waits are event/element-state driven with
+  short poll intervals, not fixed sleeps.
+
+Monki Labs currently uses **LTX-2.3** for AI video generation.
+
+Optional, per-site selector overrides (CSS, or XPath when the value starts
+with `//`) are available if snapgen.ai changes its markup:
+`prompt_selector`, `submit_selector`, `download_selector`,
+`failure_selector`, `login_email_selector`, `login_password_selector`,
+`login_submit_selector`. Sensible built-in fallbacks are used when they are
+empty.
+
+### Browser workflow
+
+When **Generate Video** is clicked with `provider: "snapgenai"`:
+
+1. Chrome opens https://snapgen.ai/ (visible unless `headless` is `true`).
+2. The episode's generated prompt is entered into the prompt field.
+3. **Generate/Submit** is clicked.
+4. If a login tab/popup (or an inline login form) appears, the provider
+   signs in using the `.env` credentials and returns to the generation page.
+   Both single-step forms (email + password together) and stepwise flows
+   (email → **Continue** → password) are supported; the defaults recognize
+   common fields like `input[name="username"]` and buttons labelled
+   **Continue** / **Sign in** / **Log in**.
+5. If authentication dropped the original submission (the prompt field still
+   holds the untouched prompt), the prompt is entered and submitted again.
+6. The provider waits for the generation to finish by polling for the
+   download control / failure indicators.
+7. The download is triggered and the download directory is watched until the
+   file is complete and validated.
+8. The video is passed through VeoWatermarkRemover and the cleaned result is
+   finalized as `episode.mp4`.
+
+### VeoWatermarkRemover setup
+
+1. Download the latest `GeminiWatermarkTool-Video` binary from the
+   [VeoWatermarkRemover releases](https://github.com/TrungCang165/VeoWatermarkRemover/releases)
+   page (Windows / Linux / macOS builds are available).
+2. Place it in `tools/` (e.g. `tools/GeminiWatermarkTool-Video.exe`) or point
+   `watermark_remover.executable` at its location.
+3. On first run your OS may prompt about the unsigned binary — allow it once
+   (Windows: *More info → Run anyway* or `Unblock-File`).
+
+**Standard CPU mode only.** The wrapper always runs the default
+reverse-alpha-blending removal in CPU mode — the ML (`--ml`) mode is never
+used and is explicitly rejected if added to `extra_args`. `output_flag` can
+be set (e.g. `"-o"`) for builds that require a flag before the output path;
+by default the output path is passed as the second positional argument, with
+an automatic fallback that detects the tool's output file next to the input
+if the build does not accept one.
+
+The removal preserves the original video untouched apart from the
+watermarked region — resolution, FPS, duration, and audio are all kept. The
+cleaned video is copied to `episode.mp4` **without re-encoding**, so nothing
+is upscaled or otherwise enhanced. The original download is only deleted
+after the cleaned output has been created and validated, and generation is
+only marked successful once a valid `episode.mp4` exists.
+
+### Error handling
+
+Failures surface cleanly through the normal job error state and the retry
+settings (`generation_retry_attempts` / `generation_retry_backoff_seconds`):
+
+* Missing credentials — non-retried, actionable message (no values shown).
+* Login failure — non-retried; check the configured credentials.
+* Generation failure / failure indicators on the page — retried.
+* Download failure or timeout — retried.
+* Watermark-removal failure (missing executable, non-zero exit, timeout,
+  unsupported input, missing/corrupt output) — missing executable and
+  unsupported inputs are non-retried; transient removal failures retry.
+* Invalid/corrupt videos are rejected by validation before anything is
+  marked successful.
+* Filesystem errors (moving, copying, replacing files) produce explicit
+  errors naming the file involved.
+
+SnapGenAI generates one video per episode, so set
+`config/content.json` → `generation.clip_count` to `1` when using this
+provider; otherwise finalization fails with an explanatory error.
 
 The video model generates the visual content and associated audio in the same generation process.
 
