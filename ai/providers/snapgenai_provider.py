@@ -922,15 +922,55 @@ class SnapGenAiProvider:
             )
         ]
 
+    def _aspect_ratio_option_selectors(
+        self,
+        label
+    ):
+
+        # Dropdown options are usually menu items or option rows
+        # rather than plain buttons, so prefer the common ARIA
+        # roles before falling back to generic elements whose
+        # visible text contains the label.
+
+        upper = XPATH_UPPER
+
+        lower = XPATH_LOWER
+
+        needle = str(
+            label
+        ).strip().lower()
+
+        def text_xpath(
+            tag
+        ):
+
+            return (
+                f"//{tag}[contains(translate("
+                f"normalize-space(.), '{upper}', "
+                f"'{lower}'), '{needle}')]"
+            )
+
+        return [
+            text_xpath("*[@role='option']"),
+            text_xpath("*[@role='menuitem']"),
+            text_xpath("*[@role='menuitemradio']"),
+            text_xpath("li"),
+            text_xpath("button"),
+            text_xpath("a"),
+            text_xpath("div"),
+            text_xpath("span")
+        ]
+
     def _select_aspect_ratio(
         self,
         driver
     ):
 
         # The generation page lets you pick the output aspect ratio.
-        # The control starts at "16:9"; clicking it toggles it to
-        # "9:16", which is what we want for short-form video. This
-        # is a normal UI toggle, not any bypass technique.
+        # The trigger starts at "16:9". Clicking it opens a dropdown
+        # menu instead of toggling, so the target option (default
+        # "9:16") is then selected from that menu. This is a normal
+        # UI interaction, not any bypass technique.
 
         target = str(
             self._setting(
@@ -940,13 +980,6 @@ class SnapGenAiProvider:
         ).strip() or "9:16"
 
         source_label = "16:9"
-
-        source_selector = str(
-            self._setting(
-                "aspect_ratio_button_selector",
-                ""
-            )
-        ).strip()
 
         if self._find_visible(
             driver,
@@ -961,6 +994,13 @@ class SnapGenAiProvider:
             )
 
             return
+
+        source_selector = str(
+            self._setting(
+                "aspect_ratio_button_selector",
+                ""
+            )
+        ).strip()
 
         element = None
 
@@ -999,6 +1039,56 @@ class SnapGenAiProvider:
             element
         )
 
+        self._human_pause()
+
+        # The click opens a dropdown - pick the target entry from
+        # it. An explicit selector override is honored first.
+
+        option_selector = str(
+            self._setting(
+                "aspect_ratio_option_selector",
+                ""
+            )
+        ).strip()
+
+        option = None
+
+        if option_selector:
+
+            option = self._find_visible(
+                driver,
+                [option_selector]
+            )
+
+        if option is None:
+
+            option = self._find_visible(
+                driver,
+                self._aspect_ratio_option_selectors(
+                    target
+                )
+            )
+
+        if option is None:
+
+            self._notify(
+                "Could not find the aspect ratio "
+                f"option ({target}) in the dropdown; "
+                "continuing."
+            )
+
+            return
+
+        self._notify(
+            f"Choosing {target} from the "
+            "aspect ratio dropdown."
+        )
+
+        self._safe_click(
+            driver,
+            option
+        )
+
         try:
 
             deadline = time.monotonic() + self._seconds(
@@ -1028,8 +1118,8 @@ class SnapGenAiProvider:
             time.sleep(0.5)
 
         self._notify(
-            "Aspect ratio toggle was not confirmed; "
-            "continuing."
+            "Aspect ratio selection was not "
+            "confirmed; continuing."
         )
 
     def _open_generation_page(

@@ -866,6 +866,7 @@ All SnapGenAI settings live in `config/ai_models.json` →
     "refresh_interval_seconds": 60,
     "aspect_ratio_target": "9:16",
     "aspect_ratio_button_selector": "",
+    "aspect_ratio_option_selector": "",
     "aspect_ratio_timeout_seconds": 15,
     "profile_directory": "media/browser_profile/snapgenai",
     "download_directory": "media/downloads/snapgenai",
@@ -925,13 +926,15 @@ All SnapGenAI settings live in `config/ai_models.json` →
   most once per interval. **No retry/resubmission** ever happens after the
   prompt is submitted.
 * **`aspect_ratio_target`** / **`aspect_ratio_button_selector`** /
-  **`aspect_ratio_timeout_seconds`** — after landing on the generation page
-  the provider clicks the `"16:9"` button to switch the output to
-  `aspect_ratio_target` (default `"9:16"`), then waits before entering the
-  prompt. `aspect_ratio_button_selector` overrides the built-in button lookup
-  (CSS, or XPath when it starts with `//`); `aspect_ratio_timeout_seconds` is
-  how long to wait for the toggle to take effect (default `15`). This is a
-  normal UI toggle, not any bypass technique.
+  **`aspect_ratio_option_selector`** / **`aspect_ratio_timeout_seconds`** —
+  after landing on the generation page the provider clicks the `"16:9"`
+  dropdown trigger, then picks `aspect_ratio_target` (default `"9:16"`) from
+  the dropdown that opens, then waits before entering the prompt.
+  `aspect_ratio_button_selector` and `aspect_ratio_option_selector` override
+  the built-in lookups for the trigger and the dropdown option (CSS, or XPath
+  when it starts with `//`); `aspect_ratio_timeout_seconds` is how long to
+  wait for the selection to take effect (default `15`). This is a normal UI
+  interaction, not any bypass technique.
 * **`profile_directory`** — a persistent Chrome profile, so the authenticated
   session/cookies are reused between runs instead of logging in every time.
   Close any Chrome instance using this profile before a run starts.
@@ -957,8 +960,8 @@ When **Generate Video** is clicked with `provider: "snapgenai"`:
 1. The SnapGenAI tab is brought to the foreground (if the attached Chrome has
    several tabs open), then Chrome loads https://snapgen.ai/ (visible unless
    `headless` is `true`).
-2. After a pause, the provider clicks the `"16:9"` aspect-ratio button so the
-   output switches to `"9:16"`, then pauses again.
+2. After a pause, the provider clicks the `"16:9"` aspect-ratio dropdown and
+   selects `"9:16"` from the menu that opens, then pauses again.
 3. The episode's generated prompt is entered into the prompt field.
 4. **Generate/Submit** is clicked.
 5. If a login tab/popup (or an inline login form) appears, the provider
