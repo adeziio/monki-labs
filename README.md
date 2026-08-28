@@ -863,7 +863,10 @@ All SnapGenAI settings live in `config/ai_models.json` →
     "debugging_address": "127.0.0.1:9222",
     "pause_min_seconds": 5,
     "pause_max_seconds": 10,
-    "refresh_interval_seconds": 60,
+    "refresh_interval_seconds": 120,
+    "history_path": "/history",
+    "history_item_selector": "",
+    "history_download_selector": "",
     "aspect_ratio_target": "9:16",
     "aspect_ratio_button_selector": "",
     "aspect_ratio_option_selector": "",
@@ -918,13 +921,21 @@ All SnapGenAI settings live in `config/ai_models.json` →
   Includes a deliberate pause after entering the prompt and before clicking
   submit. This is plain pacing only — no page/cookie/challenge tampering.
 * **`refresh_interval_seconds`** — how long to let the page sit doing nothing
-  after submit before checking/refreshing while waiting for the generation to
-  finish (default `60` seconds). During that full quiet minute the page is
-  **not touched at all** (no polling, no refreshing), so the request and any
-  just-clicked captcha/popup can settle without the every-second reload
-  flicker. After that the wait polls for the download button and refreshes at
-  most once per interval. **No retry/resubmission** ever happens after the
-  prompt is submitted.
+  after submit before checking for the result (default `120` seconds = 2
+  minutes). During that full quiet period the page is **not touched at all**
+  (no polling, no refreshing), so the request and any just-clicked
+  captcha/popup can settle without the every-second reload flicker. After
+  that the provider navigates to the history tab and re-checks it at most
+  once per interval. **No retry/resubmission** ever happens after the prompt
+  is submitted.
+* **`history_path`** / **`history_item_selector`** /
+  **`history_download_selector`** — after the quiet wait, the provider opens
+  `base_url + history_path` (default `https://snapgen.ai/history`), finds the
+  first (newest) item in the history grid, hovers over it to reveal its
+  **Download** button, and clicks it to start the download.
+  `history_item_selector` overrides the built-in grid-item lookups and
+  `history_download_selector` overrides the download button revealed on hover
+  (CSS, or XPath when the value starts with `//`).
 * **`aspect_ratio_target`** / **`aspect_ratio_button_selector`** /
   **`aspect_ratio_option_selector`** / **`aspect_ratio_timeout_seconds`** —
   after landing on the generation page the provider clicks the `"16:9"`
@@ -973,12 +984,14 @@ When **Generate Video** is clicked with `provider: "snapgenai"`:
 6. **No retry or re-submission** happens after the prompt is submitted, and
    a random pause follows every step (including after a captcha/popup) rather
    than an instant click. The page is then left untouched (no polling or
-   refreshing) for a full `refresh_interval_seconds` (default `60` seconds)
-   so the submit and any captcha can settle, after which the provider polls
-   for the download control / failure indicators and refreshes at most once
-   per interval.
-7. The download is triggered and the download directory is watched until the
-   file is complete and validated.
+   refreshing) for the full `refresh_interval_seconds` (default `120` seconds
+   = 2 minutes) so the submit and any captcha can settle. After that the
+   provider navigates to the **history tab**
+   (`history_path`, default `https://snapgen.ai/history`), picks the first
+   (newest) item in the grid, hovers over it to reveal its **Download**
+   button, and clicks it.
+7. The download directory is watched until the file is complete and
+   validated.
 8. The video is passed through VeoWatermarkRemover and the cleaned result is
    finalized as `episode.mp4`.
 
