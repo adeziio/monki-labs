@@ -1,6 +1,5 @@
 from pathlib import Path
 import shutil
-import time
 
 import torch
 
@@ -27,7 +26,6 @@ from diffusers.pipelines.ltx2.utils import (
 from ai.base_ai_service import BaseAIService
 from ai.memory_utils import (
     get_cuda_memory_summary,
-    is_memory_error,
     release_memory
 )
 from ai.prompt_generator import PromptGenerator
@@ -229,34 +227,6 @@ class VideoGenerator(
 
         self.progress_callback = callback
 
-    def get_generation_retry_settings(self):
-
-        attempts = int(
-            self.video_config.get(
-                "generation_retry_attempts",
-                2
-            )
-        )
-
-        backoff_seconds = float(
-            self.video_config.get(
-                "generation_retry_backoff_seconds",
-                20
-            )
-        )
-
-        attempts = max(
-            0,
-            attempts
-        )
-
-        backoff_seconds = max(
-            0.0,
-            backoff_seconds
-        )
-
-        return attempts, backoff_seconds
-
     def release_pipeline_memory(
         self,
         aggressive=False
@@ -286,93 +256,6 @@ class VideoGenerator(
         release_memory(
             aggressive=aggressive
         )
-
-    def run_with_generation_retries(
-        self,
-        description,
-        operation,
-        stage="video"
-    ):
-
-        """
-        Runs a video-generation operation and automatically retries
-        when any exception occurs. Memory-related failures trigger an
-        aggressive VRAM/RAM cleanup before the retry.
-        """
-
-        max_retries, backoff_seconds = (
-            self.get_generation_retry_settings()
-        )
-
-        attempt = 0
-
-        while True:
-
-            try:
-
-                return operation()
-
-            except Exception as error:
-
-                # Provider errors flagged as non-retryable (bad API
-                # key, invalid configuration, content-policy
-                # rejections) fail immediately - resubmitting the
-                # identical request would fail again.
-
-                if getattr(
-                    error,
-                    "retryable",
-                    True
-                ) is False or attempt >= max_retries:
-
-                    self.log(
-                        f"{description} failed after "
-                        f"{attempt + 1} attempt(s): {error}"
-                    )
-
-                    raise
-
-                attempt += 1
-
-                memory_error = is_memory_error(error)
-
-                error_kind = (
-                    "memory"
-                    if memory_error
-                    else "unexpected"
-                )
-
-                wait_seconds = (
-                    backoff_seconds
-                    *
-                    attempt
-                )
-
-                self.log(
-                    f"{description} failed with an {error_kind} "
-                    f"error on attempt {attempt} "
-                    f"(of {max_retries + 1}): {error}"
-                )
-
-                self.release_pipeline_memory(
-                    aggressive=memory_error
-                )
-
-                self.update_progress(
-                    14,
-                    f"{description} failed. Cleaning up memory "
-                    f"and retrying (attempt {attempt})...",
-                    stage=stage
-                )
-
-                if wait_seconds > 0:
-
-                    self.log(
-                        f"Waiting {wait_seconds:g} seconds "
-                        f"before retry {attempt}."
-                    )
-
-                    time.sleep(wait_seconds)
 
     def update_progress(
         self,
@@ -1385,9 +1268,8 @@ class VideoGenerator(
 
         if self._uses_api_backend():
 
-            # API mode: submit -> poll -> download. Reuses the same
-            # retry wrapper so transient provider/network failures
-            # retry through the existing job architecture.
+            # API mode: submit -> poll -> download. Single
+            # attempt - fail fast, no retries.
 
             self.log(
                 "Generating audio-video clip via "
@@ -1400,21 +1282,27 @@ class VideoGenerator(
                 stage="video"
             )
 
-            return self.run_with_generation_retries(
-                "API clip generation",
-                lambda: self._get_api_provider().generate_clip(
+            try:
+
+                return self._get_api_provider().generate_clip(
                     ltx_prompt,
                     output_path
                 )
-            )
+
+            except Exception as error:
+
+                self.log(
+                    "API clip generation failed: "
+                    f"{error}"
+                )
+
+                raise
 
         if self._uses_snapgenai_backend():
 
             # SnapGenAI mode: browser automation -> download ->
             # Veo watermark removal -> validated cleaned video.
-            # Reuses the same retry wrapper so transient
-            # generation/download failures retry through the
-            # existing job architecture.
+            # Single attempt - fail fast, no retries.
 
             self.log(
                 "Generating clip via SnapGenAI "
@@ -1427,13 +1315,21 @@ class VideoGenerator(
                 stage="video"
             )
 
-            return self.run_with_generation_retries(
-                "SnapGenAI clip generation",
-                lambda: self._get_snapgenai_provider().generate_clip(
+            try:
+
+                return self._get_snapgenai_provider().generate_clip(
                     ltx_prompt,
                     output_path
                 )
-            )
+
+            except Exception as error:
+
+                self.log(
+                    "SnapGenAI clip generation "
+                    f"failed: {error}"
+                )
+
+                raise
 
         self.log(
             f"Generating audio-video clip: "
@@ -1679,8 +1575,8 @@ class VideoGenerator(
             if self.pipeline is None:
 
                 self.log(
-                    "Video model was released. "
-                    "Reloading before retry."
+                    "Video model was released; "
+                    "loading it now."
                 )
 
                 self.load_pipeline()
@@ -1705,12 +1601,19 @@ class VideoGenerator(
                 return_dict=False
             )
 
-        video, audio = (
-            self.run_with_generation_retries(
-                "Clip generation",
-                execute_generation
+        # Single attempt - fail fast, no retries.
+
+        try:
+
+            video, audio = execute_generation()
+
+        except Exception as error:
+
+            self.log(
+                f"Clip generation failed: {error}"
             )
-        )
+
+            raise
 
         self.update_progress(
             88,

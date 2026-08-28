@@ -18,24 +18,16 @@ class LtxApiError(
     Raised for any LTX Fast API failure: submission errors, failed
     jobs, timeouts, malformed responses, and network problems. The
     message is always safe to surface directly in job state.
-
-    Errors with retryable=False (bad key, invalid configuration,
-    content-policy rejections) will not be retried by the generation
-    retry wrapper.
     """
 
     def __init__(
         self,
-        message,
-        retryable=True
+        message
     ):
 
         super().__init__(
             message
         )
-
-        self.retryable = retryable
-
 
 class LtxApiProvider:
 
@@ -128,12 +120,9 @@ class LtxApiProvider:
         if not base:
 
             raise LtxApiError(
-                retryable=False,
-                message=(
-                    "LTX API base_url is not configured. "
-                    "Set models.video_model.ltx.base_url "
-                    "in config/ai_models.json."
-                )
+                "LTX API base_url is not configured. "
+                "Set models.video_model.ltx.base_url "
+                "in config/ai_models.json."
             )
 
         return base
@@ -155,11 +144,8 @@ class LtxApiProvider:
         if not api_key:
 
             raise LtxApiError(
-                retryable=False,
-                message=(
-                    f"Environment variable {env_name} is not set. "
-                    "Add your LTX API key to .env."
-                )
+                f"Environment variable {env_name} is not set. "
+                "Add your LTX API key to .env."
             )
 
         return api_key
@@ -319,8 +305,6 @@ class LtxApiProvider:
                 f"{description} failed: {message}"
             )
 
-            error.retryable = response.status_code >= 500
-
             raise error
 
         return payload
@@ -451,8 +435,7 @@ class LtxApiProvider:
                 "Submission response did not contain a job ID. "
                 f"Response keys: {self._top_level_keys(payload)}. "
                 "Configure api.job_id_fields if the provider uses a "
-                "different name.",
-                retryable=False
+                "different name."
             )
 
         return job_id
@@ -558,8 +541,7 @@ class LtxApiProvider:
             "Completed job did not contain a downloadable video "
             "URL. Configure api.result_url_fields if the provider "
             "uses a different name. Response keys: "
-            f"{self._top_level_keys(payload)}.",
-            retryable=False
+            f"{self._top_level_keys(payload)}."
         )
 
     def _download(
@@ -836,8 +818,7 @@ class LtxApiProvider:
                 raise LtxApiError(
                     f"LTX job {job_id} not found or expired "
                     "(results are retained for 24 hours after a job "
-                    "finishes).",
-                    retryable=False
+                    "finishes)."
                 )
 
             if poll_response.status_code >= 500:
@@ -865,8 +846,7 @@ class LtxApiProvider:
 
                 raise LtxApiError(
                     f"LTX job {job_id} failed. Final status: "
-                    f"{status}. {self._error_detail(status_body)}".strip(),
-                    retryable=False
+                    f"{status}. {self._error_detail(status_body)}".strip()
                 )
 
             if status in completed_statuses:

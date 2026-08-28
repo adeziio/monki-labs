@@ -38,21 +38,16 @@ class SnapGenAiError(
     safe to surface directly in job state and never contains
     credentials.
 
-    Errors with retryable=False (missing credentials, login
-    failures) will not be retried by the generation retry wrapper.
     """
 
     def __init__(
         self,
-        message,
-        retryable=True
+        message
     ):
 
         super().__init__(
             message
         )
-
-        self.retryable = retryable
 
 
 XPATH_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -483,8 +478,7 @@ class SnapGenAiProvider:
             raise SnapGenAiError(
                 "SnapGenAI credentials are missing. "
                 "Set snapgenai_email and "
-                "snapgenai_password in .env.",
-                retryable=False
+                "snapgenai_password in .env."
             )
 
         return (
@@ -701,8 +695,7 @@ class SnapGenAiProvider:
                 "Could not start Chrome for SnapGenAI "
                 "automation. Make sure Google Chrome is "
                 "installed and not already running with "
-                f"the same profile. ({error})",
-                retryable=False
+                f"the same profile. ({error})"
             )
 
         driver.set_page_load_timeout(
@@ -754,8 +747,7 @@ class SnapGenAiProvider:
                 f"(--remote-debugging-port="
                 f"{debug_address.split(':', 1)[-1]}) and "
                 "try again; no debugging session was "
-                f"found at {debug_address}. ({error})",
-                retryable=False
+                f"found at {debug_address}. ({error})"
             )
 
         driver.set_page_load_timeout(
@@ -1361,8 +1353,7 @@ class SnapGenAiProvider:
                 "models.video_model.snapgenai."
                 "login_email_selector in "
                 "config/ai_models.json if the page uses "
-                "a different field.",
-                retryable=False
+                "a different field."
             )
 
         self._fill_login_field(
@@ -1430,8 +1421,7 @@ class SnapGenAiProvider:
                 raise SnapGenAiError(
                     "SnapGenAI login did not reach the "
                     "password step after submitting the "
-                    "email address.",
-                    retryable=False
+                    "email address."
                 )
 
             self._fill_login_field(
@@ -1461,8 +1451,7 @@ class SnapGenAiProvider:
         raise SnapGenAiError(
             "SnapGenAI login failed - the login form "
             "did not clear after submission. Check the "
-            "configured credentials.",
-            retryable=False
+            "configured credentials."
         )
 
     def _wait_for_login_field(
@@ -1505,8 +1494,7 @@ class SnapGenAiProvider:
 
             raise SnapGenAiError(
                 "Could not fill the SnapGenAI login "
-                f"form. ({error})",
-                retryable=False
+                f"form. ({error})"
             )
 
     def _click_login_submit(
@@ -1899,8 +1887,7 @@ class SnapGenAiProvider:
         if not prompt:
 
             raise SnapGenAiError(
-                "The SnapGenAI prompt is empty.",
-                retryable=False
+                "The SnapGenAI prompt is empty."
             )
 
         email, password = (

@@ -40,8 +40,6 @@
                 "timeout_seconds": 900,
                 "request_timeout_seconds": 30
             },
-            "generation_retry_attempts": 5,
-            "generation_retry_backoff_seconds": 20,
             "snapgenai": {
                 "base_url": "https://snapgen.ai/",
                 "headless": false,

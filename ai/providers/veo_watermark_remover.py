@@ -26,21 +26,16 @@ class VeoWatermarkError(
     non-zero exit, timeout, or invalid output. The message is always
     safe to surface directly in job state.
 
-    Errors with retryable=False (missing executable, unsupported
-    input) will not be retried by the generation retry wrapper.
     """
 
     def __init__(
         self,
-        message,
-        retryable=True
+        message
     ):
 
         super().__init__(
             message
         )
-
-        self.retryable = retryable
 
 
 def validate_video_file(
@@ -60,15 +55,13 @@ def validate_video_file(
     if not path.is_file():
 
         raise VeoWatermarkError(
-            f"Video file is missing: {path.name}",
-            retryable=False
+            f"Video file is missing: {path.name}"
         )
 
     if path.stat().st_size <= 0:
 
         raise VeoWatermarkError(
-            f"Video file is empty: {path.name}",
-            retryable=False
+            f"Video file is empty: {path.name}"
         )
 
     try:
@@ -83,8 +76,7 @@ def validate_video_file(
 
                 raise VeoWatermarkError(
                     f"Video file contains no video "
-                    f"stream: {path.name}",
-                    retryable=False
+                    f"stream: {path.name}"
                 )
 
             if (
@@ -94,8 +86,7 @@ def validate_video_file(
 
                 raise VeoWatermarkError(
                     f"Video file has no playable "
-                    f"duration: {path.name}",
-                    retryable=False
+                    f"duration: {path.name}"
                 )
 
     except FFMPEG_ERROR as error:
@@ -225,8 +216,7 @@ class VeoWatermarkRemover:
                 "VeoWatermarkRemover/releases and set "
                 "models.video_model.snapgenai."
                 "watermark_remover.executable in "
-                "config/ai_models.json.",
-                retryable=False
+                "config/ai_models.json."
             )
 
         return executable
@@ -250,8 +240,7 @@ class VeoWatermarkRemover:
 
             raise VeoWatermarkError(
                 "watermark_remover.extra_args must "
-                "be a list of strings.",
-                retryable=False
+                "be a list of strings."
             )
 
         args = [
@@ -272,8 +261,7 @@ class VeoWatermarkRemover:
                     "The ML (--ml) watermark-removal mode "
                     "is not supported by this workflow; "
                     "remove it from watermark_remover."
-                    "extra_args.",
-                    retryable=False
+                    "extra_args."
                 )
 
         return args
@@ -416,8 +404,7 @@ class VeoWatermarkRemover:
             raise VeoWatermarkError(
                 "VeoWatermarkRemover supports .mp4, "
                 f".mkv and .mov inputs only, got: "
-                f"{input_path.suffix or '(none)'}",
-                retryable=False
+                f"{input_path.suffix or '(none)'}"
             )
 
         executable = (

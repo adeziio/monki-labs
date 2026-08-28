@@ -682,9 +682,7 @@ The following configuration has been tested and verified to run end-to-end on an
 
 * **`low_cpu_mem_usage: true`** — loads the model directly in bfloat16, avoiding the fp32 double-buffer peak during load.
 
-* **`generation_retry_attempts: 2`** — automatic retries when clip generation fails. Any exception is retried; memory-related failures (CUDA OOM / `MemoryError`) additionally trigger an aggressive VRAM/RAM cleanup and a full model reload before retrying.
-
-* **`generation_retry_backoff_seconds: 20`** — base wait between retries. The wait scales with the attempt number (20s, then 40s, ...).
+* **No generation retries** — clip generation runs a single attempt and fails fast. On any error the job is marked failed and surfaced immediately; there is no automatic retry or backoff. To retry, fix the cause and re-run the job.
 
 * **Automatic memory release** — after every generation (success or failure) the video model is dropped from memory and CUDA caches are emptied (`ai/memory_utils.py`), so each episode starts with maximum free RAM/VRAM. Memory is also released before model load, after model load, and between clips.
 
@@ -1008,16 +1006,17 @@ only marked successful once a valid `episode.mp4` exists.
 
 ### Error handling
 
-Failures surface cleanly through the normal job error state and the retry
-settings (`generation_retry_attempts` / `generation_retry_backoff_seconds`):
+Failures surface cleanly through the normal job error state. There are no
+automatic retries, so every failure is surfaced immediately:
 
-* Missing credentials — non-retried, actionable message (no values shown).
-* Login failure — non-retried; check the configured credentials.
-* Generation failure / failure indicators on the page — retried.
-* Download failure or timeout — retried.
+* Missing credentials — actionable message (no values shown).
+* Login failure — check the configured credentials.
+* Generation failure / failure indicators on the page — fail the job.
+* Download failure or timeout — fail the job.
 * Watermark-removal failure (missing executable, non-zero exit, timeout,
   unsupported input, missing/corrupt output) — missing executable and
-  unsupported inputs are non-retried; transient removal failures retry.
+  unsupported inputs are non-retried; all other removal failures fail the
+  job.
 * Invalid/corrupt videos are rejected by validation before anything is
   marked successful.
 * Filesystem errors (moving, copying, replacing files) produce explicit
