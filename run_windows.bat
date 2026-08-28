@@ -87,11 +87,9 @@ for /L %%i in (1,1,30) do (
 :ollama_ready
 
 if "%OLLAMA_READY%"=="0" (
-
     echo.
     echo ERROR: Ollama failed to start.
     echo.
-
     exit /b 1
 )
 
@@ -134,6 +132,59 @@ if not errorlevel 1 (
 )
 
 echo.
+
+REM ---------------------------------------------------------------------------
+REM SnapGenAI Chrome
+REM
+REM Start a dedicated visible Chrome profile with remote debugging enabled.
+REM Selenium attaches to this browser instead of launching its own Chrome.
+REM
+REM The profile persists between runs so SnapGenAI login/session information
+REM can be reused.
+
+set "SNAPGENAI_DEBUG_HOST=127.0.0.1"
+set "SNAPGENAI_DEBUG_PORT=9222"
+set "SNAPGENAI_CHROME_PROFILE=%~dp0media\browser_profile\snapgenai"
+
+echo ==========================================
+echo Starting SnapGenAI Chrome
+echo ==========================================
+echo.
+
+set "CHROME_EXE=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+
+if not exist "%CHROME_EXE%" set "CHROME_EXE=%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"
+
+if not exist "%CHROME_EXE%" (
+    echo.
+    echo ERROR: Google Chrome was not found.
+    echo Please install Google Chrome.
+    echo.
+    exit /b 1
+)
+
+if not exist "%SNAPGENAI_CHROME_PROFILE%" mkdir "%SNAPGENAI_CHROME_PROFILE%"
+
+echo Chrome executable:
+echo %CHROME_EXE%
+echo.
+
+echo Chrome profile:
+echo %SNAPGENAI_CHROME_PROFILE%
+echo.
+
+echo Remote debugging:
+echo %SNAPGENAI_DEBUG_HOST%:%SNAPGENAI_DEBUG_PORT%
+echo.
+
+start "Monki Labs - SnapGenAI Chrome" "%CHROME_EXE%" --remote-debugging-address=%SNAPGENAI_DEBUG_HOST% --remote-debugging-port=%SNAPGENAI_DEBUG_PORT% --user-data-dir="%SNAPGENAI_CHROME_PROFILE%" "https://snapgen.ai/"
+
+echo SnapGenAI Chrome launched.
+echo.
+echo Selenium will attach to this browser on port %SNAPGENAI_DEBUG_PORT%.
+echo.
+
+timeout /t 3 /nobreak >nul
 
 REM ---------------------------------------------------------------------------
 REM Optional: auto-start a Cloudflare quick tunnel so Instagram uploads
@@ -190,7 +241,6 @@ if "%CLOUDFLARED_EXE%"=="" (
     echo.
 
     goto :start_server
-
 )
 
 echo Starting Cloudflare tunnel...

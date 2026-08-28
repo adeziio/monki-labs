@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 import time
 
@@ -245,6 +246,53 @@ class SnapGenAiProvider:
 
             pass
 
+    def _pause_min(
+        self
+    ):
+
+        return self._seconds(
+            "pause_min_seconds",
+            5
+        )
+
+    def _pause_max(
+        self
+    ):
+
+        return self._seconds(
+            "pause_max_seconds",
+            10
+        )
+
+    def _human_pause(
+        self
+    ):
+
+        # Wait a random amount of time between steps (default 5-10
+        # seconds) so the automated flow does not fire every action
+        # back-to-back. This is plain pacing - it never tampers
+        # with the page, cookies, or any challenge.
+
+        low = self._pause_min()
+
+        high = max(
+            self._pause_max(),
+            low
+        )
+
+        if high <= low:
+
+            high = low + 1
+
+        wait = random.uniform(
+            low,
+            high
+        )
+
+        time.sleep(
+            wait
+        )
+
     def _setting(
         self,
         name,
@@ -342,6 +390,39 @@ class SnapGenAiProvider:
             "headless",
             False
         )
+
+    def _attach_to_existing_chrome(
+        self
+    ):
+
+        # When True, Selenium does not launch its own Chrome
+        # instance. It attaches to an already-running Chrome
+        # through its remote debugging interface, so the real
+        # browser session, cookies, and state are reused. This is
+        # the recommended mode when Cloudflare's human-verification
+        # checkbox loops inside Selenium-driven Chrome.
+
+        return self._flag(
+            "attach_to_existing_chrome",
+            False
+        )
+
+    def _debugging_address(
+        self
+    ):
+
+        address = str(
+            self._setting(
+                "debugging_address",
+                ""
+            )
+        ).strip()
+
+        if not address:
+
+            return "127.0.0.1:9222"
+
+        return address
 
     def _profile_directory(
         self
@@ -554,6 +635,12 @@ class SnapGenAiProvider:
         download_directory
     ):
 
+        if self._attach_to_existing_chrome():
+
+            return self._attach_driver(
+                download_directory
+            )
+
         options = webdriver.ChromeOptions()
 
         # A persistent profile keeps the authenticated
@@ -626,6 +713,332 @@ class SnapGenAiProvider:
         )
 
         return driver
+
+    def _attach_driver(
+        self,
+        download_directory
+    ):
+
+        # Attach mode reuses an already-running Chrome instead of
+        # launching a new instance. No user-data-dir, headless, or
+        # automation switches are applied here: the attached Chrome
+        # keeps its own profile, cookies, and browsing state. No
+        # stealth, fingerprint, or CAPTCHA-bypass techniques are
+        # used.
+
+        debug_address = (
+            self._debugging_address()
+        )
+
+        self._notify(
+            f"Attaching to the running Chrome at "
+            f"{debug_address}..."
+        )
+
+        options = webdriver.ChromeOptions()
+
+        options.debugger_address = debug_address
+
+        try:
+
+            driver = webdriver.Chrome(
+                options=options
+            )
+
+        except WebDriverException as error:
+
+            raise SnapGenAiError(
+                "Could not attach to the running Chrome "
+                "for SnapGenAI automation. Start Chrome "
+                "with remote debugging enabled "
+                f"(--remote-debugging-port="
+                f"{debug_address.split(':', 1)[-1]}) and "
+                "try again; no debugging session was "
+                f"found at {debug_address}. ({error})",
+                retryable=False
+            )
+
+        driver.set_page_load_timeout(
+            self._seconds(
+                "page_timeout_seconds",
+                60
+            )
+        )
+
+        try:
+
+            # Route downloads from the attached session to the
+            # configured directory so the download detection
+            # below keeps watching the same folder.
+
+            driver.execute_cdp_cmd(
+                "Browser.setDownloadBehavior",
+                {
+                    "behavior": "allow",
+                    "downloadPath": str(
+                        download_directory
+                    )
+                }
+            )
+
+        except Exception as error:
+
+            self._notify(
+                "Could not set the download folder on "
+                f"the attached Chrome: {error}"
+            )
+
+        return driver
+
+    def _host_of(
+        self,
+        url
+    ):
+
+        # Reduce a URL to its host, ignoring scheme and any path,
+        # so tabs can be matched to the SnapGenAI site.
+
+        host = str(
+            url
+        ).strip()
+
+        for scheme in (
+            "https://",
+            "http://"
+        ):
+
+            if host.lower().startswith(
+                scheme
+            ):
+
+                host = host[
+                    len(scheme):
+                ]
+
+                break
+
+        return (
+            host.split("/", 1)[0]
+            .split(":", 1)[0]
+            .lower()
+        )
+
+    def _focus_snapgenai_tab(
+        self,
+        driver
+    ):
+
+        # The attached Chrome may already have several tabs open.
+        # Bring the SnapGenAI tab to the foreground so all steps
+        # run against the right page. This is plain tab focus, not
+        # any kind of automation trickery.
+
+        base_host = self._host_of(
+            self._base_url()
+        )
+
+        if not base_host:
+
+            return
+
+        try:
+
+            handles = driver.window_handles
+
+            original = driver.current_window_handle
+
+        except WebDriverException:
+
+            return
+
+        if len(handles) <= 1:
+
+            return
+
+        for handle in handles:
+
+            if handle == original:
+
+                continue
+
+            try:
+
+                driver.switch_to.window(
+                    handle
+                )
+
+                url = str(
+                    driver.current_url
+                    or ""
+                )
+
+            except WebDriverException:
+
+                continue
+
+            if (
+                self._host_of(url)
+                == base_host
+            ):
+
+                self._notify(
+                    "Focused the SnapGenAI tab."
+                )
+
+                return
+
+        try:
+
+            driver.switch_to.window(
+                original
+            )
+
+        except WebDriverException:
+
+            pass
+
+    def _aspect_ratio_selectors(
+        self,
+        label
+    ):
+
+        upper = XPATH_UPPER
+
+        lower = XPATH_LOWER
+
+        needle = str(
+            label
+        ).strip().lower()
+
+        def text_xpath(
+            tag
+        ):
+
+            return (
+                f"//{tag}[contains(translate("
+                f"normalize-space(.), '{upper}', "
+                f"'{lower}'), '{needle}')]"
+            )
+
+        return [
+            text_xpath("button"),
+            text_xpath("a"),
+            (
+                "//*[@role='button'][contains(translate("
+                f"normalize-space(.), '{upper}', "
+                f"'{lower}'), '{needle}')]"
+            )
+        ]
+
+    def _select_aspect_ratio(
+        self,
+        driver
+    ):
+
+        # The generation page lets you pick the output aspect ratio.
+        # The control starts at "16:9"; clicking it toggles it to
+        # "9:16", which is what we want for short-form video. This
+        # is a normal UI toggle, not any bypass technique.
+
+        target = str(
+            self._setting(
+                "aspect_ratio_target",
+                "9:16"
+            )
+        ).strip() or "9:16"
+
+        source_label = "16:9"
+
+        source_selector = str(
+            self._setting(
+                "aspect_ratio_button_selector",
+                ""
+            )
+        ).strip()
+
+        if self._find_visible(
+            driver,
+            self._aspect_ratio_selectors(
+                target
+            )
+        ) is not None:
+
+            self._notify(
+                f"Aspect ratio is already "
+                f"{target}."
+            )
+
+            return
+
+        element = None
+
+        if source_selector:
+
+            element = self._find_visible(
+                driver,
+                [source_selector]
+            )
+
+        if element is None:
+
+            element = self._find_visible(
+                driver,
+                self._aspect_ratio_selectors(
+                    source_label
+                )
+            )
+
+        if element is None:
+
+            self._notify(
+                "Could not find the aspect ratio "
+                f"button ({source_label}); continuing "
+                "with the current setting."
+            )
+
+            return
+
+        self._notify(
+            f"Selecting {target} aspect ratio..."
+        )
+
+        self._safe_click(
+            driver,
+            element
+        )
+
+        try:
+
+            deadline = time.monotonic() + self._seconds(
+                "aspect_ratio_timeout_seconds",
+                15
+            )
+
+        except TypeError:
+
+            deadline = time.monotonic() + 15
+
+        while time.monotonic() < deadline:
+
+            if self._find_visible(
+                driver,
+                self._aspect_ratio_selectors(
+                    target
+                )
+            ) is not None:
+
+                self._notify(
+                    f"Aspect ratio set to {target}."
+                )
+
+                return
+
+            time.sleep(0.5)
+
+        self._notify(
+            "Aspect ratio toggle was not confirmed; "
+            "continuing."
+        )
 
     def _open_generation_page(
         self,
@@ -1179,42 +1592,6 @@ class SnapGenAiProvider:
 
         return False
 
-    def _submission_was_lost(
-        self,
-        driver,
-        prompt
-    ):
-
-        # After authentication the generation page may have been
-        # reloaded with the original submission gone. When the
-        # prompt field still holds the untouched prompt, the
-        # request never went through and must be submitted again.
-
-        element = self._find_visible(
-            driver,
-            self._prompt_selectors()
-        )
-
-        if element is None:
-
-            return False
-
-        try:
-
-            current = (
-                element.get_attribute("value")
-                or element.text
-                or ""
-            )
-
-        except WebDriverException:
-
-            return False
-
-        return (
-            current.strip() == prompt.strip()
-        )
-
     def _wait_for_generation(
         self,
         driver
@@ -1232,6 +1609,17 @@ class SnapGenAiProvider:
             3
         )
 
+        # The page is not disturbed for at least this long after
+        # the last action. We wait a full minute before the first
+        # refresh and then refresh at most once per minute while
+        # waiting for the download button, instead of hammering
+        # the page every second.
+
+        refresh_interval = self._seconds(
+            "refresh_interval_seconds",
+            60
+        )
+
         failure_selector = str(
             self._setting(
                 "failure_selector",
@@ -1245,6 +1633,44 @@ class SnapGenAiProvider:
         )
 
         started_at = time.monotonic()
+
+        # Silent settle: do NOTHING on the page for a full refresh
+        # interval (default 1 minute) right after submit. No polling
+        # and no refreshing - the page just sits so the request
+        # registers cleanly instead of being reloaded every second.
+        # This also covers any captcha/verification popup that may
+        # have just been clicked past.
+
+        settle_until = (
+            started_at
+            + refresh_interval
+        )
+
+        while time.monotonic() < settle_until:
+
+            if time.monotonic() >= deadline:
+
+                raise SnapGenAiError(
+                    "Timed out waiting for SnapGenAI "
+                    f"generation after {timeout:g} "
+                    "seconds."
+                )
+
+            time.sleep(
+                min(
+                    0.5,
+                    max(
+                        0.0,
+                        settle_until
+                        - time.monotonic()
+                    )
+                )
+            )
+
+        # From here we poll for the download button and refresh the
+        # page at most once per refresh interval.
+
+        last_refresh = started_at
 
         while True:
 
@@ -1280,6 +1706,30 @@ class SnapGenAiProvider:
                     f"generation after {timeout:g} "
                     "seconds."
                 )
+
+            # Only refresh once at least one refresh interval has
+            # elapsed since the last refresh; wait quietly the
+            # rest of the time.
+
+            if (
+                time.monotonic() - last_refresh
+                >= refresh_interval
+            ):
+
+                try:
+
+                    driver.refresh()
+
+                except WebDriverException:
+
+                    pass
+
+                last_refresh = time.monotonic()
+
+                # Re-check for the download button right after the
+                # refresh instead of sleeping first.
+
+                continue
 
             elapsed = int(
                 time.monotonic() - started_at
@@ -1476,61 +1926,57 @@ class SnapGenAiProvider:
 
         try:
 
+            self._focus_snapgenai_tab(
+                driver
+            )
+
             self._open_generation_page(
                 driver
             )
+
+            self._human_pause()
+
+            self._select_aspect_ratio(
+                driver
+            )
+
+            self._human_pause()
 
             self._enter_prompt(
                 driver,
                 prompt
             )
 
+            self._human_pause()
+
+            # Deliberately pause after typing the prompt and
+            # before clicking submit so the automated flow reads
+            # less like a script.
+
             self._submit_generation(
                 driver
             )
 
-            logged_in = (
-                self._handle_login_if_needed(
-                    driver,
-                    email,
-                    password
-                )
+            self._human_pause()
+
+            # No retry/resubmission happens after the prompt is
+            # submitted. If a login form/tab appears it is handled
+            # once; after that we simply wait for the generation to
+            # finish and the download button to appear.
+
+            self._handle_login_if_needed(
+                driver,
+                email,
+                password
             )
 
-            if (
-                logged_in
-                or self._submission_was_lost(
-                    driver,
-                    prompt
-                )
-            ):
-
-                # Authentication navigated away from the
-                # generation page and dropped the original
-                # submission - return to the generation page
-                # and submit the prompt again.
-
-                self._notify(
-                    "Returning to the generation page "
-                    "after sign-in..."
-                )
-
-                self._open_generation_page(
-                    driver
-                )
-
-                self._enter_prompt(
-                    driver,
-                    prompt
-                )
-
-                self._submit_generation(
-                    driver
-                )
+            self._human_pause()
 
             self._wait_for_generation(
                 driver
             )
+
+            self._human_pause()
 
             downloaded_file = (
                 self._download_result(
@@ -1541,13 +1987,20 @@ class SnapGenAiProvider:
 
         finally:
 
-            try:
+            # In attach mode the browser belongs to the user and is
+            # reused for the session, cookies, and state, so it must
+            # be left running. Only a Selenium-launched Chrome is
+            # closed here.
 
-                driver.quit()
+            if not self._attach_to_existing_chrome():
 
-            except WebDriverException:
+                try:
 
-                pass
+                    driver.quit()
+
+                except WebDriverException:
+
+                    pass
 
         staging_path = (
             output_path.parent

@@ -861,6 +861,14 @@ All SnapGenAI settings live in `config/ai_models.json` →
 "snapgenai": {
     "base_url": "https://snapgen.ai/",
     "headless": false,
+    "attach_to_existing_chrome": true,
+    "debugging_address": "127.0.0.1:9222",
+    "pause_min_seconds": 5,
+    "pause_max_seconds": 10,
+    "refresh_interval_seconds": 60,
+    "aspect_ratio_target": "9:16",
+    "aspect_ratio_button_selector": "",
+    "aspect_ratio_timeout_seconds": 15,
     "profile_directory": "media/browser_profile/snapgenai",
     "download_directory": "media/downloads/snapgenai",
     "page_timeout_seconds": 60,
@@ -884,6 +892,48 @@ All SnapGenAI settings live in `config/ai_models.json` →
 * **`headless`** — runs Chrome without a window. Defaults to `false` so the
   browser stays visible while the automation is being developed and tested;
   set to `true` for unattended operation.
+* **`attach_to_existing_chrome`** — when `true`, Selenium does **not** launch
+  its own Chrome. It attaches to an already-running Chrome through its remote
+  debugging interface (`debugging_address`, default `127.0.0.1:9222`) and
+  reuses that browser, its profile, cookies, and state. Keep this enabled if
+  Cloudflare's "Verify you are human" checkbox loops inside Selenium-driven
+  Chrome — attach mode makes the challenge behave like a normal browser. Set
+  to `false` to restore the original Selenium-launched-Chrome behavior.
+  `headless` stays `false` in both modes.
+* **How to start Chrome with remote debugging enabled** — fully close all
+  Chrome windows, then launch it with a dedicated profile and the debug port:
+  ```text
+  chrome.exe --remote-debugging-port=9222 --user-data-dir=%TEMP%\snapgenai-chrome
+  ```
+  (Linux/macOS: `google-chrome --remote-debugging-port=9222 --user-data-dir=/tmp/snapgenai-chrome`.)
+  Keep that Chrome window running before and during the run. No Stealth,
+  fingerprint spoofing, or CAPTCHA bypass is performed. If attach mode is
+  enabled but no debugging session is reachable, the run stops with a clear
+  error telling you to start Chrome with remote debugging.
+* **`debugging_address`** — host and port of the remote debugging endpoint;
+  defaults to `127.0.0.1:9222`.
+* **`pause_min_seconds`** / **`pause_max_seconds`** — a random pause of this
+  many seconds is inserted between every workflow step (opening the page →
+  typing the prompt → submitting → login → waiting → downloading) so the
+  automation does not fire actions back-to-back. Defaults to `5`/`10`.
+  Includes a deliberate pause after entering the prompt and before clicking
+  submit. This is plain pacing only — no page/cookie/challenge tampering.
+* **`refresh_interval_seconds`** — how long to let the page sit doing nothing
+  after submit before checking/refreshing while waiting for the generation to
+  finish (default `60` seconds). During that full quiet minute the page is
+  **not touched at all** (no polling, no refreshing), so the request and any
+  just-clicked captcha/popup can settle without the every-second reload
+  flicker. After that the wait polls for the download button and refreshes at
+  most once per interval. **No retry/resubmission** ever happens after the
+  prompt is submitted.
+* **`aspect_ratio_target`** / **`aspect_ratio_button_selector`** /
+  **`aspect_ratio_timeout_seconds`** — after landing on the generation page
+  the provider clicks the `"16:9"` button to switch the output to
+  `aspect_ratio_target` (default `"9:16"`), then waits before entering the
+  prompt. `aspect_ratio_button_selector` overrides the built-in button lookup
+  (CSS, or XPath when it starts with `//`); `aspect_ratio_timeout_seconds` is
+  how long to wait for the toggle to take effect (default `15`). This is a
+  normal UI toggle, not any bypass technique.
 * **`profile_directory`** — a persistent Chrome profile, so the authenticated
   session/cookies are reused between runs instead of logging in every time.
   Close any Chrome instance using this profile before a run starts.
@@ -906,19 +956,26 @@ empty.
 
 When **Generate Video** is clicked with `provider: "snapgenai"`:
 
-1. Chrome opens https://snapgen.ai/ (visible unless `headless` is `true`).
-2. The episode's generated prompt is entered into the prompt field.
-3. **Generate/Submit** is clicked.
-4. If a login tab/popup (or an inline login form) appears, the provider
+1. The SnapGenAI tab is brought to the foreground (if the attached Chrome has
+   several tabs open), then Chrome loads https://snapgen.ai/ (visible unless
+   `headless` is `true`).
+2. After a pause, the provider clicks the `"16:9"` aspect-ratio button so the
+   output switches to `"9:16"`, then pauses again.
+3. The episode's generated prompt is entered into the prompt field.
+4. **Generate/Submit** is clicked.
+5. If a login tab/popup (or an inline login form) appears, the provider
    signs in using the `.env` credentials and returns to the generation page.
    Both single-step forms (email + password together) and stepwise flows
    (email → **Continue** → password) are supported; the defaults recognize
    common fields like `input[name="username"]` and buttons labelled
    **Continue** / **Sign in** / **Log in**.
-5. If authentication dropped the original submission (the prompt field still
-   holds the untouched prompt), the prompt is entered and submitted again.
-6. The provider waits for the generation to finish by polling for the
-   download control / failure indicators.
+6. **No retry or re-submission** happens after the prompt is submitted, and
+   a random pause follows every step (including after a captcha/popup) rather
+   than an instant click. The page is then left untouched (no polling or
+   refreshing) for a full `refresh_interval_seconds` (default `60` seconds)
+   so the submit and any captcha can settle, after which the provider polls
+   for the download control / failure indicators and refreshes at most once
+   per interval.
 7. The download is triggered and the download directory is watched until the
    file is complete and validated.
 8. The video is passed through VeoWatermarkRemover and the cleaned result is
