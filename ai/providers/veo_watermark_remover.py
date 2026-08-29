@@ -312,17 +312,19 @@ class VeoWatermarkRemover:
         self,
         output_path,
         input_path,
-        before
+        before,
+        required=True
     ):
 
         # Some CLI builds only write next to the input file. When
         # the requested output was not created, fall back to the
         # newest video file the tool produced during the run and
-        # move it into place.
+        # move it into place. Returns the located path, or None
+        # when required=False and the tool produced nothing.
 
         if output_path.is_file():
 
-            return
+            return output_path
 
         candidates = []
 
@@ -355,11 +357,15 @@ class VeoWatermarkRemover:
 
         if not candidates:
 
-            raise VeoWatermarkError(
-                "VeoWatermarkRemover finished but the "
-                f"cleaned output file is missing: "
-                f"{output_path.name}"
-            )
+            if required:
+
+                raise VeoWatermarkError(
+                    "VeoWatermarkRemover finished but the "
+                    f"cleaned output file is missing: "
+                    f"{output_path.name}"
+                )
+
+            return None
 
         newest = max(
             candidates,
@@ -371,6 +377,8 @@ class VeoWatermarkRemover:
         newest.replace(
             output_path
         )
+
+        return output_path
 
     def remove_watermark(
         self,
@@ -505,21 +513,42 @@ class VeoWatermarkRemover:
                 ]
             )
 
-            raise VeoWatermarkError(
-                "VeoWatermarkRemover failed with exit "
-                f"code {process.returncode}."
-                + (
-                    f" Output: {output_tail}"
-                    if output_tail
-                    else ""
-                )
+            # Some builds exit non-zero even after writing the
+            # cleaned video, so only treat the failure as fatal
+            # when no output could be located.
+
+            located = self._locate_output(
+                output_path,
+                input_path,
+                before,
+                required=False
             )
 
-        self._locate_output(
-            output_path,
-            input_path,
-            before
-        )
+            if located is None:
+
+                raise VeoWatermarkError(
+                    "VeoWatermarkRemover failed with exit "
+                    f"code {process.returncode}."
+                    + (
+                        f" Output: {output_tail}"
+                        if output_tail
+                        else ""
+                    )
+                )
+
+            self._notify(
+                "VeoWatermarkRemover reported exit code "
+                f"{process.returncode} but produced the "
+                "cleaned video; continuing."
+            )
+
+        else:
+
+            self._locate_output(
+                output_path,
+                input_path,
+                before
+            )
 
         validate_video_file(
             output_path

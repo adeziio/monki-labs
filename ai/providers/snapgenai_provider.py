@@ -1040,13 +1040,11 @@ class SnapGenAiProvider:
 
         if element is None:
 
-            self._notify(
+            raise SnapGenAiError(
                 "Could not find the aspect ratio "
-                f"button ({source_label}); continuing "
-                "with the current setting."
+                f"button ({source_label}) on the "
+                "generation page."
             )
-
-            return
 
         self._notify(
             f"Selecting {target} aspect ratio..."
@@ -1089,13 +1087,13 @@ class SnapGenAiProvider:
 
         if option is None:
 
-            self._notify(
+            raise SnapGenAiError(
                 "Could not find the aspect ratio "
-                f"option ({target}) in the dropdown; "
-                "continuing."
+                f"option ({target}) in the dropdown. "
+                "Set aspect_ratio_option_selector in "
+                "config/ai_models.json if the page "
+                "uses a different control."
             )
-
-            return
 
         self._notify(
             f"Choosing {target} from the "
@@ -1135,9 +1133,10 @@ class SnapGenAiProvider:
 
             time.sleep(0.5)
 
-        self._notify(
-            "Aspect ratio selection was not "
-            "confirmed; continuing."
+        raise SnapGenAiError(
+            "The aspect ratio selection was not "
+            f"confirmed as {target} within "
+            "aspect_ratio_timeout_seconds."
         )
 
     def _open_generation_page(

@@ -1011,7 +1011,11 @@ used and is explicitly rejected if added to `extra_args`. `output_flag` can
 be set (e.g. `"-o"`) for builds that require a flag before the output path;
 by default the output path is passed as the second positional argument, with
 an automatic fallback that detects the tool's output file next to the input
-if the build does not accept one.
+if the build does not accept one. Some builds exit non-zero even after
+writing the cleaned video (e.g. exit code 2 on success); when a valid output
+file was produced, that exit code is logged and tolerated instead of failing
+the job — the produced file is moved into place, validated, and ends up as
+`episode.mp4`.
 
 The removal preserves the original video untouched apart from the
 watermarked region — resolution, FPS, duration, and audio are all kept. The
@@ -1028,11 +1032,19 @@ automatic retries, so every failure is surfaced immediately:
 * Missing credentials — actionable message (no values shown).
 * Login failure — check the configured credentials.
 * Generation failure / failure indicators on the page — fail the job.
+* Website step failures — the provider does **not** continue past a failed
+  step. If any required on-page action cannot be completed (e.g. the aspect
+  ratio trigger or its `"9:16"` dropdown option cannot be found, or the
+  selection is not confirmed within `aspect_ratio_timeout_seconds`), the job
+  fails immediately with an error naming the step, so a misconfigured
+  selector is caught instead of silently generating with the wrong settings.
 * Download failure or timeout — fail the job.
 * Watermark-removal failure (missing executable, non-zero exit, timeout,
   unsupported input, missing/corrupt output) — missing executable and
   unsupported inputs are non-retried; all other removal failures fail the
-  job.
+  job. A non-zero exit code is tolerated (logged) when the tool still
+  produced a valid cleaned video, which is then moved into place and copied
+  to `episode.mp4`.
 * Invalid/corrupt videos are rejected by validation before anything is
   marked successful.
 * Filesystem errors (moving, copying, replacing files) produce explicit
