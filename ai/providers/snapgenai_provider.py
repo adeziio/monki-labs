@@ -77,21 +77,6 @@ DOWNLOAD_SELECTORS = [
     "//a[contains(@href, '.mp4')]"
 ]
 
-HISTORY_ITEM_SELECTORS = [
-    "//*[contains(@class, 'history')]"
-    "//*[contains(@class, 'item')]",
-    "//*[contains(@class, 'history')]"
-    "//*[contains(@class, 'card')]",
-    "//*[contains(@class, 'grid')]"
-    "//*[contains(@class, 'item')]",
-    "//*[contains(@class, 'grid')]"
-    "//*[contains(@class, 'card')]",
-    "//*[contains(@class, 'gallery')]"
-    "//*[contains(@class, 'item')]",
-    "//figure",
-    "//*[contains(@class, 'thumbnail')]"
-]
-
 LOGIN_EMAIL_SELECTORS = [
     "input[type='email']",
     "input[name='username']",
@@ -1687,171 +1672,15 @@ class SnapGenAiProvider:
 
         return False
 
-    def _history_url(
-        self
-    ):
-
-        base_url = (
-            self._base_url().rstrip("/")
-        )
-
-        path = str(
-            self._setting(
-                "history_path",
-                "/history"
-            )
-        ).strip() or "/history"
-
-        if not path.startswith("/"):
-
-            path = "/" + path
-
-        return base_url + path
-
-    def _history_item_selectors(
-        self
-    ):
-
-        return self._selectors(
-            "history_item_selector",
-            HISTORY_ITEM_SELECTORS
-        )
-
-    def _history_download_selectors(
-        self
-    ):
-
-        return self._selectors(
-            "history_download_selector",
-            []
-        )
-
-    def _open_history_page(
-        self,
-        driver
-    ):
-
-        history_url = self._history_url()
-
-        self._notify(
-            "Opening the SnapGenAI history "
-            "page..."
-        )
-
-        driver.get(
-            history_url
-        )
-
-        page_timeout = self._seconds(
-            "page_timeout_seconds",
-            60
-        )
-
-        deadline = time.monotonic() + page_timeout
-
-        while time.monotonic() < deadline:
-
-            # The grid may still be rendering after the body loads,
-            # so either signal means the page is usable.
-
-            if (
-                self._find_visible(
-                    driver,
-                    self._history_item_selectors()
-                ) is not None
-            ):
-
-                return
-
-            if driver.find_elements(
-                By.TAG_NAME,
-                "body"
-            ):
-
-                return
-
-            time.sleep(0.5)
-
-        raise SnapGenAiError(
-            f"The SnapGenAI history page did not "
-            f"load within {page_timeout:g} seconds."
-        )
-
-    def _try_history_download(
-        self,
-        driver
-    ):
-
-        # The history tab shows a grid of past generations. The
-        # newest entry is the one just submitted. Hovering over a
-        # grid item reveals its Download button, which is then
-        # clicked to start the download. Normal UI interaction only.
-
-        item = self._find_visible(
-            driver,
-            self._history_item_selectors()
-        )
-
-        if item is None:
-
-            return False
-
-        self._notify(
-            "Checking the newest history item..."
-        )
-
-        try:
-
-            ActionChains(
-                driver
-            ).move_to_element(
-                item
-            ).perform()
-
-        except WebDriverException:
-
-            pass
-
-        time.sleep(0.5)
-
-        element = self._find_visible(
-            driver,
-            self._download_selectors()
-        )
-
-        if element is None:
-
-            element = self._find_visible(
-                driver,
-                self._history_download_selectors()
-            )
-
-        if element is None:
-
-            # The item is visible but its download control is not
-            # ready yet - keep waiting.
-
-            return False
-
-        self._notify(
-            "Generation finished - clicking Download."
-        )
-
-        self._safe_click(
-            driver,
-            element
-        )
-
-        return True
-
     def _wait_for_generation(
         self,
         driver
     ):
 
-        # Returns True when the download was already initiated from
-        # the history tab, or False when a download control is
-        # visible for _download_result to click directly.
+        # Waits for the generation to finish by polling the page for
+        # the download button. After a silent settle period (default 2
+        # minutes), it polls at most once per refresh interval until
+        # the download control appears.
 
         timeout = self._seconds(
             "generation_timeout_seconds",
@@ -1866,9 +1695,7 @@ class SnapGenAiProvider:
         )
 
         # How long to leave the page completely alone right after
-        # submit, and how long between history-page rechecks after
-        # that. Defaults to 2 minutes.
-
+        # submit. Defaults to 2 minutes.
         refresh_interval = self._seconds(
             "refresh_interval_seconds",
             120
@@ -1921,11 +1748,8 @@ class SnapGenAiProvider:
                 )
             )
 
-        # After the quiet period, check whether the download control
-        # already appeared on the current page. If not, drive the
-        # history tab instead of hammering the generation page:
-        # the newest grid item's Download button is hovered and
-        # clicked there.
+        # After the quiet period, poll for the download control.
+        # Refresh the page at most once per refresh interval.
 
         last_check = started_at
 
@@ -1941,7 +1765,7 @@ class SnapGenAiProvider:
                     "download is available."
                 )
 
-                return False
+                return
 
             if failure_selector:
 
@@ -1964,41 +1788,22 @@ class SnapGenAiProvider:
                     "seconds."
                 )
 
-            # Re-check the history tab at most once per refresh
-            # interval.
+            # Refresh the page at most once per refresh interval.
 
             if (
                 time.monotonic() - last_check
                 >= refresh_interval
             ):
 
-                try:
-
-                    self._open_history_page(
-                        driver
-                    )
-
-                except (WebDriverException, SnapGenAiError):
-
-                    last_check = time.monotonic()
-
-                    time.sleep(
-                        poll_interval
-                    )
-
-                    continue
-
                 last_check = time.monotonic()
 
-                if self._try_history_download(
-                    driver
-                ):
+                try:
 
-                    return True
+                    driver.refresh()
 
-                # Not ready yet - re-check on the next interval.
+                except WebDriverException:
 
-                continue
+                    pass
 
             elapsed = int(
                 time.monotonic() - started_at
@@ -2032,8 +1837,7 @@ class SnapGenAiProvider:
     def _download_result(
         self,
         driver,
-        download_directory,
-        initiated=False
+        download_directory
     ):
 
         self._notify(
@@ -2044,28 +1848,26 @@ class SnapGenAiProvider:
             download_directory
         )
 
-        if not initiated:
+        element = self._find_visible(
+            driver,
+            self._download_selectors()
+        )
 
-            element = self._find_visible(
-                driver,
-                self._download_selectors()
+        if element is None:
+
+            raise SnapGenAiError(
+                "Generation finished but no download "
+                "button or link was found on the page. "
+                "Adjust models.video_model.snapgenai."
+                "download_selector in "
+                "config/ai_models.json if the page "
+                "uses a different control."
             )
 
-            if element is None:
-
-                raise SnapGenAiError(
-                    "Generation finished but no download "
-                    "button or link was found on the page. "
-                    "Adjust models.video_model.snapgenai."
-                    "download_selector in "
-                    "config/ai_models.json if the page "
-                    "uses a different control."
-                )
-
-            self._safe_click(
-                driver,
-                element
-            )
+        self._safe_click(
+            driver,
+            element
+        )
 
         timeout = self._seconds(
             "download_timeout_seconds",
@@ -2243,10 +2045,8 @@ class SnapGenAiProvider:
 
             self._human_pause()
 
-            download_initiated = (
-                self._wait_for_generation(
-                    driver
-                )
+            self._wait_for_generation(
+                driver
             )
 
             self._human_pause()
@@ -2254,8 +2054,7 @@ class SnapGenAiProvider:
             downloaded_file = (
                 self._download_result(
                     driver,
-                    download_directory,
-                    initiated=download_initiated
+                    download_directory
                 )
             )
 
