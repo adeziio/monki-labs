@@ -20,7 +20,12 @@
         "familiar places transformed into something extraordinary",
         "hidden worlds revealed inside ordinary locations",
         "nature at its most spectacular: bioluminescence, storms, migrations",
-        "intimate cozy interiors glowing against dark backgrounds"
+        "intimate cozy interiors glowing against dark backgrounds",
+        "vast cloud worlds with towering clouds, glowing skies, and dreamy atmospheric depth",
+        "outer space environments filled with stars, planets, moons, and immense celestial scale",
+        "beautiful star fields with layered depth, drifting cosmic particles, and dramatic light",
+        "galaxies and colorful nebulae creating surreal celestial landscapes",
+        "dreamlike cosmic environments where familiar landscapes merge with space and celestial phenomena"
     ],
     "protagonists": [
         "a visually striking animal in an extraordinary environment",
@@ -32,7 +37,16 @@
         "a solitary figure moving through a surreal environment",
         "an unusual creature with distinctive visual features",
         "an ordinary subject placed in an extraordinary world",
-        "a mysterious figure whose presence creates visual intrigue"
+        "a mysterious figure whose presence creates visual intrigue",
+        "a rare or unexpected animal species chosen for visual novelty",
+        "a striking bird or flying creature",
+        "an unusual reptile or amphibian",
+        "a fascinating insect or arachnid",
+        "a marine or deep-sea creature",
+        "a small nocturnal creature",
+        "a large terrestrial animal",
+        "a prehistoric-inspired creature",
+        "a fantastical but believable creature"
     ],
     "video": {
         "duration_seconds": 8,
@@ -68,6 +82,7 @@
             "Use light and atmosphere deliberately - a lighting source, its shadows, haze, and depth of field - to give the frame tangible detail.",
             "Let a strongly defined palette and mood carry the scene without relying on verbal or narrative cues.",
             "Create scale, contrast, or atmospheric tension between the subject and its setting to add visual interest.",
+            "Use clouds, stars, galaxies, nebulae, celestial light, and cosmic scale when they create a visually exceptional environment.",
             "Describe precisely what is visible, what moves, and where the still lands; use active physical verbs and concrete visual nouns.",
             "Keep the frame to one primary living subject. Secondary living subjects should be rare and only appear when they materially improve the visual composition.",
             "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
@@ -88,8 +103,11 @@
             "Simple, understandable premise."
         ],
         "diversity_guidance": [
-            "Rotate emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
-            "Do not repeat the same subject type, environment type, or payoff style in consecutive ideas.",
+            "Randomize the main living subject for every concept. Draw unpredictably from a wide variety of mammals, birds, reptiles, amphibians, insects, arachnids, marine life, prehistoric creatures, mythical creatures, unusual creatures, humans, and fantastical creatures.",
+            "Prioritize subject variety across generations while preserving complete creative freedom. Do not repeatedly converge on the same type of subject simply because it is visually appealing.",
+            "Choose an environment that naturally fits and complements the selected subject's biome, habitat, or nature.",
+            "Let the subject and environment feel naturally connected while still allowing unexpected and imaginative combinations.",
+            "Vary emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
             "Vary shot scale between close-ups and wide establishing shots.",
             "Vary visual composition between concepts: symmetry, foreground framing, leading lines, layered depth, negative space, and immersive perspectives.",
             "Vary pacing: some concepts slow and atmospheric, others fast and surprising."
