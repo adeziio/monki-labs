@@ -72,7 +72,10 @@
             "Keep the frame to one primary living subject. Secondary living subjects should be rare and only appear when they materially improve the visual composition.",
             "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
             "Make the payoff readable in a single image - something that works on its own without needing dialogue or on-screen text.",
-            "Vary visual composition across concepts: centered symmetry, strong foreground framing, leading lines, layered depth, negative space, and immersive close perspectives."
+            "Vary visual composition across concepts: centered symmetry, strong foreground framing, leading lines, layered depth, negative space, and immersive close perspectives.",
+            "POV option: First-person point of view - render the scene as if the viewer is the living subject themselves, so what they see, feel, and interact with is experienced from inside their perspective. No external camera, just the POV of the subject living the moment.",
+            "Immersion option: An immersive visual journey where the camera continuously flies, travels, or moves through breathtaking magical environments, landscapes, worlds, or scenes. Prioritize immersion, wonder, beauty, scale, and cinematic movement over character-driven story.",
+            "When using POV or immersive options, the visual experience itself is the primary appeal and no traditional plot or narration is needed - just let the environment carry the moment."
         ],
         "creative_priorities": [
             "Immediate visual hook in the first moment.",
