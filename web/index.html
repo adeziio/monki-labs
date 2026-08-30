@@ -2216,6 +2216,87 @@
         }
 
 
+        /* ==================================================
+           DELETE EPISODE CONFIRM MODAL
+        ================================================== */
+
+        .delete-confirm-panel {
+
+            width:
+                min(430px, 100%);
+
+        }
+
+
+        .delete-confirm-body {
+
+            padding:
+                18px 24px 0;
+
+            font-size:
+                13px;
+
+            color:
+                #aeb4bd;
+
+            line-height:
+                1.65;
+
+        }
+
+
+        .delete-confirm-body strong {
+
+            color:
+                #eef1f4;
+
+        }
+
+
+        .delete-confirm-warning {
+
+            margin-top:
+                10px;
+
+            font-size:
+                12px;
+
+            font-weight:
+                700;
+
+            color:
+                #ff9a9a;
+
+        }
+
+
+        .delete-confirm-footer {
+
+            padding:
+                0 24px 22px;
+
+        }
+
+
+        .danger-button {
+
+            background:
+                linear-gradient(135deg,
+                    #ff9a9a,
+                    #ff6b6b);
+
+            border-color:
+                rgba(255, 128, 128, 0.4);
+
+            color:
+                #2a0a0a;
+
+            box-shadow:
+                0 10px 35px rgba(255, 107, 107, 0.15);
+
+        }
+
+
         .episode-content {
 
             position:
@@ -4175,6 +4256,81 @@
     </div>
 
 
+    <!-- ==================================================
+             DELETE EPISODE CONFIRM MODAL
+        ================================================== -->
+
+    <div id="deleteConfirmModal" class="youtube-modal" hidden>
+
+        <div class="youtube-modal-backdrop" onclick="closeDeleteConfirmModal()"></div>
+
+
+        <div class="youtube-modal-panel delete-confirm-panel" role="dialog" aria-modal="true"
+            aria-labelledby="deleteConfirmTitle">
+
+            <div class="youtube-modal-header">
+
+                <div>
+
+                    <div class="youtube-modal-title" id="deleteConfirmTitle">
+                        Delete episode?
+                    </div>
+
+
+                    <div class="youtube-modal-subtitle" id="deleteConfirmEpisode">
+                        Episode
+                    </div>
+
+                </div>
+
+
+                <button type="button" class="youtube-modal-close" aria-label="Close"
+                    onclick="closeDeleteConfirmModal()">
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div class="delete-confirm-body">
+
+                <p>
+                    This will permanently delete this episode's
+                    <strong>prompt.txt</strong> and <strong>episode.txt</strong>.
+                    The episode will return to the Generate Prompt state.
+                </p>
+
+
+                <p class="delete-confirm-warning">
+                    This action cannot be undone.
+                </p>
+
+            </div>
+
+
+            <div class="delete-confirm-footer">
+
+                <div class="youtube-actions">
+
+                    <button type="button" class="secondary" onclick="closeDeleteConfirmModal()">
+                        Cancel
+                    </button>
+
+
+                    <button type="button" class="danger-button"
+                        onclick="confirmDeleteEpisode()">
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <script>
 
         let statusTimer =
@@ -4831,6 +4987,69 @@
                 );
 
             }
+
+        }
+
+
+        let deleteConfirmEpisodeId =
+            null;
+
+
+        function openDeleteConfirmModal(
+            episodeId
+        ) {
+
+            deleteConfirmEpisodeId =
+                episodeId;
+
+
+            document.getElementById(
+                "deleteConfirmEpisode"
+            ).textContent =
+                episodeId;
+
+
+            document.getElementById(
+                "deleteConfirmModal"
+            ).hidden =
+                false;
+
+        }
+
+
+        function closeDeleteConfirmModal() {
+
+            deleteConfirmEpisodeId =
+                null;
+
+
+            document.getElementById(
+                "deleteConfirmModal"
+            ).hidden =
+                true;
+
+        }
+
+
+        async function confirmDeleteEpisode() {
+
+            const episodeId =
+                deleteConfirmEpisodeId;
+
+
+            closeDeleteConfirmModal();
+
+
+            if (!episodeId) {
+
+                return;
+
+            }
+
+
+            await deleteEpisode(
+                episodeId
+            );
 
         }
 
@@ -6287,7 +6506,7 @@
                             type="button"
                             class="episode-delete-button"
                             title="Reset episode (delete prompt and episode files)"
-                            onclick="deleteEpisode(
+                            onclick="openDeleteConfirmModal(
                                 '${escapeJs(episode.path)}'
                             )"
                         >
