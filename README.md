@@ -18,7 +18,7 @@ Monki Labs aims to:
 
 * 📱 Produce vertical 9:16 videos optimized for short-form platforms
 
-* 📦 Organize generated episodes automatically under media/output/
+* 📦 Organize generated episodes automatically under media/output/shorts/
 
 * ☁️ Support GPU-based cloud execution
 
@@ -57,7 +57,7 @@ Final MP4
 
         ↓
 
-Organized Output (media/output/<episode>/)
+Organized Output (media/output/shorts/<episode>/)
 
         ↓
 
@@ -334,7 +334,7 @@ UI: Quick guide
 
 * The UI lets you:
 
-  * Browse generated episodes (media/output/)
+  * Browse generated shorts (media/output/shorts/)
 
   * Start a new generation job (full episode or single prompt)
 
@@ -370,11 +370,14 @@ Make changes
 .\run_windows.bat
 ```
 
-Generated videos are stored under:
+Generated shorts are stored under:
 
 ```text
-media/output/
+media/output/shorts/
 ```
+
+Long-form videos/compilations will be stored under `media/output/videos/`
+(future destination, not yet generated).
 
 Output runs are automatically numbered sequentially.
 
@@ -385,23 +388,29 @@ media/
 
 └── output/
 
-    ├── 001/
+    ├── shorts/
 
-    │   ├── episode.mp4
+    │   ├── 001/
 
-    │   └── prompt.txt
+    │   │   ├── episode.mp4
 
-    ├── 002/
+    │   │   └── prompt.txt
 
-    │   ├── episode.mp4
+    │   ├── 002/
 
-    │   └── prompt.txt
+    │   │   ├── episode.mp4
 
-    └── 003/
+    │   │   └── prompt.txt
 
-        ├── episode.mp4
+    │   └── 003/
 
-        └── prompt.txt
+    │       ├── episode.mp4
+
+    │       └── prompt.txt
+
+    └── videos/
+
+        (reserved for future long-form videos/compilations)
 ```
 
 Each run retains only the **final video** and the **prompt used to generate it**.
@@ -1158,7 +1167,7 @@ than silently producing nothing.
 Each episode writes:
 
 ```text
-media/output/<episode>/prompt.txt
+media/output/shorts/<episode>/prompt.txt
 
 TITLE: The Escalator Race
 PROMPT: Style: retro anime, low-angle shot… (full paragraph incl. music/SFX)
@@ -1340,7 +1349,7 @@ AI Video + Integrated Audio (LTX-2.3)
 
   ↓
 
-Final Video (media/output/<episode>/)
+Final Video (media/output/shorts/<episode>/)
 
   ↓
 

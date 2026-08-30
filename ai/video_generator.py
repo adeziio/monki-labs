@@ -115,7 +115,7 @@ class VideoGenerator(
         self.snapgenai_provider = None
 
         self.output_root = Path(
-            "media/output"
+            "media/output/shorts"
         )
 
         self.run_directory = None

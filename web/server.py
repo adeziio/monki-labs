@@ -47,6 +47,22 @@ MEDIA_ROOT = (
     "output"
 )
 
+# Shorts are written under MEDIA_ROOT/shorts (e.g. media/output/shorts/<episode>/).
+# Long-form videos/compilations will be written under MEDIA_ROOT/videos once
+# implemented. Both directories are created at startup so the UI and discovery
+# logic can treat them as known locations.
+SHORTS_OUTPUT = (
+    MEDIA_ROOT
+    /
+    "shorts"
+)
+
+VIDEOS_OUTPUT = (
+    MEDIA_ROOT
+    /
+    "videos"
+)
+
 INDEX_FILE = (
     Path(__file__).resolve().parent
     /
@@ -539,19 +555,19 @@ def scan_episode_ids():
 
     """
     Returns the set of episode ids currently discoverable under
-    the media output root, without parsing prompt files.
+    the shorts output root, without parsing prompt files.
 
     Used to snapshot which episodes existed when a job started.
     """
 
     ids = set()
 
-    if not MEDIA_ROOT.exists():
+    if not SHORTS_OUTPUT.exists():
 
         return ids
 
     for episode_directory in sorted(
-        MEDIA_ROOT.iterdir()
+        SHORTS_OUTPUT.iterdir()
     ):
 
         if not episode_directory.is_dir():
@@ -623,12 +639,12 @@ def discover_episodes():
 
     results = []
 
-    if not MEDIA_ROOT.exists():
+    if not SHORTS_OUTPUT.exists():
 
         return results
 
     for episode_directory in sorted(
-        MEDIA_ROOT.iterdir(),
+        SHORTS_OUTPUT.iterdir(),
         reverse=True
     ):
 
@@ -795,7 +811,7 @@ def get_prompt_by_id(
     ).resolve()
 
     allowed_root = (
-        MEDIA_ROOT.resolve()
+        SHORTS_OUTPUT.resolve()
     )
 
     if (
@@ -841,7 +857,7 @@ def get_episode_prompt(
     ).resolve()
 
     allowed_root = (
-        MEDIA_ROOT.resolve()
+        SHORTS_OUTPUT.resolve()
     )
 
     if (
@@ -899,7 +915,7 @@ def resolve_episode_video_path(
     ).resolve()
 
     allowed_root = (
-        MEDIA_ROOT.resolve()
+        SHORTS_OUTPUT.resolve()
     )
 
     if (
@@ -949,7 +965,7 @@ def get_episode_identity(
     relative = (
         episode_path
         .relative_to(
-            MEDIA_ROOT
+            SHORTS_OUTPUT
         )
     )
 
@@ -1085,7 +1101,7 @@ def resolve_episode_directory(
 ):
 
     """
-    Resolves and validates an episode directory under media/output.
+    Resolves and validates an episode directory under media/output/shorts.
     """
 
     episode_path = (
@@ -1095,7 +1111,7 @@ def resolve_episode_directory(
     ).resolve()
 
     media_root = (
-        MEDIA_ROOT.resolve()
+        SHORTS_OUTPUT.resolve()
     )
 
     if media_root not in episode_path.parents:
@@ -3163,6 +3179,18 @@ class RequestHandler(
 def main():
 
     multiprocessing.freeze_support()
+
+    # Ensure both output destinations exist. Shorts are generated
+    # today; videos/ is reserved for future long-form output.
+    SHORTS_OUTPUT.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    VIDEOS_OUTPUT.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     server = ThreadingHTTPServer(
         (
