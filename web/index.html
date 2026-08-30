@@ -2145,6 +2145,77 @@
         }
 
 
+        .episode-delete-button {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            flex:
+                0 0 auto;
+
+            width:
+                30px;
+
+            height:
+                30px;
+
+            padding:
+                5px;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            color:
+                #8b919c;
+
+            cursor:
+                pointer;
+
+            transition:
+                color 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+
+        }
+
+
+        .episode-delete-button:hover {
+
+            color:
+                #ff8080;
+
+            border-color:
+                rgba(255, 128, 128, 0.35);
+
+            background:
+                rgba(255, 128, 128, 0.08);
+
+        }
+
+
+        .episode-delete-button svg {
+
+            width:
+                14px;
+
+            height:
+                14px;
+
+        }
+
+
         .episode-content {
 
             position:
@@ -4214,7 +4285,7 @@
 
             document
                 .querySelectorAll(
-                    ".generate-video-button"
+                    ".generate-video-button, .generate-prompt-button"
                 )
                 .forEach(
                     button => {
@@ -4681,6 +4752,131 @@
                     false
                 );
 
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        async function generatePrompt(
+            episodeId
+        ) {
+
+            if (jobRunning) {
+
+                return;
+
+            }
+
+
+            clearError();
+
+
+            try {
+
+                setActiveEpisode(
+                    episodeId
+                );
+
+
+                highlightLatestEpisode =
+                    false;
+
+
+                setGenerationButtonsDisabled(
+                    true
+                );
+
+
+                await api(
+                    "/api/episode/prompt",
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+                                    episode_id:
+                                        episodeId
+                                }
+                            )
+
+                    }
+                );
+
+
+                startStatusPolling();
+
+            } catch (error) {
+
+                clearActiveEpisode();
+
+                setGenerationButtonsDisabled(
+                    false
+                );
+
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        async function deleteEpisode(
+            episodeId
+        ) {
+
+            if (jobRunning) {
+
+                return;
+
+            }
+
+
+            clearError();
+
+
+            try {
+
+                await api(
+                    "/api/episode/delete",
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+                                    episode_id:
+                                        episodeId
+                                }
+                            )
+
+                    }
+                );
+
+
+                await loadEpisodes();
+
+            } catch (error) {
 
                 showError(
                     error.message
@@ -5904,6 +6100,28 @@
                 "";
 
 
+            const generatePromptActionHtml =
+                `
+
+                    <div class="episode-actions">
+
+                        <button
+                            class="primary-button generate-prompt-button"
+                            ${jobRunning ? "disabled" : ""}
+                            onclick="generatePrompt(
+                                '${escapeJs(
+                    episode.path
+                )}'
+                            )"
+                        >
+                            Generate Prompt
+                        </button>
+
+                    </div>
+
+                `;
+
+
             if (
                 episode.video_exists &&
                 episode.video_path
@@ -5948,7 +6166,11 @@
                 `;
 
 
-                actionHtml = `
+                if (
+                    episode.prompt_exists
+                ) {
+
+                    actionHtml = `
 
                     <div class="episode-actions">
 
@@ -5980,6 +6202,13 @@
 
                 `;
 
+                } else {
+
+                    actionHtml =
+                        generatePromptActionHtml;
+
+                }
+
             } else {
 
                 videoHtml = `
@@ -6000,7 +6229,11 @@
                 `;
 
 
-                actionHtml = `
+                if (
+                    episode.prompt_exists
+                ) {
+
+                    actionHtml = `
 
                     <div class="episode-actions">
 
@@ -6019,6 +6252,13 @@
                     </div>
 
                 `;
+
+                } else {
+
+                    actionHtml =
+                        generatePromptActionHtml;
+
+                }
 
             }
 
@@ -6042,6 +6282,17 @@
                         <div class="episode-number">
                             #${number}
                         </div>
+
+                        <button
+                            type="button"
+                            class="episode-delete-button"
+                            title="Reset episode (delete prompt and episode files)"
+                            onclick="deleteEpisode(
+                                '${escapeJs(episode.path)}'
+                            )"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
 
                     </div>
 

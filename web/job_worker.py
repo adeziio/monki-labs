@@ -99,11 +99,28 @@ def main():
                 )
             )
 
-            result = (
-                pipeline.create_episode(
-                    prompt_only=prompt_only
+            episode_id = str(
+                payload.get(
+                    "episode_id",
+                    ""
                 )
-            )
+            ).strip()
+
+            if episode_id:
+
+                result = (
+                    pipeline.create_prompt(
+                        episode_id=episode_id
+                    )
+                )
+
+            else:
+
+                result = (
+                    pipeline.create_episode(
+                        prompt_only=prompt_only
+                    )
+                )
 
         elif job_type == "video":
 

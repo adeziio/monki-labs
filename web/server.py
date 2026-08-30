@@ -350,11 +350,21 @@ def child_run_job(
 
         if job_type == "episode":
 
-            result = (
-                pipeline.create_episode(
-                    prompt_only=prompt_only
+            if episode_id:
+
+                result = (
+                    pipeline.create_prompt(
+                        episode_id=episode_id
+                    )
                 )
-            )
+
+            else:
+
+                result = (
+                    pipeline.create_episode(
+                        prompt_only=prompt_only
+                    )
+                )
 
         elif job_type == "video":
 
@@ -2182,6 +2192,149 @@ class RequestHandler(
                     "platform": platform,
                     "done": status.get(platform, False),
                     "uploaded": status
+                }
+            )
+
+            return
+
+        if parsed.path == "/api/episode/delete":
+
+            try:
+
+                if get_job_state().get(
+                    "running"
+                ):
+
+                    raise ValueError(
+                        "Another job is already running."
+                    )
+
+                data = self.read_json()
+
+                episode_id = str(
+                    data.get(
+                        "episode_id",
+                        ""
+                    )
+                ).strip()
+
+                if not episode_id:
+
+                    raise ValueError(
+                        "Missing episode ID."
+                    )
+
+                episode_directory = (
+                    resolve_episode_directory(
+                        episode_id
+                    )
+                )
+
+                # Only reset the episode back to the "prompt missing"
+                # state. No other files (videos, upload status, etc.)
+                # and no episode directories are deleted.
+
+                for filename in (
+                    "prompt.txt",
+                    "episode.mp4"
+                ):
+
+                    file_path = (
+                        episode_directory
+                        /
+                        filename
+                    )
+
+                    if file_path.is_file():
+
+                        file_path.unlink()
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(
+                            error
+                        )
+                    },
+                    400
+                )
+
+                return
+
+            print(
+                f"[EPISODE] Reset {episode_id}: "
+                "removed prompt.txt/episode.mp4."
+            )
+
+            self.send_json(
+                {
+                    "success": True,
+                    "episode_id": episode_id
+                }
+            )
+
+            return
+
+        if parsed.path == "/api/episode/prompt":
+
+            try:
+
+                data = self.read_json()
+
+                episode_id = str(
+                    data.get(
+                        "episode_id",
+                        ""
+                    )
+                ).strip()
+
+                if not episode_id:
+
+                    raise ValueError(
+                        "Missing episode ID."
+                    )
+
+                # Validate the episode directory exists before
+                # starting the regeneration job.
+                resolve_episode_directory(
+                    episode_id
+                )
+
+            except Exception as error:
+
+                self.send_json(
+                    {
+                        "error": str(
+                            error
+                        )
+                    },
+                    400
+                )
+
+                return
+
+            started = run_job(
+                "episode",
+                episode_id=episode_id,
+                prompt_only=True
+            )
+
+            if not started:
+
+                self.send_json(
+                    {
+                        "error":
+                        "Another job is already running."
+                    },
+                    409
+                )
+
+                return
+
+            self.send_json(
+                {
+                    "started": True
                 }
             )
 

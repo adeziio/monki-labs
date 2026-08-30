@@ -376,7 +376,8 @@ class VideoGenerator(
 
     def use_existing_run(
         self,
-        episode_id
+        episode_id,
+        require_prompt=True
     ):
 
         if not episode_id:
@@ -435,18 +436,20 @@ class VideoGenerator(
                 "Invalid episode directory."
             )
 
-        prompt_path = (
-            episode_path
-            /
-            "prompt.txt"
-        )
+        if require_prompt:
 
-        if not prompt_path.is_file():
-
-            raise ValueError(
-                "Episode does not contain "
-                "a prompt.txt file."
+            prompt_path = (
+                episode_path
+                /
+                "prompt.txt"
             )
+
+            if not prompt_path.is_file():
+
+                raise ValueError(
+                    "Episode does not contain "
+                    "a prompt.txt file."
+                )
 
         self.run_directory = (
             episode_path
@@ -1202,7 +1205,8 @@ class VideoGenerator(
             self.pipeline.enable_attention_slicing()
 
     def create_prompt(
-        self
+        self,
+        episode_id=None
     ):
 
         self.update_progress(
@@ -1225,7 +1229,18 @@ class VideoGenerator(
 
         prompt_item = prompts[0]
 
-        self.start_new_run()
+        if episode_id:
+
+            # Regenerate the prompt inside the existing episode
+            # directory instead of creating a brand new episode.
+            self.use_existing_run(
+                episode_id,
+                require_prompt=False
+            )
+
+        else:
+
+            self.start_new_run()
 
         self.write_prompt_file(
             [prompt_item]
