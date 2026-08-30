@@ -162,6 +162,12 @@ class SnapGenAiProvider:
     remove the Veo watermark with VeoWatermarkRemover (standard CPU
     mode) and validate the cleaned result.
 
+    When attaching to the dedicated Chrome launched by
+    run_windows.bat, that browser window is automatically brought to
+    the foreground so the user can watch the generation without
+    switching to it by hand. Other Chrome windows (for example the
+    one showing the Monki Labs UI) are never touched.
+
     The Chrome profile is persisted across runs so the
     authenticated session/cookies are reused when practical.
     Credentials come only from snapgenai_email / snapgenai_password
@@ -783,7 +789,471 @@ class SnapGenAiProvider:
                 f"the attached Chrome: {error}"
             )
 
+        self._notify(
+            "Bringing the SnapGenAI Chrome window "
+            "to the front..."
+        )
+
+        # The workflow runs in the dedicated Chrome launched by
+        # run_windows.bat. Give that window the foreground focus so
+        # the user can watch the generation without switching to it
+        # by hand. The calls below only ever target the window this
+        # Selenium session is attached to, never other Chrome
+        # windows such as the one showing the Monki Labs UI.
+
+        self._bring_chrome_to_foreground(
+            driver
+        )
+
         return driver
+
+    def _bring_chrome_to_foreground(
+        self,
+        driver
+    ):
+
+        # Focus the attached SnapGenAI browser. Every call below only
+        # ever targets the dedicated Chrome instance that this
+        # Selenium session is attached to, never other Chrome
+        # windows such as the one showing the Monki Labs UI.
+
+        if self._headless():
+
+            return
+
+        try:
+
+            current = (
+                driver.current_window_handle
+            )
+
+            if current:
+
+                driver.switch_to.window(
+                    current
+                )
+
+            # Tell the browser to bring the page's window to the
+            # front and give it keyboard focus.
+            driver.execute_cdp_cmd(
+                "Page.bringToFront",
+                {}
+            )
+
+        except Exception:
+
+            pass
+
+        if os.name != "nt":
+
+            return
+
+        try:
+
+            self._bring_windows_chrome_window_to_front()
+
+        except Exception:
+
+            pass
+
+    def _bring_windows_chrome_window_to_front(
+        self
+    ):
+
+        # Best-effort OS-level focus for the dedicated SnapGenAI
+        # Chrome instance on Windows. That instance is identified by
+        # the remote debugging port and profile directory that
+        # run_windows.bat passes on the command line, so a normal
+        # Chrome window (for example the one hosting the Monki Labs
+        # UI) can never be matched or focused instead.
+
+        debug_address = (
+            self._debugging_address()
+        )
+
+        port = (
+            debug_address.split(":", 1)[-1]
+            .strip()
+        )
+
+        profile = (
+            str(
+                self._profile_directory()
+            )
+            .replace("\\", "/")
+            .lower()
+        )
+
+        if not port or not profile:
+
+            return
+
+        try:
+
+            import psutil
+
+        except ImportError:
+
+            return
+
+        target_pids = set()
+
+        for proc in psutil.process_iter(
+            [
+                "pid",
+                "name",
+                "cmdline"
+            ]
+        ):
+
+            try:
+
+                name = (
+                    str(
+                        proc.info.get("name") or ""
+                    )
+                    .lower()
+                )
+
+                cmdline = (
+                    " ".join(
+                        proc.info.get("cmdline") or []
+                    )
+                    .replace("\\", "/")
+                    .lower()
+                )
+
+            except Exception:
+
+                continue
+
+            if name not in (
+                "chrome.exe",
+                "msedge.exe"
+            ):
+
+                continue
+
+            if (
+                f"--remote-debugging-port={port}"
+                not in cmdline
+            ):
+
+                continue
+
+            if profile not in cmdline:
+
+                continue
+
+            target_pids.add(
+                int(
+                    proc.info["pid"]
+                )
+            )
+
+        if not target_pids:
+
+            return
+
+        hwnd = self._find_chrome_window_handle(
+            target_pids
+        )
+
+        if not hwnd:
+
+            return
+
+        self._activate_window_handle(
+            hwnd
+        )
+
+    def _find_chrome_window_handle(
+        self,
+        target_pids
+    ):
+
+        # Returns the first visible top-level window owned by one of
+        # the given process ids. Chrome renderers have no visible
+        # top-level frame of their own, so this naturally resolves to
+        # the main browser window of the dedicated instance.
+
+        import ctypes
+
+        from ctypes import wintypes
+
+        user32 = (
+            ctypes.windll.user32
+        )
+
+        EnumWindowsProc = (
+            ctypes.WINFUNCTYPE(
+                wintypes.BOOL,
+                wintypes.HWND,
+                wintypes.LPARAM
+            )
+        )
+
+        user32.EnumWindows.argtypes = (
+            EnumWindowsProc,
+            wintypes.LPARAM
+        )
+
+        user32.EnumWindows.restype = (
+            wintypes.BOOL
+        )
+
+        user32.GetWindowThreadProcessId.argtypes = (
+            wintypes.HWND,
+            ctypes.POINTER(
+                wintypes.DWORD
+            )
+        )
+
+        user32.GetWindowThreadProcessId.restype = (
+            wintypes.DWORD
+        )
+
+        user32.IsWindowVisible.argtypes = (
+            wintypes.HWND,
+        )
+
+        user32.IsWindowVisible.restype = (
+            wintypes.BOOL
+        )
+
+        user32.GetWindowTextLengthW.argtypes = (
+            wintypes.HWND,
+        )
+
+        user32.GetWindowTextLengthW.restype = (
+            ctypes.c_int
+        )
+
+        found = []
+
+        def _enum_callback(
+            hwnd,
+            lparam
+        ):
+
+            if not user32.IsWindowVisible(
+                hwnd
+            ):
+
+                return True
+
+            pid = (
+                wintypes.DWORD()
+            )
+
+            user32.GetWindowThreadProcessId(
+                hwnd,
+                ctypes.byref(pid)
+            )
+
+            if (
+                int(pid.value)
+                not in target_pids
+            ):
+
+                return True
+
+            if (
+                user32.GetWindowTextLengthW(
+                    hwnd
+                )
+                <= 0
+            ):
+
+                return True
+
+            found.append(
+                hwnd
+            )
+
+            return False
+
+        user32.EnumWindows(
+            EnumWindowsProc(
+                _enum_callback
+            ),
+            0
+        )
+
+        if not found:
+
+            return None
+
+        return found[0]
+
+    def _activate_window_handle(
+        self,
+        hwnd
+    ):
+
+        # Restores (if minimized), raises, and gives OS-level
+        # foreground focus to the window identified by hwnd.
+
+        import ctypes
+
+        from ctypes import wintypes
+
+        user32 = (
+            ctypes.windll.user32
+        )
+
+        kernel32 = (
+            ctypes.windll.kernel32
+        )
+
+        user32.IsIconic.argtypes = (
+            wintypes.HWND,
+        )
+
+        user32.IsIconic.restype = (
+            wintypes.BOOL
+        )
+
+        user32.ShowWindow.argtypes = (
+            wintypes.HWND,
+            ctypes.c_int
+        )
+
+        user32.ShowWindow.restype = (
+            wintypes.BOOL
+        )
+
+        user32.BringWindowToTop.argtypes = (
+            wintypes.HWND,
+        )
+
+        user32.BringWindowToTop.restype = (
+            wintypes.BOOL
+        )
+
+        user32.GetForegroundWindow.argtypes = ()
+
+        user32.GetForegroundWindow.restype = (
+            wintypes.HWND
+        )
+
+        user32.SetForegroundWindow.argtypes = (
+            wintypes.HWND,
+        )
+
+        user32.SetForegroundWindow.restype = (
+            wintypes.BOOL
+        )
+
+        user32.AttachThreadInput.argtypes = (
+            wintypes.DWORD,
+            wintypes.DWORD,
+            wintypes.BOOL
+        )
+
+        user32.AttachThreadInput.restype = (
+            wintypes.BOOL
+        )
+
+        user32.keybd_event.argtypes = (
+            wintypes.BYTE,
+            wintypes.BYTE,
+            wintypes.DWORD,
+            ctypes.c_void_p
+        )
+
+        user32.keybd_event.restype = None
+
+        kernel32.GetCurrentThreadId.restype = (
+            wintypes.DWORD
+        )
+
+        if (
+            user32.GetForegroundWindow()
+            == hwnd
+        ):
+
+            return
+
+        if user32.IsIconic(
+            hwnd
+        ):
+
+            # Restore the window first so it has a real frame to
+            # show before it is focused.
+            user32.ShowWindow(
+                hwnd,
+                9
+            )
+
+        user32.ShowWindow(
+            hwnd,
+            5
+        )
+
+        user32.BringWindowToTop(
+            hwnd
+        )
+
+        # Windows normally refuses to let a background process steal
+        # the foreground. Simulating a press of the Alt key unlocks
+        # the foreground so the focus switch below is accepted.
+        user32.keybd_event(
+            0x12,
+            0,
+            0,
+            0
+        )
+
+        user32.keybd_event(
+            0x12,
+            0,
+            0x0002,
+            0
+        )
+
+        thread_id = (
+            user32.GetWindowThreadProcessId(
+                hwnd,
+                None
+            )
+        )
+
+        current_thread = (
+            kernel32.GetCurrentThreadId()
+        )
+
+        if (
+            thread_id
+            !=
+            current_thread
+        ):
+
+            user32.AttachThreadInput(
+                current_thread,
+                thread_id,
+                True
+            )
+
+        try:
+
+            user32.SetForegroundWindow(
+                hwnd
+            )
+
+        finally:
+
+            if (
+                thread_id
+                !=
+                current_thread
+            ):
+
+                user32.AttachThreadInput(
+                    current_thread,
+                    thread_id,
+                    False
+                )
 
     def _host_of(
         self,
