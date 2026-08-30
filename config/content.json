@@ -46,7 +46,11 @@
         "a small nocturnal creature",
         "a large terrestrial animal",
         "a prehistoric-inspired creature",
-        "a fantastical but believable creature"
+        "a fantastical but believable creature",
+        "a distinctive robot or mechanical character",
+        "a humanoid cyborg with striking visual features",
+        "an unusual machine or robotic creature",
+        "an advanced artificial being in an extraordinary environment"
     ],
     "video": {
         "duration_seconds": 8,
@@ -69,7 +73,7 @@
             "Generate one original concept for a short vertical video whose first job is a visually striking, emotionally readable moment.",
             "Lead with the ENVIRONMENT and setting: build a scene worth looking at - with atmosphere, depth, color, light, and distinctive visual character - before deciding what happens in it.",
             "The environment is the visual foundation, not a backdrop. Make the setting itself unusual, beautiful, atmospheric, or visually mesmerizing; the subject should enhance the environment rather than carry the entire concept.",
-            "Build an environment that is visually compelling on its own, then place one clear, identifiable living subject inside it, acting with purpose.",
+            "Build an environment that is visually compelling on its own, then place one clear, identifiable primary subject inside it, acting with purpose.",
             "Give the frame distinctive visual detail: materials, lighting source and quality, atmosphere, and a coherent color and mood palette.",
             "Keep the action simple, legible, and physically coherent so it fits cleanly within one continuous ~8 second shot.",
             "Let the ENVIRONMENT respond to the subject's action - moving reflections, drifting dust or light, stirring water or fabric, shifting atmosphere - so the setting feels alive.",
@@ -84,11 +88,11 @@
             "Create scale, contrast, or atmospheric tension between the subject and its setting to add visual interest.",
             "Use clouds, stars, galaxies, nebulae, celestial light, and cosmic scale when they create a visually exceptional environment.",
             "Describe precisely what is visible, what moves, and where the still lands; use active physical verbs and concrete visual nouns.",
-            "Keep the frame to one primary living subject. Secondary living subjects should be rare and only appear when they materially improve the visual composition.",
+            "Keep the frame to one primary subject. Secondary subjects should be rare and only appear when they materially improve the visual composition.",
             "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
             "Make the payoff readable in a single image - something that works on its own without needing dialogue or on-screen text.",
             "Vary visual composition across concepts: centered symmetry, strong foreground framing, leading lines, layered depth, negative space, and immersive close perspectives.",
-            "POV option: First-person point of view - render the scene as if the viewer is the living subject themselves, so what they see, feel, and interact with is experienced from inside their perspective. No external camera, just the POV of the subject living the moment.",
+            "POV option: First-person point of view - render the scene as if the viewer is the primary subject themselves, so what they see, feel, and interact with is experienced from inside their perspective. No external camera, just the POV of the subject living the moment.",
             "Immersion option: An immersive visual journey where the camera continuously flies, travels, or moves through breathtaking magical environments, landscapes, worlds, or scenes. Prioritize immersion, wonder, beauty, scale, and cinematic movement over character-driven story.",
             "When using POV or immersive options, the visual experience itself is the primary appeal and no traditional plot or narration is needed - just let the environment carry the moment."
         ],
@@ -103,9 +107,10 @@
             "Simple, understandable premise."
         ],
         "diversity_guidance": [
-            "Randomize the main living subject for every concept. Draw unpredictably from a wide variety of mammals, birds, reptiles, amphibians, insects, arachnids, marine life, prehistoric creatures, mythical creatures, unusual creatures, humans, and fantastical creatures.",
-            "Prioritize subject variety across generations while preserving complete creative freedom. Do not repeatedly converge on the same type of subject simply because it is visually appealing.",
-            "Choose an environment that naturally fits and complements the selected subject's biome, habitat, or nature.",
+            "Treat protagonist selection as an explicit random choice. Before developing the concept, randomly select one primary subject from the full range of available protagonist types, including mammals, birds, reptiles, amphibians, insects, arachnids, marine life, prehistoric creatures, mythical creatures, unusual creatures, humans, robots, cyborgs, machines, and fantastical creatures.",
+            "Do not select the protagonist by default based on which creature seems most visually appealing, familiar, safe, or easiest to build a concept around. The selected subject should come from broad unpredictable variety, allowing less obvious and unexpected creatures to appear naturally.",
+            "Do not repeatedly favor the same creature or creature category. Randomization should produce genuinely varied protagonist choices rather than repeatedly converging on a small set of visually appealing subjects.",
+            "Choose an environment that naturally fits and complements the selected subject's biome, habitat, nature, or mechanical character.",
             "Let the subject and environment feel naturally connected while still allowing unexpected and imaginative combinations.",
             "Vary emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
             "Vary shot scale between close-ups and wide establishing shots.",
@@ -119,9 +124,9 @@
             "Beauty, scale, light, and satisfying motion count every bit as much as surprise - aim for an arresting, coherent image rather than a gimmick."
         ],
         "living_subject_rules": [
-            "The main character must be ALIVE: a person, animal, insect, sea creature, or monster.",
-            "Inanimate objects may never be the main character; they can only appear as props, clothing, food, or the absurd element the living character interacts with.",
-            "When an object misbehaves, show a living character noticing or reacting to it.",
+            "The main character must be a clearly identifiable primary subject: a person, animal, insect, sea creature, monster, robot, cyborg, or machine.",
+            "Inanimate objects may never be the main character unless they are explicitly designed or depicted as a machine, robot, or artificial character.",
+            "When an ordinary inanimate object misbehaves, show a living character noticing or reacting to it.",
             "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
         ],
         "style_rotation": [
@@ -132,7 +137,7 @@
             "Start directly with: Style: <visual style>, <rest of the paragraph>. Use the exact visual style given in THIS EPISODE'S VISUAL STYLE.",
             "ESTABLISH THE SHOT: open right after Style with shot scale and framing in cinematic terms the model understands (macro close-up, medium two-shot, low-angle wide, over-the-shoulder, shallow depth of field).",
             "SET THE SCENE: establish the lighting source, color palette, surface textures, and atmosphere as the subject acts.",
-            "DEFINE THE CHARACTER: give the living subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing - and show emotion through visible physical cues, never abstract labels.",
+            "DEFINE THE CHARACTER: give the primary subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing, mechanical design, or distinctive features - and show emotion through visible physical cues, never abstract labels.",
             "DESCRIBE THE ACTION as a natural chronological sequence flowing from setup to payoff, told through what is visibly happening.",
             "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the moment plays better still.",
             "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
