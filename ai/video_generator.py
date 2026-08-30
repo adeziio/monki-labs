@@ -567,9 +567,9 @@ class VideoGenerator(
     ):
 
         resolution = (
-            self.video_config[
-                "generation_resolution"
-            ]
+            self.video_config
+            ["local"]
+            ["generation_resolution"]
         )
 
         width = int(
@@ -615,9 +615,9 @@ class VideoGenerator(
     ):
 
         fps = float(
-            self.video_config[
-                "generation_fps"
-            ]
+            self.video_config
+            ["local"]
+            ["generation_fps"]
         )
 
         if fps <= 0:
@@ -760,9 +760,9 @@ class VideoGenerator(
     ):
 
         steps_config = (
-            self.video_config[
-                "steps"
-            ]
+            self.video_config
+            ["local"]
+            ["steps"]
         )
 
         if device not in steps_config:
@@ -792,9 +792,9 @@ class VideoGenerator(
     ):
 
         guidance_scale = float(
-            self.video_config[
-                "guidance_scale"
-            ]
+            self.video_config
+            ["local"]
+            ["guidance_scale"]
         )
 
         if guidance_scale < 0:
@@ -811,9 +811,9 @@ class VideoGenerator(
     ):
 
         modality_scale = float(
-            self.video_config[
-                "modality_scale"
-            ]
+            self.video_config
+            ["local"]
+            ["modality_scale"]
         )
 
         if modality_scale < 0:
@@ -830,9 +830,9 @@ class VideoGenerator(
     ):
 
         audio_guidance_scale = float(
-            self.video_config[
-                "audio_guidance_scale"
-            ]
+            self.video_config
+            ["local"]
+            ["audio_guidance_scale"]
         )
 
         if audio_guidance_scale < 0:
@@ -849,9 +849,9 @@ class VideoGenerator(
     ):
 
         stg_scale = float(
-            self.video_config[
-                "stg_scale"
-            ]
+            self.video_config
+            ["local"]
+            ["stg_scale"]
         )
 
         if stg_scale < 0:
@@ -868,9 +868,9 @@ class VideoGenerator(
     ):
 
         audio_stg_scale = float(
-            self.video_config[
-                "audio_stg_scale"
-            ]
+            self.video_config
+            ["local"]
+            ["audio_stg_scale"]
         )
 
         if audio_stg_scale < 0:
@@ -895,7 +895,9 @@ class VideoGenerator(
             return None
 
         blocks_config = (
-            self.video_config.get(
+            self.video_config
+            ["local"]
+            .get(
                 "stg_blocks",
                 {}
             )
@@ -1003,9 +1005,9 @@ class VideoGenerator(
         )
 
         model_name = (
-            self.video_config[
-                "model"
-            ]
+            self.video_config
+            ["local"]
+            ["model"]
         )
 
         self.log(
@@ -1088,7 +1090,9 @@ class VideoGenerator(
     ):
 
         allocation_config = (
-            self.video_config.get(
+            self.video_config
+            ["local"]
+            .get(
                 "device_allocation",
                 {}
             )
@@ -1404,13 +1408,15 @@ class VideoGenerator(
         )
 
         audio_modality_scale = float(
-            self.video_config[
-                "audio_modality_scale"
-            ]
+            self.video_config
+            ["local"]
+            ["audio_modality_scale"]
         )
 
         negative_prompt = (
-            self.video_config.get(
+            self.video_config
+            ["local"]
+            .get(
                 "negative_prompt",
                 DEFAULT_NEGATIVE_PROMPT
             )

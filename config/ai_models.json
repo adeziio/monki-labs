@@ -22,7 +22,6 @@
         "video_model": {
             "enabled": true,
             "provider": "snapgenai",
-            "model": "diffusers/LTX-2.3-Diffusers",
             "ltx": {
                 "base_url": "https://api.ltx.io",
                 "submit_path": "/v2/text-to-video",
@@ -77,37 +76,40 @@
                     "timeout_seconds": 3600
                 }
             },
-            "device_allocation": {
-                "mode": "model",
-                "vae_tiling": true,
-                "vae_slicing": true,
-                "attention_slicing": false
-            },
-            "generation_resolution": {
-                "width": 768,
-                "height": 1344
-            },
-            "generation_fps": 24,
-            "steps": {
-                "cpu": 8,
-                "cuda": 30
-            },
-            "stg_blocks": {
-                "indices": [
-                    28
-                ]
-            },
-            "guidance_scale": 3.0,
-            "audio_guidance_scale": 7.0,
-            "stg_scale": 1.0,
-            "audio_stg_scale": 1.0,
-            "modality_scale": 3.0,
-            "audio_modality_scale": 3.0,
-            "audio": {
-                "enabled": true,
-                "music_enabled": true
-            },
-            "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
+            "local": {
+                "model": "diffusers/LTX-2.3-Diffusers",
+                "device_allocation": {
+                    "mode": "model",
+                    "vae_tiling": true,
+                    "vae_slicing": true,
+                    "attention_slicing": false
+                },
+                "generation_resolution": {
+                    "width": 768,
+                    "height": 1344
+                },
+                "generation_fps": 24,
+                "steps": {
+                    "cpu": 8,
+                    "cuda": 30
+                },
+                "stg_blocks": {
+                    "indices": [
+                        28
+                    ]
+                },
+                "guidance_scale": 3.0,
+                "audio_guidance_scale": 7.0,
+                "stg_scale": 1.0,
+                "audio_stg_scale": 1.0,
+                "modality_scale": 3.0,
+                "audio_modality_scale": 3.0,
+                "audio": {
+                    "enabled": true,
+                    "music_enabled": true
+                },
+                "negative_prompt": "shaky, glitchy, low quality, worst quality, deformed, distorted, disfigured, motion smear, motion artifacts, static, blurry, text, subtitles, watermark"
+            }
         }
     }
 }

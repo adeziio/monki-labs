@@ -633,22 +633,27 @@ The following configuration has been tested and verified to run end-to-end on an
 
 ```json
 {
-    "device_allocation": {
-        "mode": "model",
-        "vae_tiling": false,
-        "vae_slicing": true,
-        "attention_slicing": false
-    },
-    "generation_resolution": {
-        "width": 768,
-        "height": 1344
-    },
-    "steps": { "cpu": 8, "cuda": 25 },
-    "stg_scale": 1.5,
-    "audio_stg_scale": 0.0,
-    "guidance_scale": 3.5,
-    "audio_guidance_scale": 5.0,
-    "stg_blocks": { "indices": [28] }
+    "video_model": {
+        "provider": "local",
+        "local": {
+            "device_allocation": {
+                "mode": "model",
+                "vae_tiling": false,
+                "vae_slicing": true,
+                "attention_slicing": false
+            },
+            "generation_resolution": {
+                "width": 768,
+                "height": 1344
+            },
+            "steps": { "cpu": 8, "cuda": 25 },
+            "stg_scale": 1.5,
+            "audio_stg_scale": 0.0,
+            "guidance_scale": 3.5,
+            "audio_guidance_scale": 5.0,
+            "stg_blocks": { "indices": [28] }
+        }
+    }
 }
 ```
 
