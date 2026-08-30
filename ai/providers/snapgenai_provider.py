@@ -166,7 +166,9 @@ class SnapGenAiProvider:
     run_windows.bat, that browser window is automatically brought to
     the foreground so the user can watch the generation without
     switching to it by hand. Other Chrome windows (for example the
-    one showing the Monki Labs UI) are never touched.
+    one showing the Monki Labs UI) are never touched. After a fully
+    successful generation the same window is minimized again (never
+    closed).
 
     The Chrome profile is persisted across runs so the
     authenticated session/cookies are reused when practical.
@@ -861,11 +863,32 @@ class SnapGenAiProvider:
     ):
 
         # Best-effort OS-level focus for the dedicated SnapGenAI
-        # Chrome instance on Windows. That instance is identified by
-        # the remote debugging port and profile directory that
-        # run_windows.bat passes on the command line, so a normal
-        # Chrome window (for example the one hosting the Monki Labs
-        # UI) can never be matched or focused instead.
+        # Chrome instance on Windows.
+
+        hwnd = (
+            self._dedicated_chrome_window_handle()
+        )
+
+        if not hwnd:
+
+            return
+
+        self._activate_window_handle(
+            hwnd
+        )
+
+    def _dedicated_chrome_window_handle(
+        self
+    ):
+
+        # Resolves the top-level window handle of the dedicated
+        # SnapGenAI Chrome instance on Windows, or None. That
+        # instance is identified by the remote debugging port and
+        # profile directory that run_windows.bat passes on the
+        # command line, so a normal Chrome window (for example the
+        # one hosting the Monki Labs UI) can never be matched.
+        # Shared by the focus and minimize helpers so both always
+        # target the same window.
 
         debug_address = (
             self._debugging_address()
@@ -886,7 +909,7 @@ class SnapGenAiProvider:
 
         if not port or not profile:
 
-            return
+            return None
 
         try:
 
@@ -894,7 +917,7 @@ class SnapGenAiProvider:
 
         except ImportError:
 
-            return
+            return None
 
         target_pids = set()
 
@@ -953,19 +976,57 @@ class SnapGenAiProvider:
 
         if not target_pids:
 
-            return
+            return None
 
-        hwnd = self._find_chrome_window_handle(
+        return self._find_chrome_window_handle(
             target_pids
         )
 
-        if not hwnd:
+    def _minimize_chrome_window(
+        self
+    ):
+
+        # Best-effort OS-level minimize for the dedicated SnapGenAI
+        # Chrome window after a fully successful generation. Only
+        # the instance identified by the remote debugging port and
+        # profile directory is targeted, never other Chrome windows
+        # such as the one showing the Monki Labs UI. The browser
+        # itself is never closed.
+
+        if self._headless():
 
             return
 
-        self._activate_window_handle(
-            hwnd
-        )
+        if os.name != "nt":
+
+            return
+
+        try:
+
+            hwnd = (
+                self._dedicated_chrome_window_handle()
+            )
+
+            if not hwnd:
+
+                return
+
+            import ctypes
+
+            user32 = (
+                ctypes.windll.user32
+            )
+
+            # SW_MINIMIZE = 6
+
+            user32.ShowWindow(
+                int(hwnd),
+                6
+            )
+
+        except Exception:
+
+            pass
 
     def _find_chrome_window_handle(
         self,
@@ -2612,5 +2673,11 @@ class SnapGenAiProvider:
                 f"download {staging_path.name}: "
                 f"{error}"
             )
+
+        # Generation and every post-processing step succeeded.
+        # Minimize the dedicated Chrome window that was used so it
+        # is out of the way, without closing the browser.
+
+        self._minimize_chrome_window()
 
         return cleaned_path
