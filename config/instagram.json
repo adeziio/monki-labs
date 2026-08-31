@@ -9,8 +9,8 @@
         "defaults": {
             "default_hashtags": [
                 "#reels",
-                "ai",
-                "animation"
+                "#ai",
+                "#animation"
             ]
         }
     }
