@@ -25,7 +25,13 @@
         "outer space environments filled with stars, planets, moons, and immense celestial scale",
         "beautiful star fields with layered depth, drifting cosmic particles, and dramatic light",
         "galaxies and colorful nebulae creating surreal celestial landscapes",
-        "dreamlike cosmic environments where familiar landscapes merge with space and celestial phenomena"
+        "dreamlike cosmic environments where familiar landscapes merge with space and celestial phenomena",
+        "futuristic cities and environments with advanced architecture, technology, transportation, and atmospheric depth",
+        "sleek futuristic interiors and structures illuminated by sophisticated artificial lighting",
+        "cyberpunk environments with neon architecture, holographic displays, rain-soaked streets, and glowing reflections",
+        "futuristic landscapes where advanced technology and natural environments exist together",
+        "advanced technological worlds with towering structures, glowing pathways, mechanical details, and dramatic scale",
+        "dreamlike futuristic environments that feel both technologically advanced and visually beautiful"
     ],
     "protagonists": [
         "a visually striking animal in an extraordinary environment",
@@ -76,7 +82,7 @@
             "Build an environment that is visually compelling on its own, then place one clear, identifiable primary subject inside it, acting with purpose.",
             "Give the frame distinctive visual detail: materials, lighting source and quality, atmosphere, and a coherent color and mood palette.",
             "Keep the action simple, legible, and physically coherent so it fits cleanly within one continuous ~8 second shot.",
-            "Let the ENVIRONMENT respond to the subject's action - moving reflections, drifting dust or light, stirring water or fabric, shifting atmosphere - so the setting feels alive.",
+            "Let the ENVIRONMENT respond to the subject's action - moving reflections, drifting dust or light, stirring water or fabric, shifting atmosphere, or subtle technological activity - so the setting feels alive.",
             "Build toward a single satisfying payoff or final image that resolves the setup - more striking than the start, never merely louder or busier.",
             "Include background music direction suited to the scene, layered with natural ambient and audio effects, so the soundtrack feels complete and integrated.",
             "Prioritize the visual moment over storytelling; keep the concept concise and focused, and do not cram many actions into the short runtime."
@@ -87,6 +93,8 @@
             "Let a strongly defined palette and mood carry the scene without relying on verbal or narrative cues.",
             "Create scale, contrast, or atmospheric tension between the subject and its setting to add visual interest.",
             "Use clouds, stars, galaxies, nebulae, celestial light, and cosmic scale when they create a visually exceptional environment.",
+            "Use futuristic technology, advanced architecture, holographic light, neon reflections, mechanical structures, and cyberpunk atmosphere when they create a visually exceptional environment.",
+            "Blend futuristic technology with nature, fantasy, or familiar environments when the combination creates a striking visual contrast.",
             "Describe precisely what is visible, what moves, and where the still lands; use active physical verbs and concrete visual nouns.",
             "Keep the frame to one primary subject. Secondary subjects should be rare and only appear when they materially improve the visual composition.",
             "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
