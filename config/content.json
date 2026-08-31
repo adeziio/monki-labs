@@ -31,7 +31,13 @@
         "cyberpunk environments with neon architecture, holographic displays, rain-soaked streets, and glowing reflections",
         "futuristic landscapes where advanced technology and natural environments exist together",
         "advanced technological worlds with towering structures, glowing pathways, mechanical details, and dramatic scale",
-        "dreamlike futuristic environments that feel both technologically advanced and visually beautiful"
+        "dreamlike futuristic environments that feel both technologically advanced and visually beautiful",
+        "enchanted fantasy forests, magical kingdoms, glowing gardens, and mystical landscapes filled with wonder",
+        "fairy realms with luminous flowers, floating particles, sparkling streams, ancient trees, and magical light",
+        "heavenly environments with glowing clouds, celestial architecture, radiant skies, ethereal landscapes, and peaceful divine atmosphere",
+        "dark infernal environments with volcanic landscapes, ancient ruins, glowing lava, dramatic skies, and supernatural atmosphere",
+        "fantastical worlds where heavenly and infernal elements contrast with beautiful natural landscapes",
+        "magical environments where humans, animals, fairies, mythical beings, and fantastical creatures coexist"
     ],
     "protagonists": [
         "a visually striking animal in an extraordinary environment",
@@ -53,6 +59,14 @@
         "a large terrestrial animal",
         "a prehistoric-inspired creature",
         "a fantastical but believable creature",
+        "a beautiful fairy woman with delicate wings and an enchanting appearance",
+        "a beautiful fairy woman with animal features and delicate wings",
+        "a beautiful human-animal-fairy hybrid with distinctive magical features",
+        "a magical humanoid woman inspired by an unusual animal species",
+        "a beautiful fantasy woman with wings, horns, ears, tails, scales, feathers, or other creature traits",
+        "an angelic or celestial humanoid being with distinctive supernatural features",
+        "a dark supernatural humanoid being with distinctive infernal features",
+        "a mythical humanoid creature combining human and animal characteristics",
         "a distinctive robot or mechanical character",
         "a humanoid cyborg with striking visual features",
         "an unusual machine or robotic creature",
@@ -95,6 +109,9 @@
             "Use clouds, stars, galaxies, nebulae, celestial light, and cosmic scale when they create a visually exceptional environment.",
             "Use futuristic technology, advanced architecture, holographic light, neon reflections, mechanical structures, and cyberpunk atmosphere when they create a visually exceptional environment.",
             "Blend futuristic technology with nature, fantasy, or familiar environments when the combination creates a striking visual contrast.",
+            "Use enchanted forests, fairy realms, magical kingdoms, celestial landscapes, heavenly environments, infernal worlds, and supernatural settings when they create a visually exceptional fantasy environment.",
+            "Use magical light, glowing particles, wings, mystical energy, enchanted plants, celestial illumination, or supernatural atmospheric effects when they naturally enhance the concept.",
+            "Allow fantasy subjects to combine human, animal, fairy, mythical, celestial, or supernatural traits when the combination creates a visually distinctive character.",
             "Describe precisely what is visible, what moves, and where the still lands; use active physical verbs and concrete visual nouns.",
             "Keep the frame to one primary subject. Secondary subjects should be rare and only appear when they materially improve the visual composition.",
             "Treat the music and sound as a score for the scene, matched to the motion and emotion: music, ambient, and effects all built to the one moment.",
@@ -115,10 +132,12 @@
             "Simple, understandable premise."
         ],
         "diversity_guidance": [
-            "Treat protagonist selection as an explicit random choice. Before developing the concept, randomly select one primary subject from the full range of available protagonist types, including mammals, birds, reptiles, amphibians, insects, arachnids, marine life, prehistoric creatures, mythical creatures, unusual creatures, humans, robots, cyborgs, machines, and fantastical creatures.",
+            "Treat protagonist selection as an explicit random choice. Before developing the concept, randomly select one primary subject from the full range of available protagonist types, including mammals, birds, reptiles, amphibians, insects, arachnids, marine life, prehistoric creatures, mythical creatures, unusual creatures, humans, fairy women, human-animal-fairy hybrids, celestial beings, supernatural beings, robots, cyborgs, machines, and fantastical creatures.",
             "Do not select the protagonist by default based on which creature seems most visually appealing, familiar, safe, or easiest to build a concept around. The selected subject should come from broad unpredictable variety, allowing less obvious and unexpected creatures to appear naturally.",
-            "Do not repeatedly favor the same creature or creature category. Randomization should produce genuinely varied protagonist choices rather than repeatedly converging on a small set of visually appealing subjects.",
-            "Choose an environment that naturally fits and complements the selected subject's biome, habitat, nature, or mechanical character.",
+            "Do not repeatedly favor the same creature, humanoid type, or creature category. Randomization should produce genuinely varied protagonist choices rather than repeatedly converging on a small set of visually appealing subjects.",
+            "Fantasy humanoids and hybrid characters should be treated as one part of the larger protagonist pool, not as a default choice.",
+            "When a hybrid character is selected, vary the animal or creature traits unpredictably rather than repeatedly favoring the same species or visual design.",
+            "Choose an environment that naturally fits and complements the selected subject's biome, habitat, nature, mechanical character, or fantasy setting.",
             "Let the subject and environment feel naturally connected while still allowing unexpected and imaginative combinations.",
             "Vary emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
             "Vary shot scale between close-ups and wide establishing shots.",
@@ -132,7 +151,7 @@
             "Beauty, scale, light, and satisfying motion count every bit as much as surprise - aim for an arresting, coherent image rather than a gimmick."
         ],
         "living_subject_rules": [
-            "The main character must be a clearly identifiable primary subject: a person, animal, insect, sea creature, monster, robot, cyborg, or machine.",
+            "The main character must be a clearly identifiable primary subject: a person, animal, insect, sea creature, monster, fairy, humanoid hybrid, celestial being, supernatural being, robot, cyborg, or machine.",
             "Inanimate objects may never be the main character unless they are explicitly designed or depicted as a machine, robot, or artificial character.",
             "When an ordinary inanimate object misbehaves, show a living character noticing or reacting to it.",
             "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
@@ -145,7 +164,7 @@
             "Start directly with: Style: <visual style>, <rest of the paragraph>. Use the exact visual style given in THIS EPISODE'S VISUAL STYLE.",
             "ESTABLISH THE SHOT: open right after Style with shot scale and framing in cinematic terms the model understands (macro close-up, medium two-shot, low-angle wide, over-the-shoulder, shallow depth of field).",
             "SET THE SCENE: establish the lighting source, color palette, surface textures, and atmosphere as the subject acts.",
-            "DEFINE THE CHARACTER: give the primary subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing, mechanical design, or distinctive features - and show emotion through visible physical cues, never abstract labels.",
+            "DEFINE THE CHARACTER: give the primary subject recognizable physical traits in one clause - breed or age, size, markings or hair, clothing, mechanical design, magical traits, hybrid features, or distinctive features - and show emotion through visible physical cues, never abstract labels.",
             "DESCRIBE THE ACTION as a natural chronological sequence flowing from setup to payoff, told through what is visibly happening.",
             "CAMERA: include at most one deliberate camera move, described relative to the subject and its effect on the frame. A static locked shot is equally valid when the moment plays better still.",
             "Use active present-progressive verbs (is walking, is opening), not past tense or passive voice.",
