@@ -11,12 +11,14 @@
     },
     "metadata": {
         "defaults": {
-            "title_suffix": "#shorts",
+            "title_suffix": "",
             "category_id": "24",
             "privacy_status": "public",
             "made_for_kids": false,
             "tags": [
-                "#shorts"
+                "#shorts",
+                "ai",
+                "animation"
             ],
             "description_extra_lines": []
         }

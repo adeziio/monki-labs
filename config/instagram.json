@@ -8,7 +8,9 @@
     "metadata": {
         "defaults": {
             "default_hashtags": [
-                "#reels"
+                "#reels",
+                "ai",
+                "animation"
             ]
         }
     }
