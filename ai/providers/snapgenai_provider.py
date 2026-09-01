@@ -2208,10 +2208,11 @@ class SnapGenAiProvider:
         driver
     ):
 
-        # Waits for the generation to finish by polling the page for
-        # the download button. After a silent settle period (default 2
-        # minutes), it polls at most once per refresh interval until
-        # the download control appears.
+        # Waits for the generation to finish by looking for the
+        # download button once per check interval (default 2
+        # minutes). The page is never refreshed; if the download
+        # is not ready yet, the check simply repeats after the
+        # next interval until the control appears.
 
         timeout = self._seconds(
             "generation_timeout_seconds",
@@ -2220,14 +2221,10 @@ class SnapGenAiProvider:
 
         deadline = time.monotonic() + timeout
 
-        poll_interval = self._seconds(
-            "poll_interval_seconds",
-            3
-        )
-
         # How long to leave the page completely alone right after
-        # submit. Defaults to 2 minutes.
-        refresh_interval = self._seconds(
+        # submit, and how long to wait between download-button
+        # checks afterwards. Defaults to 2 minutes.
+        check_interval = self._seconds(
             "refresh_interval_seconds",
             120
         )
@@ -2246,16 +2243,17 @@ class SnapGenAiProvider:
 
         started_at = time.monotonic()
 
-        # Silent settle: do NOTHING on the page for a full refresh
+        # Silent settle: do NOTHING on the page for a full check
         # interval (default 2 minutes) right after submit. No
         # polling and no refreshing - the page just sits so the
-        # request registers cleanly instead of being reloaded every
-        # second. This also covers any captcha/verification popup
-        # that may have just been clicked past.
+        # request registers cleanly. This also covers any
+        # captcha/verification popup that may have just been
+        # clicked past.
 
         settle_until = (
             started_at
-            + refresh_interval
+            +
+            check_interval
         )
 
         while time.monotonic() < settle_until:
@@ -2279,10 +2277,10 @@ class SnapGenAiProvider:
                 )
             )
 
-        # After the quiet period, poll for the download control.
-        # Refresh the page at most once per refresh interval.
-
-        last_check = started_at
+        # After the quiet period, look for the download control
+        # once per check interval. The page is never refreshed -
+        # if the download is not ready yet, wait another interval
+        # and look again until it appears.
 
         while True:
 
@@ -2319,40 +2317,45 @@ class SnapGenAiProvider:
                     "seconds."
                 )
 
-            # Refresh the page at most once per refresh interval.
-
-            if (
-                time.monotonic() - last_check
-                >= refresh_interval
-            ):
-
-                last_check = time.monotonic()
-
-                try:
-
-                    driver.refresh()
-
-                except WebDriverException:
-
-                    pass
-
             elapsed = int(
                 time.monotonic() - started_at
             )
 
-            if (
-                elapsed
-                and elapsed % 60 < poll_interval
-            ):
-
-                self._notify(
-                    f"Still generating... "
-                    f"({elapsed}s elapsed)"
-                )
-
-            time.sleep(
-                poll_interval
+            self._notify(
+                f"Still generating... "
+                f"({elapsed}s elapsed) - download "
+                "not ready yet, checking again "
+                f"in {check_interval:g} seconds."
             )
+
+            # Sleep until the next check without touching the
+            # page, waking early only if the deadline passes.
+
+            next_check = (
+                time.monotonic()
+                +
+                check_interval
+            )
+
+            while True:
+
+                now = time.monotonic()
+
+                if (
+                    now >= next_check
+                    or
+                    now >= deadline
+                ):
+
+                    break
+
+                time.sleep(
+                    min(
+                        0.5,
+                        next_check - now,
+                        deadline - now
+                    )
+                )
 
     def _snapshot(
         self,
