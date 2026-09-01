@@ -363,6 +363,26 @@ your own creative order, not a rigid template):
 
 Keep the concept short and uncluttered so it fits one continuous shot.
 
+MOTION AND PACING
+
+{duration_seconds:g} seconds is short, so visible movement is what makes
+the video watchable. Start meaningful movement early - ideally within the
+opening moment - and keep visual motion flowing through most of the shot.
+The motion should evolve toward the payoff, whether that means gradually
+accelerating, maintaining speed, changing direction, revealing something,
+or suddenly resolving. When it fits the concept, prefer clear, easily
+readable movement such as traveling, flying, running, falling, chasing,
+transforming, rushing, spinning, environmental motion (water, wind,
+light, particles, fabric, machinery, foliage), or purposeful camera
+movement (push-in, pull-back, tracking, orbiting). Avoid concepts where
+the subject mostly poses or holds still while the seconds pass.
+
+Not every concept needs to be fast. Slow, atmospheric, mysterious, or
+beautiful concepts are equally welcome as long as something meaningful
+moves continuously - through the subject, the environment, or the
+camera. Stillness is a deliberate choice that serves the moment, never
+the default.
+
 PROMPT LENGTH
 
 Write the full "prompt" paragraph in approximately
