@@ -877,7 +877,7 @@ All SnapGenAI settings live in `config/ai_models.json` →
     "debugging_address": "127.0.0.1:9222",
     "pause_min_seconds": 5,
     "pause_max_seconds": 10,
-    "refresh_interval_seconds": 120,
+    "refresh_interval_seconds": 60,
     "aspect_ratio_target": "9:16",
     "aspect_ratio_button_selector": "",
     "aspect_ratio_option_selector": "",
