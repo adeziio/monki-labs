@@ -67,7 +67,9 @@
         "a beautiful animal-fairy hybrid with recognizable traits from both forms",
         "a magical humanoid creature with animal ears, horns, wings, or other distinctive fantasy features",
         "a celestial fantasy being with an elegant humanoid form and otherworldly features",
-        "a human-animal or human-fairy hybrid with attractive, visually distinctive humanoid features"
+        "a human-animal or human-fairy hybrid with attractive, visually distinctive humanoid features",
+        "an animal or creature caught mid-transformation into a human, both forms visible in one striking moment",
+        "a human caught mid-transformation into an animal or creature, both forms visible in one striking moment"
     ],
     "video": {
         "duration_seconds": 8,
@@ -118,7 +120,10 @@
             "Vary visual composition across concepts: centered symmetry, strong foreground framing, leading lines, layered depth, negative space, and immersive close perspectives.",
             "POV option: First-person point of view - render the scene as if the viewer is the primary subject themselves, so what they see, feel, and interact with is experienced from inside their perspective. No external camera, just the POV of the subject living the moment.",
             "Immersion option: An immersive visual journey where the camera continuously flies, travels, or moves through breathtaking magical environments, landscapes, worlds, or scenes. Prioritize immersion, wonder, beauty, scale, and cinematic movement over character-driven story.",
-            "When using POV or immersive options, the visual experience itself is the primary appeal and no traditional plot or narration is needed - just let the environment carry the moment."
+            "When using POV or immersive options, the visual experience itself is the primary appeal and no traditional plot or narration is needed - just let the environment carry the moment.",
+            "Concept direction option: a shapeshifting transformation moment. Pick a clear before form (an animal, creature, or human), one continuous magical transformation beat, and a striking after form (a human, an animal, creature, or another related form). The transformation may run in either direction: animal or creature into human, human into animal or creature, or one form into another.",
+            "Shape the transformation for the ~8 second runtime: establish the before form within the first moments, let the transformation build through the middle of the shot with visible magical motion, and land on the after form as the final striking image of the short.",
+            "Keep every transformation cinematic, surprising, and magical or surreal: glowing light, swirling particles, shimmering energy, morphing silhouettes, blooming feathers or fur, drifting sparkles, or shifting reflections. The result should feel wondrous and beautiful, never gory or disturbing."
         ],
         "creative_priorities": [
             "Immediate visual hook in the first moment.",
@@ -147,7 +152,8 @@
             "Vary emotional registers across concepts: awe, humor, mystery, cuteness, tension, satisfaction.",
             "Vary shot scale between close-ups and wide establishing shots.",
             "Vary visual composition between concepts: symmetry, foreground framing, leading lines, layered depth, negative space, and immersive perspectives.",
-            "Vary pacing: some concepts slow and atmospheric, others fast and surprising."
+            "Vary pacing: some concepts slow and atmospheric, others fast and surprising.",
+            "Treat the shapeshifting transformation direction as one option among many rather than a default: reach for it occasionally, and when it is chosen, vary the direction freely between animal-to-human, human-to-animal, and form-to-form transformations, along with the species, the human appearance, and the transformation style, so no two transformation concepts repeat."
         ],
         "wow_factor_guidance": [
             "Open with a visible image that holds the eye within the first second - through light, shape, atmosphere, color, or a striking subject.",
@@ -159,7 +165,9 @@
             "The main character must be a clearly identifiable primary subject: a person, animal, insect, sea creature, monster, fairy, hybrid creature, robot, cyborg, or machine.",
             "Inanimate objects may never be the main character unless they are explicitly designed or depicted as a machine, robot, or artificial character.",
             "When an ordinary inanimate object misbehaves, show a character noticing or reacting to it.",
-            "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic."
+            "Mutations must stay uncanny and surreal - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic.",
+            "When a subject transforms between animal, creature, or human forms, the transformation must stay magical and surreal - glowing light, particles, morphing silhouettes, or shimmering energy - never gory, bloody, flesh-peeling, organ-exposing, or body-horror graphic.",
+            "A transformation concept must show a clear, recognizable before form and a clearly recognizable, fully distinct after form by the end of the shot, so the before -> transformation -> after moment reads at a glance."
         ],
         "style_rotation": [
             "cinematic storybook 3D animation"
@@ -206,6 +214,7 @@
         "gentle absurdity: one impossible thing treated as completely normal",
         "tension and release: anticipation building to a delightful payoff",
         "impossible coexistence of two worlds in one frame",
-        "a quiet emotional moment in an extraordinary setting"
+        "a quiet emotional moment in an extraordinary setting",
+        "shapeshifting spectacle: a clear before -> transformation -> after moment where an animal or creature becomes human, a human becomes an animal or creature, or one form shifts into another"
     ]
 }
